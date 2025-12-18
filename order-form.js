@@ -1,29 +1,24 @@
 /***********************
- * CSV URLS
+ * GOOGLE SHEETS URLS
  ***********************/
-const CHECK_CUSTOMERS_CSV =
+const CUSTOMER_CHECK_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=2105303643&single=true&output=csv";
 
-const FINTECH_CUSTOMERS_CSV =
+const CUSTOMER_FINTECH_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=799127666&single=true&output=csv";
 
-const PRODUCT_CSV_URL =
+const PRODUCT_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&single=true&output=csv";
 
 /***********************
- * DATA STORES
+ * STATE
  ***********************/
 let customers = { check: [], fintech: [] };
 let products = [];
-
-/***********************
- * APP STATE
- ***********************/
 let state = {
   step: 1,
   customer: {},
-  cart: [],
-  error: ""
+  cart: []
 };
 
 /***********************
@@ -34,259 +29,195 @@ function parseCSV(text) {
   const headers = lines.shift().split(",");
 
   return lines.map(line => {
-    const cols = line.split(",");
+    const values = line.split(",");
     let obj = {};
     headers.forEach((h, i) => {
-      obj[h.trim()] = (cols[i] || "").trim();
+      obj[h.trim()] = (values[i] || "").trim();
     });
     return obj;
   });
 }
 
 /***********************
- * LOAD CUSTOMERS
+ * LOAD DATA
  ***********************/
-function loadCustomers() {
-  fetch(CHECK_CUSTOMERS_CSV)
+function loadData() {
+  fetch(CUSTOMER_CHECK_URL)
     .then(r => r.text())
-    .then(t => {
-      customers.check = parseCSV(t).map(r => ({
-        store: r["Check Customer Name"],
-        address: r["Address"],
-        city: r["City"],
-        state: r["State"],
-        zip: r["Zip"]
-      }));
-    });
+    .then(t => customers.check = parseCSV(t));
 
-  fetch(FINTECH_CUSTOMERS_CSV)
+  fetch(CUSTOMER_FINTECH_URL)
     .then(r => r.text())
-    .then(t => {
-      customers.fintech = parseCSV(t).map(r => ({
-        store: r["Fintech Customer Name"],
-        address: r["Address"],
-        city: r["City"],
-        state: r["State"],
-        zip: r["Zip"]
-      }));
-    });
-}
+    .then(t => customers.fintech = parseCSV(t));
 
-/***********************
- * LOAD PRODUCTS
- ***********************/
-function loadProducts() {
-  fetch(PRODUCT_CSV_URL)
+  fetch(PRODUCT_URL)
     .then(r => r.text())
     .then(t => {
-      products = parseCSV(t).map(p => ({
-        name: p["Product Name"],
-        price: Number(p["Price"]),
-        stock: Number(p["Qty in stock"]),
-        category: p["Category"] || ""
-      }));
+      products = parseCSV(t);
       render();
     });
 }
 
 /***********************
- * CATEGORY HELPERS
+ * CATEGORY DETECTION
  ***********************/
-function getDisplayCategory(category) {
-  const c = category.toLowerCase();
-  if (c.includes("case")) return "Cases";
-  if (c.includes("1/2") || c.includes("1/6")) return "Kegs";
+function getCategory(p) {
+  if (/case/i.test(p.Category)) return "Cases";
+  if (/1\/2|1\/6/i.test(p.Category)) return "Kegs";
   return "Other";
 }
 
-function groupByDisplayCategory(items) {
-  return items.reduce((g, item) => {
-    const d = getDisplayCategory(item.category);
-    if (!g[d]) g[d] = [];
-    g[d].push(item);
-    return g;
-  }, {});
-}
-
 /***********************
- * LIVE TOTAL
- ***********************/
-function updateLiveTotal() {
-  let total = 0;
-
-  products.forEach((p, i) => {
-    const qty = Number(document.getElementById(`q-${i}`)?.value || 0);
-    total += qty * p.price;
-  });
-
-  const el = document.getElementById("live-total");
-  if (el) el.textContent = `Order Total: $${total.toFixed(2)}`;
-}
-
-/***********************
- * RENDER UI
+ * RENDER
  ***********************/
 function render() {
   const el = document.getElementById("form-container");
-  if (!el) return;
   el.innerHTML = "";
 
-  /******** STEP 1 — STORE ********/
+  /******** STEP 1 ********/
   if (state.step === 1) {
     el.innerHTML = `
       <div class="card">
         <h2>Store Information</h2>
-        <input id="store" placeholder="Enter Store Name">
-        ${state.error ? `<p style="color:red;">${state.error}</p>` : ""}
-        <button onclick="validateStore()">Next</button>
+
+        <input id="store" placeholder="Store Name">
+        <input id="contact" placeholder="Contact Name">
+        <input id="email" placeholder="Email">
+
+        <button onclick="nextStep()">Next</button>
       </div>
     `;
   }
 
-  /******** STEP 2 — PRODUCTS ********/
+  /******** STEP 2 ********/
   if (state.step === 2) {
+    let cases = products.filter(p => getCategory(p) === "Cases");
+    let kegs = products.filter(p => getCategory(p) === "Kegs");
+
     el.innerHTML = `<div class="card"><h2>Select Products</h2>`;
-    const grouped = groupByDisplayCategory(products);
 
-    ["Cases", "Kegs"].forEach(cat => {
-      if (!grouped[cat]) return;
+    el.innerHTML += `<h3>Cases</h3><div class="grid">`;
+    cases.forEach(p => productCard(p));
+    el.innerHTML += `</div>`;
 
-      el.innerHTML += `<h3>${cat}</h3><div class="grid">`;
-
-      grouped[cat].forEach(p => {
-        const i = products.indexOf(p);
-        const id = `prod-${i}`;
-
-        el.innerHTML += `
-          <div class="product-card" onclick="toggleQty('${id}')">
-            <div class="product-name">${p.name}</div>
-            <div class="product-meta">$${p.price} · In stock: ${p.stock}</div>
-
-            <div class="qty-box" id="${id}">
-              <label>Quantity</label>
-              <select
-                onclick="event.stopPropagation()"
-                onchange="syncQty('${id}', this.value); updateLiveTotal();"
-              >
-                <option value="">Select</option>
-                ${[...Array(20)].map((_, n) => `<option>${n + 1}</option>`).join("")}
-              </select>
-
-              <input
-                type="number"
-                min="0"
-                placeholder="Custom quantity"
-                onclick="event.stopPropagation()"
-                oninput="syncQty('${id}', this.value); updateLiveTotal();"
-              >
-              <input type="hidden" id="q-${i}" value="0">
-            </div>
-          </div>
-        `;
-      });
-
-      el.innerHTML += `</div>`;
-    });
+    el.innerHTML += `<h3>Kegs</h3><div class="grid">`;
+    kegs.forEach(p => productCard(p));
+    el.innerHTML += `</div>`;
 
     el.innerHTML += `
-      <div id="live-total" style="margin-top:15px;font-weight:bold;">
-        Order Total: $0.00
-      </div>
-      <button onclick="review()">Review Order</button>
+      <div id="live-total">Total: $0.00</div>
+      <button onclick="reviewOrder()">Review Order</button>
     </div>`;
   }
 
-  /******** STEP 3 — REVIEW ********/
+  /******** STEP 3 ********/
   if (state.step === 3) {
     let total = 0;
-    const c = state.customer;
 
     el.innerHTML = `
       <div class="card">
         <h2>Review Order</h2>
+
         <p>
-          <strong>${c.store}</strong><br>
-          ${c.address}<br>
-          ${c.city}, ${c.state} ${c.zip}<br>
-          <strong>Payment Method:</strong> ${c.payment}
+          <strong>${state.customer.store}</strong><br>
+          ${state.customer.contact}<br>
+          ${state.customer.email}<br><br>
+          ${state.customer.address}<br>
+          ${state.customer.city}, ${state.customer.state} ${state.customer.zip}
         </p>
     `;
 
     state.cart.forEach(i => {
-      total += i.price * i.qty;
-      el.innerHTML += `<p>${i.name} × ${i.qty} = $${(i.price * i.qty).toFixed(2)}</p>`;
+      const line = i.qty * i.price;
+      total += line;
+      el.innerHTML += `<p>${i.name} × ${i.qty} = $${line.toFixed(2)}</p>`;
     });
 
     el.innerHTML += `
-      <h3>Total: $${total.toFixed(2)}</h3>
-      <button onclick="submitOrder()">Submit Order (Test)</button>
-    </div>`;
+        <h3>Total: $${total.toFixed(2)}</h3>
+        <button onclick="submitOrder()">Submit Order (Test)</button>
+      </div>
+    `;
   }
 
-  /******** STEP 4 — CONFIRM ********/
+  /******** STEP 4 ********/
   if (state.step === 4) {
     el.innerHTML = `
       <div class="card">
         <h2>Order Submitted</h2>
-        <p>This is test mode. No data has been saved.</p>
+        <p>This is test mode. No data saved.</p>
       </div>
     `;
   }
 }
 
 /***********************
- * UI HELPERS
+ * PRODUCT CARD
  ***********************/
-function toggleQty(id) {
-  const box = document.getElementById(id);
-  const card = box.closest(".product-card");
-  const open = box.style.display === "block";
+function productCard(p) {
+  document.querySelector(".grid:last-of-type").innerHTML += `
+    <div class="product-card" onclick="toggleQty('${p["Product Name"]}')">
+      <div class="product-name">${p["Product Name"]}</div>
+      <div class="product-meta">$${p.Price}</div>
 
-  document.querySelectorAll(".qty-box").forEach(b => {
-    b.style.display = "none";
-    b.closest(".product-card").classList.remove("active");
-  });
-
-  if (!open) {
-    box.style.display = "block";
-    card.classList.add("active");
-  }
-}
-
-function syncQty(id, value) {
-  const index = id.split("-")[1];
-  document.getElementById(`q-${index}`).value = value || 0;
+      <div class="qty-box" id="qty-${p["Product Name"]}">
+        <input type="number" min="0" value="0"
+          onchange="updateTotal()"
+          data-name="${p["Product Name"]}"
+          data-price="${p.Price}">
+      </div>
+    </div>
+  `;
 }
 
 /***********************
- * FLOW CONTROL
+ * INTERACTIONS
  ***********************/
-function validateStore() {
-  const input = document.getElementById("store").value.trim().toLowerCase();
+function toggleQty(id) {
+  const box = document.getElementById("qty-" + id);
+  box.style.display = box.style.display === "block" ? "none" : "block";
+  box.parentElement.classList.toggle("active");
+}
 
-  const c1 = customers.check.find(c => c.store?.toLowerCase() === input);
-  const c2 = customers.fintech.find(c => c.store?.toLowerCase() === input);
+function updateTotal() {
+  let total = 0;
+  document.querySelectorAll(".qty-box input").forEach(i => {
+    total += Number(i.value) * Number(i.dataset.price);
+  });
+  document.getElementById("live-total").innerText =
+    `Total: $${total.toFixed(2)}`;
+}
 
-  if (c1) state.customer = { ...c1, payment: "Check" };
-  else if (c2) state.customer = { ...c2, payment: "Fintech" };
-  else {
-    state.error = "Store not found. Please check spelling.";
-    render();
-    return;
-  }
-
-  state.error = "";
+function nextStep() {
+  state.customer = {
+    store: document.getElementById("store").value,
+    contact: document.getElementById("contact").value,
+    email: document.getElementById("email").value,
+    address: "",
+    city: "",
+    state: "",
+    zip: ""
+  };
   state.step = 2;
   render();
 }
 
-function review() {
-  state.cart = products
-    .map((p, i) => ({
-      ...p,
-      qty: Number(document.getElementById(`q-${i}`).value)
-    }))
-    .filter(i => i.qty > 0);
+function reviewOrder() {
+  state.cart = [];
+  document.querySelectorAll(".qty-box input").forEach(i => {
+    if (Number(i.value) > 0) {
+      state.cart.push({
+        name: i.dataset.name,
+        qty: Number(i.value),
+        price: Number(i.dataset.price)
+      });
+    }
+  });
+
+  if (state.cart.length === 0) {
+    alert("Please select at least one product.");
+    return;
+  }
 
   state.step = 3;
   render();
@@ -300,6 +231,4 @@ function submitOrder() {
 /***********************
  * INIT
  ***********************/
-loadCustomers();
-loadProducts();
-render();
+loadData();
