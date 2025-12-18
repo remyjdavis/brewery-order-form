@@ -1,23 +1,55 @@
-body {
-  font-family: Arial, sans-serif;
-  background: #f4f4f4;
-  margin: 0;
-  padding: 10px;
+* {
+  box-sizing: border-box;
 }
 
-h1 {
-  text-align: center;
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f4f6f8;
+  color: #222;
+}
+
+.site-header {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  padding: 20px;
+  background: #ffffff;
+  border-bottom: 3px solid #b38b2d;
+}
+
+.logo {
+  width: 120px;
+}
+
+.brewery-info h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.brewery-info p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+.sales {
+  font-size: 13px;
+  color: #444;
 }
 
 .card {
   background: #fff;
-  padding: 20px;
-  max-width: 1000px;
-  margin: 15px auto;
+  max-width: 1100px;
+  margin: 20px auto;
+  padding: 24px;
   border-radius: 8px;
 }
 
-input, button {
+h2 {
+  margin-top: 0;
+}
+
+input, select, button {
   width: 100%;
   padding: 10px;
   margin-top: 10px;
@@ -25,24 +57,29 @@ input, button {
 }
 
 button {
-  background: #1f7a3f;
+  background: #b38b2d;
   color: white;
   border: none;
+  border-radius: 6px;
   cursor: pointer;
-  border-radius: 4px;
+}
+
+button.secondary {
+  background: #666;
 }
 
 button:hover {
-  background: #166030;
+  opacity: 0.9;
 }
 
+/* PRODUCT GRID */
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 15px;
 }
 
-@media (min-width: 700px) {
+@media (min-width: 768px) {
   .grid {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -50,41 +87,39 @@ button:hover {
 
 .product-card {
   border: 1px solid #ddd;
-  padding: 12px;
+  padding: 14px;
   border-radius: 6px;
   background: #fafafa;
 }
 
-.product-name {
-  font-weight: bold;
+.product-card strong {
+  display: block;
+  margin-bottom: 6px;
 }
 
-.qty-input {
+.qty {
   margin-top: 8px;
 }
 
-#live-total {
-  margin-top: 15px;
-  font-weight: bold;
-}
-
+/* REVIEW TABLE */
 .review-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 15px;
+  margin-top: 20px;
 }
 
 .review-table th,
 .review-table td {
-  border: 1px solid #ccc;
-  padding: 8px;
+  border-bottom: 1px solid #ddd;
+  padding: 10px;
   text-align: left;
 }
 
-.review-table th {
-  background: #eee;
+.review-summary {
+  margin-top: 20px;
+  text-align: right;
 }
 
 hr {
-  margin: 20px 0;
+  margin: 30px 0;
 }
