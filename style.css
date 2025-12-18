@@ -1,123 +1,99 @@
-/* ===============================
-   GLOBAL RESET
-   =============================== */
+/* ---------- BASE ---------- */
 * {
   box-sizing: border-box;
 }
 
-html,
 body {
   margin: 0;
-  padding: 0;
-  background: #f4f6f8;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Roboto, Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  background: #f5f5f5;
   color: #222;
 }
 
-/* ===============================
-   BREWERY HEADER
-   =============================== */
-.header {
+/* ---------- HEADER ---------- */
+.site-header {
   background: #ffffff;
-  border-bottom: 4px solid #006b3f;
-  padding: 18px 16px;
+  border-bottom: 1px solid #ddd;
+  padding: 14px 16px;
 }
 
-.header-inner {
-  max-width: 960px;
+.site-header-inner {
+  max-width: 1100px;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: 120px 1fr;
-  gap: 20px;
+  display: flex;
   align-items: center;
+  gap: 14px;
 }
 
-.header img {
-  max-width: 100%;
-  height: auto;
+.site-header img {
+  height: 40px;
 }
 
-.header-info h1 {
+.site-header h1 {
+  font-size: 18px;
   margin: 0;
-  font-size: 26px;
-  font-weight: 700;
+  font-weight: 600;
+  line-height: 1.2;
 }
 
-.header-info p {
-  margin: 4px 0;
-  font-size: 14px;
+.site-header .meta {
+  font-size: 12px;
   color: #555;
 }
 
-/* ===============================
-   MAIN LAYOUT
-   =============================== */
-#form-container {
-  max-width: 960px;
-  margin: 20px auto;
-  padding: 10px;
-}
-
-/* ===============================
-   CARD
-   =============================== */
+/* ---------- CARDS ---------- */
 .card {
-  background: #ffffff;
+  background: #fff;
   border-radius: 10px;
-  padding: 22px;
-  margin-bottom: 20px;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  max-width: 1100px;
+  margin: 20px auto;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.05);
 }
 
-/* ===============================
-   INPUTS
-   =============================== */
+h2 {
+  margin-top: 0;
+  font-size: 20px;
+}
+
+/* ---------- INPUTS ---------- */
 input[type="text"],
-input[type="number"],
-select {
+input[type="number"] {
   width: 100%;
-  padding: 12px 14px;
-  font-size: 16px;
+  padding: 10px 12px;
+  font-size: 15px;
   border-radius: 6px;
   border: 1px solid #ccc;
-  margin-top: 10px;
 }
 
-input:focus {
-  outline: none;
-  border-color: #006b3f;
-  box-shadow: 0 0 0 2px rgba(0, 107, 63, 0.15);
+/* ---------- AUTOCOMPLETE ---------- */
+#autocomplete-root {
+  position: absolute;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  z-index: 9999;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+  display: none;
+  max-height: 240px;
+  overflow-y: auto;
 }
 
-/* ===============================
-   BUTTONS
-   =============================== */
-button {
-  margin-top: 20px;
-  padding: 14px 18px;
-  font-size: 16px;
-  font-weight: 600;
-  background: #006b3f;
-  color: white;
-  border: none;
-  border-radius: 8px;
+.autocomplete-item {
+  padding: 10px 12px;
   cursor: pointer;
-  width: 100%;
 }
 
-button:hover {
-  background: #005636;
+.autocomplete-item:hover {
+  background: #f0f0f0;
 }
 
-/* ===============================
-   PRODUCT GRID (FIXED)
-   =============================== */
+/* ---------- PRODUCT GRID ---------- */
 .grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
-  margin-top: 15px;
+  margin-top: 16px;
 }
 
 .product-card {
@@ -128,110 +104,59 @@ button:hover {
 }
 
 .product-name {
-  font-weight: 700;
-  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 4px;
 }
 
 .product-meta {
   font-size: 13px;
   color: #555;
-  margin-top: 4px;
+  margin-bottom: 10px;
 }
 
-.product-card input {
-  margin-top: 10px;
+/* ---------- BUTTONS ---------- */
+button {
+  margin-top: 20px;
+  padding: 12px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  background: #222;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
-/* ===============================
-   REVIEW TABLE
-   =============================== */
-table {
+button:hover {
+  background: #000;
+}
+
+/* ---------- TABLE ---------- */
+.review-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 15px;
+  margin-top: 20px;
 }
 
-th,
-td {
+.review-table th,
+.review-table td {
   padding: 10px;
+  border-bottom: 1px solid #ddd;
   text-align: left;
 }
 
-th {
-  background: #f0f0f0;
-  font-weight: 600;
-}
-
-tr:nth-child(even) {
-  background: #fafafa;
-}
-
-/* ===============================
-   TOTALS
-   =============================== */
-.summary-line {
-  display: flex;
-  justify-content: space-between;
-  padding: 6px 0;
-}
-
-.summary-line.total {
-  font-size: 20px;
-  font-weight: 700;
-  margin-top: 10px;
-}
-
-/* ===============================
-   AUTOCOMPLETE (SAFARI SAFE)
-   =============================== */
-#autocomplete-root {
-  position: fixed;
-  background: #ffffff;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  z-index: 999999;
-  max-height: 260px;
-  overflow-y: auto;
-  display: none;
-}
-
-.autocomplete-item {
-  padding: 12px 14px;
-  cursor: pointer;
-  font-size: 15px;
-}
-
-.autocomplete-item:hover {
-  background: #f2f2f2;
-}
-
-/* ===============================
-   AGREEMENT
-   =============================== */
-.agreement {
-  margin-top: 16px;
-  font-size: 14px;
-}
-
-/* ===============================
-   MOBILE OPTIMIZATION
-   =============================== */
-@media (max-width: 768px) {
-  .header-inner {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
-
+/* ---------- MOBILE ---------- */
+@media (max-width: 640px) {
   .grid {
     grid-template-columns: 1fr;
   }
 
-  .card {
-    padding: 16px;
+  .site-header-inner {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
-  button {
-    font-size: 15px;
+  .site-header h1 {
+    font-size: 16px;
   }
 }
