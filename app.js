@@ -1,8 +1,9 @@
 const PRODUCTS = [
-  { id: "BEER001", name: "Pale Ale – Case (24)", prepaid: 45, invoice: 50 },
-  { id: "BEER002", name: "IPA – Case (24)", prepaid: 50, invoice: 55 },
-  { id: "BEER003", name: "Lager – Keg (50L)", prepaid: 120, invoice: 130 }
+  { id: "BEER001", name: "Pale Ale – Case (24)", check: 45, fintech: 50 },
+  { id: "BEER002", name: "IPA – Case (24)", check: 50, fintech: 55 },
+  { id: "BEER003", name: "Lager – Keg (50L)", check: 120, fintech: 130 }
 ];
+
 
 let state = {
   step: 1,
