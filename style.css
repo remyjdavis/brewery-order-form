@@ -13,23 +13,19 @@ body {
 }
 
 button {
-  padding: 12px;
   width: 100%;
+  padding: 12px;
+  font-size: 16px;
   background: #2c6e49;
-  color: #fff;
+  color: white;
   border: none;
   border-radius: 4px;
-  font-size: 16px;
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 15px;
-}
-
-@media (min-width: 1100px) {
-  .grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 768px) {
@@ -40,13 +36,8 @@ button {
   border: 1px solid #ddd;
   border-radius: 6px;
   padding: 14px;
-  cursor: pointer;
   background: #fafafa;
-}
-
-.product-card.active {
-  border-color: #2c6e49;
-  background: #eef7f1;
+  cursor: pointer;
 }
 
 .product-name {
@@ -68,18 +59,43 @@ button {
   padding: 8px;
 }
 
-.product-card.out {
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-.out-label {
-  color: red;
-  font-weight: bold;
-}
-
 #live-total {
   margin-top: 15px;
-  font-weight: bold;
   font-size: 18px;
+  font-weight: bold;
+}
+
+.review-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.review-table th,
+.review-table td {
+  border-bottom: 1px solid #ddd;
+  padding: 10px;
+}
+
+.review-table th {
+  background: #f0f0f0;
+}
+
+.summary {
+  margin-top: 20px;
+  max-width: 400px;
+  margin-left: auto;
+}
+
+.summary div {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+}
+
+.grand-total {
+  font-size: 18px;
+  font-weight: bold;
+  border-top: 2px solid #000;
+  padding-top: 10px;
 }
