@@ -47,7 +47,7 @@ function render() {
   const el = document.getElementById("form-container");
   el.innerHTML = "";
 
-  /* STEP 1 */
+  /* STEP 1 — FULL WIDTH SEARCH */
   if (state.step === 1) {
     el.innerHTML = `
       <div class="card">
@@ -64,7 +64,7 @@ function render() {
       .addEventListener("input", handleAutocomplete);
   }
 
-  /* STEP 2 */
+  /* STEP 2 — FULL WIDTH GRID */
   if (state.step === 2) {
     el.innerHTML = `
       <div class="card">
@@ -106,7 +106,7 @@ async function handleAutocomplete(e) {
 
   box.style.display = "block";
 
-  box.onclick = (ev) => {
+  box.onclick = ev => {
     const item = ev.target.closest(".autocomplete-item");
     if (!item) return;
     state.customer = results[item.dataset.index];
@@ -115,7 +115,7 @@ async function handleAutocomplete(e) {
   };
 }
 
-/* ---------- REVIEW (TEMP CONFIRM) ---------- */
+/* ---------- REVIEW PLACEHOLDER ---------- */
 function review() {
   state.cart = products.map((p, i) => ({
     ...p,
@@ -127,7 +127,7 @@ function review() {
     return;
   }
 
-  alert("Customer + product grid working correctly.");
+  alert("Layout confirmed. Ready for review page.");
 }
 
 /* ---------- INIT ---------- */
