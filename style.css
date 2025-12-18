@@ -1,6 +1,13 @@
 body {
   font-family: Arial, sans-serif;
   background: #f5f5f5;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  text-align: center;
+  margin-top: 20px;
 }
 
 .card {
@@ -11,14 +18,45 @@ body {
   margin: 20px auto;
 }
 
+h2 {
+  margin-top: 0;
+}
+
 h3 {
   margin-top: 30px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
 }
+
+button {
+  padding: 10px 18px;
+  background: #2c6e49;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+button:hover {
+  background: #245a3c;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 10px;
+  box-sizing: border-box;
+}
+
+/* PRODUCT GRID */
 
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 15px;
+  margin-top: 10px;
 }
 
 .product-card {
@@ -35,6 +73,11 @@ h3 {
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
+.product-card.active {
+  border-color: #2c6e49;
+  background: #eef7f1;
+}
+
 .product-name {
   font-weight: bold;
 }
@@ -48,6 +91,10 @@ h3 {
 .qty-box {
   margin-top: 10px;
   display: none;
+}
+
+.qty-box label {
+  font-size: 13px;
 }
 
 .qty-box select,
