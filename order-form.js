@@ -83,10 +83,34 @@ function loadProducts() {
         name: p["Product Name"],
         price: Number(p["Price"]),
         stock: Number(p["Qty in stock"]),
-        category: p["Category"]
+        category: p["Category"] || ""
       }));
       render();
     });
+}
+
+/***********************
+ * CATEGORY CLASSIFIER
+ ***********************/
+function getDisplayCategory(category) {
+  const c = category.toLowerCase();
+
+  if (c.includes("case")) return "Cases";
+  if (c.includes("1/2") || c.includes("1/6")) return "Kegs";
+
+  return "Other";
+}
+
+/***********************
+ * GROUP PRODUCTS
+ ***********************/
+function groupByDisplayCategory(items) {
+  return items.reduce((groups, item) => {
+    const display = getDisplayCategory(item.category);
+    if (!groups[display]) groups[display] = [];
+    groups[display].push(item);
+    return groups;
+  }, {});
 }
 
 /***********************
@@ -113,16 +137,25 @@ function render() {
   if (state.step === 2) {
     el.innerHTML = `<div class="card"><h2>Select Products</h2>`;
 
-    products.forEach((p, i) => {
-      el.innerHTML += `
-        <div class="product">
-          <div>
-            <strong>${p.name}</strong><br>
-            Price: $${p.price} · In stock: ${p.stock}
+    const grouped = groupByDisplayCategory(products);
+
+    ["Cases", "Kegs"].forEach(cat => {
+      if (!grouped[cat]) return;
+
+      el.innerHTML += `<h3 style="margin-top:20px;">${cat}</h3>`;
+
+      grouped[cat].forEach(p => {
+        const index = products.indexOf(p);
+        el.innerHTML += `
+          <div class="product">
+            <div>
+              <strong>${p.name}</strong><br>
+              Price: $${p.price} · In stock: ${p.stock}
+            </div>
+            <input type="number" min="0" id="q-${index}" placeholder="Qty">
           </div>
-          <input type="number" min="0" id="q-${i}" placeholder="Qty">
-        </div>
-      `;
+        `;
+      });
     });
 
     el.innerHTML += `<button onclick="review()">Review Order</button></div>`;
