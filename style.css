@@ -16,21 +16,46 @@ body {
 }
 
 /* ===============================
-   PAGE HEADER
+   BREWERY HEADER
    =============================== */
-h1 {
-  text-align: center;
-  margin: 24px 0 10px;
-  font-size: 28px;
+.header {
+  background: #ffffff;
+  border-bottom: 4px solid #006b3f;
+  padding: 18px 16px;
+}
+
+.header-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 20px;
+  align-items: center;
+}
+
+.header img {
+  max-width: 100%;
+  height: auto;
+}
+
+.header-info h1 {
+  margin: 0;
+  font-size: 26px;
   font-weight: 700;
 }
 
+.header-info p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #555;
+}
+
 /* ===============================
-   LAYOUT
+   MAIN LAYOUT
    =============================== */
 #form-container {
   max-width: 960px;
-  margin: 0 auto;
+  margin: 20px auto;
   padding: 10px;
 }
 
@@ -85,37 +110,36 @@ button:hover {
   background: #005636;
 }
 
-button:disabled {
-  background: #aaa;
-  cursor: not-allowed;
-}
-
 /* ===============================
-   PRODUCT LIST
+   PRODUCT GRID (FIXED)
    =============================== */
-.product-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid #eee;
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 15px;
 }
 
-.product-row:last-child {
-  border-bottom: none;
+.product-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 14px;
+  background: #fafafa;
 }
 
 .product-name {
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 15px;
 }
 
-.product-price {
+.product-meta {
+  font-size: 13px;
   color: #555;
-  font-size: 14px;
+  margin-top: 4px;
 }
 
-.product-row input {
-  width: 80px;
+.product-card input {
+  margin-top: 10px;
 }
 
 /* ===============================
@@ -158,7 +182,7 @@ tr:nth-child(even) {
 }
 
 /* ===============================
-   AUTOCOMPLETE (CRITICAL)
+   AUTOCOMPLETE (SAFARI SAFE)
    =============================== */
 #autocomplete-root {
   position: fixed;
@@ -190,26 +214,21 @@ tr:nth-child(even) {
   font-size: 14px;
 }
 
-.agreement input {
-  margin-right: 8px;
-}
-
 /* ===============================
    MOBILE OPTIMIZATION
    =============================== */
 @media (max-width: 768px) {
-  h1 {
-    font-size: 22px;
+  .header-inner {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
   }
 
   .card {
     padding: 16px;
-  }
-
-  table th,
-  table td {
-    font-size: 14px;
-    padding: 8px;
   }
 
   button {
