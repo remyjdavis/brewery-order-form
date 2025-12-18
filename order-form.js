@@ -27,7 +27,7 @@ let state = {
 };
 
 /***********************
- * CSV PARSER
+ * CSV PARSER (SAFARI SAFE)
  ***********************/
 function parseCSV(text) {
   const lines = text.trim().split("\n");
@@ -109,14 +109,29 @@ function groupByDisplayCategory(items) {
 }
 
 /***********************
- * RENDER
+ * LIVE TOTAL
+ ***********************/
+function updateLiveTotal() {
+  let total = 0;
+
+  products.forEach((p, i) => {
+    const qty = Number(document.getElementById(`q-${i}`)?.value || 0);
+    total += qty * p.price;
+  });
+
+  const el = document.getElementById("live-total");
+  if (el) el.textContent = `Order Total: $${total.toFixed(2)}`;
+}
+
+/***********************
+ * RENDER UI
  ***********************/
 function render() {
   const el = document.getElementById("form-container");
   if (!el) return;
   el.innerHTML = "";
 
-  /** STEP 1 **/
+  /******** STEP 1 — STORE ********/
   if (state.step === 1) {
     el.innerHTML = `
       <div class="card">
@@ -128,13 +143,14 @@ function render() {
     `;
   }
 
-  /** STEP 2 **/
+  /******** STEP 2 — PRODUCTS ********/
   if (state.step === 2) {
     el.innerHTML = `<div class="card"><h2>Select Products</h2>`;
     const grouped = groupByDisplayCategory(products);
 
     ["Cases", "Kegs"].forEach(cat => {
       if (!grouped[cat]) return;
+
       el.innerHTML += `<h3>${cat}</h3><div class="grid">`;
 
       grouped[cat].forEach(p => {
@@ -148,7 +164,10 @@ function render() {
 
             <div class="qty-box" id="${id}">
               <label>Quantity</label>
-              <select onclick="event.stopPropagation()" onchange="syncQty('${id}', this.value)">
+              <select
+                onclick="event.stopPropagation()"
+                onchange="syncQty('${id}', this.value); updateLiveTotal();"
+              >
                 <option value="">Select</option>
                 ${[...Array(20)].map((_, n) => `<option>${n + 1}</option>`).join("")}
               </select>
@@ -158,7 +177,7 @@ function render() {
                 min="0"
                 placeholder="Custom quantity"
                 onclick="event.stopPropagation()"
-                oninput="syncQty('${id}', this.value)"
+                oninput="syncQty('${id}', this.value); updateLiveTotal();"
               >
               <input type="hidden" id="q-${i}" value="0">
             </div>
@@ -169,10 +188,15 @@ function render() {
       el.innerHTML += `</div>`;
     });
 
-    el.innerHTML += `<button onclick="review()">Review Order</button></div>`;
+    el.innerHTML += `
+      <div id="live-total" style="margin-top:15px;font-weight:bold;">
+        Order Total: $0.00
+      </div>
+      <button onclick="review()">Review Order</button>
+    </div>`;
   }
 
-  /** STEP 3 **/
+  /******** STEP 3 — REVIEW ********/
   if (state.step === 3) {
     let total = 0;
     const c = state.customer;
@@ -190,16 +214,16 @@ function render() {
 
     state.cart.forEach(i => {
       total += i.price * i.qty;
-      el.innerHTML += `<p>${i.name} × ${i.qty} = $${i.price * i.qty}</p>`;
+      el.innerHTML += `<p>${i.name} × ${i.qty} = $${(i.price * i.qty).toFixed(2)}</p>`;
     });
 
     el.innerHTML += `
-      <h3>Total: $${total}</h3>
+      <h3>Total: $${total.toFixed(2)}</h3>
       <button onclick="submitOrder()">Submit Order (Test)</button>
     </div>`;
   }
 
-  /** STEP 4 **/
+  /******** STEP 4 — CONFIRM ********/
   if (state.step === 4) {
     el.innerHTML = `
       <div class="card">
@@ -211,7 +235,7 @@ function render() {
 }
 
 /***********************
- * HELPERS
+ * UI HELPERS
  ***********************/
 function toggleQty(id) {
   const box = document.getElementById(id);
@@ -235,7 +259,7 @@ function syncQty(id, value) {
 }
 
 /***********************
- * FLOW
+ * FLOW CONTROL
  ***********************/
 function validateStore() {
   const input = document.getElementById("store").value.trim().toLowerCase();
