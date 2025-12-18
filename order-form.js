@@ -11,93 +11,73 @@ let state = {
 };
 
 function render() {
-  const el = document.getElementById("form-container");
+  var el = document.getElementById("form-container");
   el.innerHTML = "";
 
-  // STEP 1 — Store Info
   if (state.step === 1) {
-    el.innerHTML = `
-      <div class="card">
-        <h2>Store Information</h2>
-
-        <input id="store" placeholder="Store Name">
-        <input id="contact" placeholder="Contact Name">
-        <input id="email" placeholder="Email">
-
-        <label>Payment Method</label>
-        <select id="payment">
-          <option value="check">Check</option>
-          <option value="fintech">Fintech</option>
-        </select>
-
-        <p style="font-size:12px;color:#666;margin-top:4px;">
-          Fintech = electronic payment (Beer30, Encompass, etc.)
-        </p>
-
-        <button onclick="nextStep()">Next</button>
-      </div>
-    `;
+    el.innerHTML =
+      '<div class="card">' +
+        '<h2>Store Information</h2>' +
+        '<input id="store" placeholder="Store Name">' +
+        '<input id="contact" placeholder="Contact Name">' +
+        '<input id="email" placeholder="Email">' +
+        '<label>Payment Method</label>' +
+        '<select id="payment">' +
+          '<option value="check">Check</option>' +
+          '<option value="fintech">Fintech</option>' +
+        '</select>' +
+        '<p style="font-size:12px;color:#666;margin-top:4px;">' +
+          'Fintech = electronic payment (Beer30, Encompass, etc.)' +
+        '</p>' +
+        '<button onclick="nextStep()">Next</button>' +
+      '</div>';
   }
 
-  // STEP 2 — Products
   if (state.step === 2) {
-    el.innerHTML = `<div class="card"><h2>Select Products</h2>`;
+    el.innerHTML = '<div class="card"><h2>Select Products</h2>';
 
-    PRODUCTS.forEach(p => {
-      el.innerHTML += `
-        <div class="product">
-          <div>${p.name}</div>
-          <input type="number" min="0" id="q-${p.id}" placeholder="Qty">
-        </div>
-      `;
+    PRODUCTS.forEach(function(p) {
+      el.innerHTML +=
+        '<div class="product">' +
+          '<div>' + p.name + '</div>' +
+          '<input type="number" min="0" id="q-' + p.id + '" placeholder="Qty">' +
+        '</div>';
     });
 
-    el.innerHTML += `
-        <button onclick="review()">Review Order</button>
-      </div>
-    `;
+    el.innerHTML += '<button onclick="review()">Review Order</button></div>';
   }
 
-  // STEP 3 — Review
   if (state.step === 3) {
-    let total = 0;
+    var total = 0;
 
-    el.innerHTML = `
-      <div class="card">
-        <h2>Review Order</h2>
+    el.innerHTML =
+      '<div class="card">' +
+        '<h2>Review Order</h2>' +
+        '<p><strong>' + state.customer.store + '</strong><br>' +
+          state.customer.contact + '<br>' +
+          state.customer.email + '<br>' +
+          'Payment: ' + state.customer.payment +
+        '</p>';
 
-        <p>
-          <strong>${state.customer.store}</strong><br>
-          ${state.customer.contact}<br>
-          ${state.customer.email}<br>
-          Payment: ${state.customer.payment}
-        </p>
-    `;
-
-    state.cart.forEach(i => {
-      const price = state.customer.payment === "check" ? i.check : i.fintech;
+    state.cart.forEach(function(i) {
+      var price = state.customer.payment === "check" ? i.check : i.fintech;
       total += price * i.qty;
-
-      el.innerHTML += `
-        <p>${i.name} x ${i.qty} = $${price * i.qty}</p>
-      `;
+      el.innerHTML +=
+        '<p>' + i.name + ' x ' + i.qty + ' = $' + (price * i.qty) + '</p>';
     });
 
-    el.innerHTML += `
-        <h3>Total: $${total}</h3>
-        <button onclick="submitOrder()">Submit Order (Test)</button>
-      </div>
-    `;
+    el.innerHTML +=
+        '<h3>Total: $' + total + '</h3>' +
+        '<button onclick="submitOrder()">Submit Order (Test)</button>' +
+      '</div>';
   }
 
-  // STEP 4 — Confirmation
   if (state.step === 4) {
-    el.innerHTML = `
-      <div class="card">
-        <h2>Order Submitted</h2>
-        <p>This is test mode. No data has been saved.</p>
-      </div>
-    `;
+    el.innerHTML =
+      '<div class="card">' +
+        '<h2>Order Submitted</h2>' +
+        '<p>This is test mode. No data has been saved.</p>' +
+      '</div>';
   }
 }
 
@@ -108,18 +88,22 @@ function nextStep() {
     email: document.getElementById("email").value,
     payment: document.getElementById("payment").value
   };
-
   state.step = 2;
   render();
 }
 
 function review() {
-  state.cart = PRODUCTS
-    .map(p => ({
-      ...p,
-      qty: Number(document.getElementById(`q-${p.id}`).value)
-    }))
-    .filter(i => i.qty > 0);
+  state.cart = PRODUCTS.map(function(p) {
+    return {
+      id: p.id,
+      name: p.name,
+      check: p.check,
+      fintech: p.fintech,
+      qty: Number(document.getElementById("q-" + p.id).value)
+    };
+  }).filter(function(i) {
+    return i.qty > 0;
+  });
 
   state.step = 3;
   render();
