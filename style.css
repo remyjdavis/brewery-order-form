@@ -5,16 +5,35 @@ body {
   padding: 10px;
 }
 
+h1 {
+  text-align: center;
+}
+
 .card {
   background: #fff;
   padding: 20px;
-  border-radius: 8px;
   max-width: 1000px;
-  margin: auto;
+  margin: 15px auto;
+  border-radius: 8px;
 }
 
-h2, h3 {
-  margin-top: 0;
+input, button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  font-size: 16px;
+}
+
+button {
+  background: #1f7a3f;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+button:hover {
+  background: #166030;
 }
 
 .grid {
@@ -23,7 +42,7 @@ h2, h3 {
   gap: 15px;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 700px) {
   .grid {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -31,54 +50,41 @@ h2, h3 {
 
 .product-card {
   border: 1px solid #ddd;
-  border-radius: 6px;
   padding: 12px;
-  cursor: pointer;
+  border-radius: 6px;
   background: #fafafa;
-}
-
-.product-card:hover {
-  border-color: #999;
 }
 
 .product-name {
   font-weight: bold;
 }
 
-.product-meta {
-  font-size: 13px;
-  color: #555;
+.qty-input {
+  margin-top: 8px;
 }
 
-.qty-box {
-  display: none;
-  margin-top: 10px;
+#live-total {
+  margin-top: 15px;
+  font-weight: bold;
 }
 
-.qty-box input {
-  width: 100%;
-  padding: 6px;
-}
-
-.total-box {
-  margin-top: 20px;
-  font-size: 16px;
-}
-
-table {
+.review-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 15px;
 }
 
-th, td {
-  border-bottom: 1px solid #ddd;
+.review-table th,
+.review-table td {
+  border: 1px solid #ccc;
   padding: 8px;
   text-align: left;
 }
 
-.summary {
-  margin-top: 20px;
-  text-align: right;
-  font-size: 16px;
+.review-table th {
+  background: #eee;
+}
+
+hr {
+  margin: 20px 0;
 }
