@@ -1,19 +1,20 @@
 /***********************
- * PRODUCT CATALOG
+ * CSV URLS
  ***********************/
-const PRODUCTS = [
-  { id: "BEER001", name: "Pale Ale – Case (24)", check: 45, fintech: 50 },
-  { id: "BEER002", name: "IPA – Case (24)", check: 50, fintech: 55 },
-  { id: "BEER003", name: "Lager – Keg (50L)", check: 120, fintech: 130 }
-];
+const CHECK_CUSTOMERS_CSV =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=2105303643&single=true&output=csv";
+
+const FINTECH_CUSTOMERS_CSV =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=799127666&single=true&output=csv";
+
+const PRODUCT_CSV_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&single=true&output=csv";
 
 /***********************
- * CUSTOMER DATA
+ * DATA STORES
  ***********************/
-let customers = {
-  check: [],
-  fintech: []
-};
+let customers = { check: [], fintech: [] };
+let products = [];
 
 /***********************
  * APP STATE
@@ -28,51 +29,63 @@ let state = {
 /***********************
  * CSV PARSER
  ***********************/
-function parseCSV(text, nameHeader) {
+function parseCSV(text) {
   const lines = text.trim().split("\n");
   const headers = lines.shift().split(",");
 
-  const idx = header =>
-    headers.findIndex(h => h.trim() === header);
-
-  const nameIndex = idx(nameHeader);
-  const addressIndex = idx("Address");
-  const cityIndex = idx("City");
-  const stateIndex = idx("State");
-  const zipIndex = idx("Zip");
-
-  if (nameIndex === -1) return [];
-
-  return lines
-    .map(line => {
-      const cols = line.split(",");
-      return {
-        store: (cols[nameIndex] || "").trim(),
-        address: (cols[addressIndex] || "").trim(),
-        city: (cols[cityIndex] || "").trim(),
-        state: (cols[stateIndex] || "").trim(),
-        zip: (cols[zipIndex] || "").trim()
-      };
-    })
-    .filter(r => r.store);
+  return lines.map(line => {
+    const cols = line.split(",");
+    let obj = {};
+    headers.forEach((h, i) => {
+      obj[h.trim()] = (cols[i] || "").trim();
+    });
+    return obj;
+  });
 }
 
 /***********************
- * LOAD CUSTOMERS (AUTO-SYNC)
+ * LOAD CUSTOMERS
  ***********************/
 function loadCustomers() {
-  // CHECK customers
-  fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=2105303643&single=true&output=csv")
-    .then(res => res.text())
-    .then(text => {
-      customers.check = parseCSV(text, "Check Customer Name");
+  fetch(CHECK_CUSTOMERS_CSV)
+    .then(r => r.text())
+    .then(t => {
+      customers.check = parseCSV(t).map(r => ({
+        store: r["Check Customer Name"],
+        address: r["Address"],
+        city: r["City"],
+        state: r["State"],
+        zip: r["Zip"]
+      }));
     });
 
-  // FINTECH customers
-  fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=799127666&single=true&output=csv")
-    .then(res => res.text())
-    .then(text => {
-      customers.fintech = parseCSV(text, "Fintech Customer Name");
+  fetch(FINTECH_CUSTOMERS_CSV)
+    .then(r => r.text())
+    .then(t => {
+      customers.fintech = parseCSV(t).map(r => ({
+        store: r["Fintech Customer Name"],
+        address: r["Address"],
+        city: r["City"],
+        state: r["State"],
+        zip: r["Zip"]
+      }));
+    });
+}
+
+/***********************
+ * LOAD PRODUCTS
+ ***********************/
+function loadProducts() {
+  fetch(PRODUCT_CSV_URL)
+    .then(r => r.text())
+    .then(t => {
+      products = parseCSV(t).map(p => ({
+        name: p["Product Name"],
+        price: Number(p["Price"]),
+        stock: Number(p["Qty in stock"]),
+        category: p["Category"]
+      }));
+      render();
     });
 }
 
@@ -84,30 +97,30 @@ function render() {
   if (!el) return;
   el.innerHTML = "";
 
-  /******** STEP 1 — STORE IDENTIFICATION ********/
+  /** STEP 1 — STORE **/
   if (state.step === 1) {
     el.innerHTML = `
       <div class="card">
         <h2>Store Information</h2>
-
         <input id="store" placeholder="Enter Store Name">
-
         ${state.error ? `<p style="color:red;">${state.error}</p>` : ""}
-
         <button onclick="validateStore()">Next</button>
       </div>
     `;
   }
 
-  /******** STEP 2 — PRODUCTS ********/
+  /** STEP 2 — PRODUCTS **/
   if (state.step === 2) {
     el.innerHTML = `<div class="card"><h2>Select Products</h2>`;
 
-    PRODUCTS.forEach(p => {
+    products.forEach((p, i) => {
       el.innerHTML += `
         <div class="product">
-          <span>${p.name}</span>
-          <input type="number" min="0" id="q-${p.id}" placeholder="Qty">
+          <div>
+            <strong>${p.name}</strong><br>
+            Price: $${p.price} · In stock: ${p.stock}
+          </div>
+          <input type="number" min="0" id="q-${i}" placeholder="Qty">
         </div>
       `;
     });
@@ -115,16 +128,14 @@ function render() {
     el.innerHTML += `<button onclick="review()">Review Order</button></div>`;
   }
 
-  /******** STEP 3 — REVIEW ********/
+  /** STEP 3 — REVIEW **/
   if (state.step === 3) {
     let total = 0;
-
     const c = state.customer;
 
     el.innerHTML = `
       <div class="card">
         <h2>Review Order</h2>
-
         <p>
           <strong>${c.store}</strong><br>
           ${c.address}<br>
@@ -134,19 +145,17 @@ function render() {
     `;
 
     state.cart.forEach(i => {
-      const price = c.payment === "check" ? i.check : i.fintech;
-      total += price * i.qty;
-      el.innerHTML += `<p>${i.name} × ${i.qty} = $${price * i.qty}</p>`;
+      total += i.price * i.qty;
+      el.innerHTML += `<p>${i.name} × ${i.qty} = $${i.price * i.qty}</p>`;
     });
 
     el.innerHTML += `
-        <h3>Total: $${total}</h3>
-        <button onclick="submitOrder()">Submit Order (Test)</button>
-      </div>
-    `;
+      <h3>Total: $${total}</h3>
+      <button onclick="submitOrder()">Submit Order (Test)</button>
+    </div>`;
   }
 
-  /******** STEP 4 — CONFIRM ********/
+  /** STEP 4 — CONFIRM **/
   if (state.step === 4) {
     el.innerHTML = `
       <div class="card">
@@ -163,30 +172,17 @@ function render() {
 function validateStore() {
   const input = document.getElementById("store").value.trim();
 
-  if (!input) {
-    state.error = "Please enter your store name.";
-    render();
-    return;
-  }
-
-  const checkMatch = customers.check.find(
-    c => c.store.toLowerCase() === input.toLowerCase()
+  const check = customers.check.find(
+    c => c.store?.toLowerCase() === input.toLowerCase()
+  );
+  const fintech = customers.fintech.find(
+    c => c.store?.toLowerCase() === input.toLowerCase()
   );
 
-  const fintechMatch = customers.fintech.find(
-    c => c.store.toLowerCase() === input.toLowerCase()
-  );
-
-  if (checkMatch) {
-    state.customer = {
-      ...checkMatch,
-      payment: "Check"
-    };
-  } else if (fintechMatch) {
-    state.customer = {
-      ...fintechMatch,
-      payment: "Fintech"
-    };
+  if (check) {
+    state.customer = { ...check, payment: "Check" };
+  } else if (fintech) {
+    state.customer = { ...fintech, payment: "Fintech" };
   } else {
     state.error = "Store not found. Please check spelling.";
     render();
@@ -202,10 +198,10 @@ function validateStore() {
  * ORDER FLOW
  ***********************/
 function review() {
-  state.cart = PRODUCTS
-    .map(p => ({
+  state.cart = products
+    .map((p, i) => ({
       ...p,
-      qty: Number(document.getElementById(`q-${p.id}`).value)
+      qty: Number(document.getElementById(`q-${i}`).value)
     }))
     .filter(i => i.qty > 0);
 
@@ -222,4 +218,5 @@ function submitOrder() {
  * INIT
  ***********************/
 loadCustomers();
+loadProducts();
 render();
