@@ -7,7 +7,6 @@ const PRODUCT_CSV_URL =
 
 /**************** STATE ****************/
 let products = [];
-let customers = [];
 let state = {
   step: 1,
   customer: null,
@@ -18,6 +17,7 @@ let state = {
 function parseCSV(text) {
   const lines = text.trim().split("\n");
   const headers = lines.shift().split(",");
+
   return lines.map(line => {
     const values = line.split(",");
     let obj = {};
@@ -35,21 +35,44 @@ async function loadProducts() {
 
   products = parseCSV(text).map(p => ({
     name: p["Product Name"],
-    price: Number(p["Price"]),
-    category: p["Category"] || ""
+    price: Number(p["Price"])
   }));
 
   render();
 }
 
-/**************** CUSTOMER SEARCH ****************/
-async function searchCustomers(query) {
-  if (query.length < 2) return [];
+/**************** AUTOCOMPLETE ****************/
+function autocomplete(val) {
+  const box = document.getElementById("results");
+  box.innerHTML = "";
 
-  const res = await fetch(`${API_URL}?q=${encodeURIComponent(query)}`);
-  const data = await res.json();
+  if (val.length < 2) return;
 
-  return data.results || [];
+  fetch(`${API_URL}?q=${encodeURIComponent(val)}`)
+    .then(r => r.json())
+    .then(data => {
+      if (!data.results) return;
+
+      data.results.forEach(c => {
+        const div = document.createElement("div");
+        div.className = "autocomplete-item";
+        div.textContent = c.name;
+
+        div.dataset.customer = JSON.stringify(c);
+
+        div.addEventListener("click", function () {
+          selectCustomer(JSON.parse(this.dataset.customer));
+        });
+
+        box.appendChild(div);
+      });
+    });
+}
+
+function selectCustomer(customer) {
+  state.customer = customer;
+  state.step = 2;
+  render();
 }
 
 /**************** RENDER ****************/
@@ -62,72 +85,55 @@ function render() {
     el.innerHTML = `
       <div class="card">
         <h2>Select Customer</h2>
-
         <input
-          id="customer-search"
-          placeholder="Start typing your store name..."
-          oninput="handleCustomerSearch(this.value)"
+          id="cust"
+          placeholder="Search customer..."
+          oninput="autocomplete(this.value)"
           autocomplete="off"
         />
-
-        <div id="search-results" class="autocomplete"></div>
+        <div id="results"></div>
       </div>
     `;
   }
 
   /* STEP 2 — PRODUCTS */
   if (state.step === 2) {
-    el.innerHTML = `
-      <div class="card">
-        <h2>Select Products</h2>
-        <div class="grid">
-          ${products
-            .map(
-              (p, i) => `
-              <div class="product-card">
-                <div class="product-name">${p.name}</div>
-                <div class="product-meta">$${p.price.toFixed(2)}</div>
+    el.innerHTML = `<div class="card"><h2>Products</h2>`;
 
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="Qty"
-                  id="qty-${i}"
-                />
-              </div>
-            `
-            )
-            .join("")}
+    products.forEach((p, i) => {
+      el.innerHTML += `
+        <div class="product-line">
+          ${p.name} ($${p.price.toFixed(2)})
+          <input type="number" min="0" id="q-${i}">
         </div>
+      `;
+    });
 
-        <button onclick="goToReview()">Review Order</button>
-      </div>
-    `;
+    el.innerHTML += `
+      <button onclick="review()">Review Order</button>
+    </div>`;
   }
 
   /* STEP 3 — REVIEW */
   if (state.step === 3) {
     let subtotal = 0;
     let kegDeposit = 0;
-    let caseCount = 0;
+    let cases = 0;
 
     el.innerHTML = `
       <div class="card">
         <h2>Review Order</h2>
-
         <p>
           <strong>${state.customer.name}</strong><br>
           ${state.customer.address}<br>
-          ${state.customer.city}, ${state.customer.state} ${state.customer.zip}
+          ${state.customer.city}, ${state.customer.state} ${state.customer.zip}<br>
+          <em>${state.customer.businessType}</em>
         </p>
-
         <hr>
-
         <table class="review-table">
           <tr>
             <th>Product</th>
             <th>Qty</th>
-            <th>Price</th>
             <th>Total</th>
           </tr>
     `;
@@ -137,19 +143,18 @@ function render() {
       subtotal += line;
 
       if (/keg/i.test(item.name)) kegDeposit += item.qty * 30;
-      if (/case/i.test(item.name)) caseCount += item.qty;
+      if (/case/i.test(item.name)) cases += item.qty;
 
       el.innerHTML += `
         <tr>
           <td>${item.name}</td>
           <td>${item.qty}</td>
-          <td>$${item.price.toFixed(2)}</td>
           <td>$${line.toFixed(2)}</td>
         </tr>
       `;
     });
 
-    const discount = caseCount >= 10 ? subtotal * 0.1 : 0;
+    const discount = cases >= 10 ? subtotal * 0.10 : 0;
     const tax =
       state.customer.businessType === "Restaurant"
         ? subtotal * 0.06
@@ -159,66 +164,44 @@ function render() {
 
     el.innerHTML += `
         </table>
-
         <p>Subtotal: $${subtotal.toFixed(2)}</p>
-        <p>Discount: -$${discount.toFixed(2)}</p>
+        <p>Case Discount: -$${discount.toFixed(2)}</p>
         <p>Tax: $${tax.toFixed(2)}</p>
         <p>Keg Deposit: $${kegDeposit.toFixed(2)}</p>
-
         <h3>Total: $${total.toFixed(2)}</h3>
 
-        <label>
-          <input type="checkbox" id="agree">
-          I confirm this order is correct and binding
-        </label>
+        <div class="agreement">
+          <label>
+            <input type="checkbox" id="agree">
+            I confirm this order is binding
+          </label>
+        </div>
 
         <button onclick="submitOrder()">Submit Order</button>
       </div>
     `;
   }
 
-  /* STEP 4 — CONFIRM */
+  /* STEP 4 — DONE */
   if (state.step === 4) {
     el.innerHTML = `
       <div class="card">
         <h2>Order Submitted</h2>
-        <p>Thank you! Your order has been received.</p>
+        <p>Thank you — your order has been received.</p>
       </div>
     `;
   }
 }
 
-/**************** HANDLERS ****************/
-async function handleCustomerSearch(val) {
-  const results = await searchCustomers(val);
-  const box = document.getElementById("search-results");
-
-  box.innerHTML = results
-    .map(
-      c => `
-      <div class="autocomplete-item" onclick='selectCustomer(${JSON.stringify(
-        c
-      )})'>
-        ${c.name}
-      </div>
-    `
-    )
-    .join("");
-}
-
-function selectCustomer(customer) {
-  state.customer = customer;
-  state.step = 2;
-  render();
-}
-
-function goToReview() {
+/**************** ACTIONS ****************/
+function review() {
   state.cart = products
     .map((p, i) => ({
-      ...p,
-      qty: Number(document.getElementById(`qty-${i}`).value || 0)
+      name: p.name,
+      price: p.price,
+      qty: Number(document.getElementById(`q-${i}`).value || 0)
     }))
-    .filter(p => p.qty > 0);
+    .filter(i => i.qty > 0);
 
   if (!state.cart.length) {
     alert("Please add at least one product.");
@@ -231,7 +214,7 @@ function goToReview() {
 
 async function submitOrder() {
   if (!document.getElementById("agree").checked) {
-    alert("You must confirm the order.");
+    alert("You must agree before submitting.");
     return;
   }
 
