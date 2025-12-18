@@ -1,5 +1,5 @@
 /***********************
- * GOOGLE SHEETS
+ * GOOGLE SHEETS URLS
  ***********************/
 const CHECK_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=2105303643&single=true&output=csv";
@@ -22,17 +22,29 @@ let state = {
 };
 
 /***********************
- * CSV PARSER (SAFE)
+ * CSV PARSER (SAFARI SAFE)
  ***********************/
 function parseCSV(text) {
   const rows = text.trim().split("\n").map(r => r.split(","));
   const headers = rows.shift();
 
   return rows.map(r => {
-    let o = {};
-    headers.forEach((h, i) => o[h.trim()] = (r[i] || "").trim());
-    return o;
+    let obj = {};
+    headers.forEach((h, i) => {
+      obj[h.trim()] = (r[i] || "").trim();
+    });
+    return obj;
   });
+}
+
+/***********************
+ * NORMALIZATION (SEARCH FIX)
+ ***********************/
+function normalize(str) {
+  return (str || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "")
+    .trim();
 }
 
 /***********************
@@ -45,16 +57,19 @@ async function loadData() {
     fetch(PRODUCT_URL).then(r => r.text())
   ]);
 
-  customers = [...parseCSV(check), ...parseCSV(fintech)];
-  products = parseCSV(prod);
+  customers = [
+    ...parseCSV(check),
+    ...parseCSV(fintech)
+  ];
 
+  products = parseCSV(prod);
   render();
 }
 
 /***********************
  * CATEGORY LOGIC
  ***********************/
-function category(p) {
+function getCategory(p) {
   if (/case/i.test(p.Category)) return "Cases";
   if (/1\/2|1\/6/i.test(p.Category)) return "Kegs";
   return "Other";
@@ -67,7 +82,7 @@ function render() {
   const el = document.getElementById("form-container");
   el.innerHTML = "";
 
-  /* STEP 1 */
+  /* STEP 1 — CUSTOMER INFO */
   if (state.step === 1) {
     el.innerHTML = `
       <div class="card">
@@ -88,10 +103,10 @@ function render() {
     `;
   }
 
-  /* STEP 2 */
+  /* STEP 2 — PRODUCTS */
   if (state.step === 2) {
-    const cases = products.filter(p => category(p) === "Cases");
-    const kegs = products.filter(p => category(p) === "Kegs");
+    const cases = products.filter(p => getCategory(p) === "Cases");
+    const kegs = products.filter(p => getCategory(p) === "Kegs");
 
     el.innerHTML = `
       <div class="card">
@@ -113,7 +128,7 @@ function render() {
     `;
   }
 
-  /* STEP 3 */
+  /* STEP 3 — REVIEW */
   if (state.step === 3) {
     let total = 0;
 
@@ -131,17 +146,19 @@ function render() {
     state.cart.forEach(i => {
       const line = i.qty * i.price;
       total += line;
-      el.innerHTML += `<p>${i.name} × ${i.qty} — $${line.toFixed(2)}</p>`;
+      el.innerHTML += `
+        <p>${i.name} × ${i.qty} — $${line.toFixed(2)}</p>
+      `;
     });
 
     el.innerHTML += `
         <h3>Total: $${total.toFixed(2)}</h3>
-        <button onclick="submitOrder()">Submit Order</button>
+        <button onclick="submitOrder()">Submit Order (Test)</button>
       </div>
     `;
   }
 
-  /* STEP 4 */
+  /* STEP 4 — CONFIRM */
   if (state.step === 4) {
     el.innerHTML = `
       <div class="card">
@@ -153,15 +170,16 @@ function render() {
 }
 
 /***********************
- * PRODUCT CARD HTML
+ * PRODUCT CARD
  ***********************/
 function productHTML(p) {
+  const id = normalize(p["Product Name"]);
   return `
-    <div class="product-card" onclick="toggleQty('${p["Product Name"]}')">
+    <div class="product-card" onclick="toggleQty('${id}')">
       <div class="product-name">${p["Product Name"]}</div>
-      <div class="product-meta">$${p.Price}</div>
+      <div class="product-meta">$${Number(p.Price).toFixed(2)}</div>
 
-      <div class="qty-box" id="qty-${p["Product Name"]}">
+      <div class="qty-box" id="qty-${id}">
         <input type="number" min="0" value="0"
           data-name="${p["Product Name"]}"
           data-price="${p.Price}"
@@ -176,36 +194,60 @@ function productHTML(p) {
  ***********************/
 function toggleQty(id) {
   const box = document.getElementById("qty-" + id);
-  box.style.display = box.style.display === "block" ? "none" : "block";
-  box.parentElement.classList.toggle("active");
+  if (!box) return;
+
+  const isOpen = box.style.display === "block";
+  box.style.display = isOpen ? "none" : "block";
+  box.parentElement.classList.toggle("active", !isOpen);
 }
 
 function updateTotal() {
   let total = 0;
   document.querySelectorAll(".qty-box input").forEach(i => {
-    total += i.value * i.dataset.price;
+    total += Number(i.value) * Number(i.dataset.price);
   });
-  document.getElementById("live-total").innerText =
-    `Total: $${total.toFixed(2)}`;
-}
 
-function autoFillCustomer() {
-  const name = document.getElementById("store").value.toLowerCase();
-  const match = customers.find(c =>
-    (c["Check Customer Name"] || c["Fintech Customer Name"] || "")
-      .toLowerCase() === name
-  );
-
-  if (match) {
-    contact.value = match.Contact || "";
-    email.value = match.Email || "";
-    address.value = match.Address || "";
-    city.value = match.City || "";
-    state.value = match.State || "";
-    zip.value = match.Zip || "";
+  const totalEl = document.getElementById("live-total");
+  if (totalEl) {
+    totalEl.innerText = `Total: $${total.toFixed(2)}`;
   }
 }
 
+/***********************
+ * CUSTOMER AUTOFILL (FIXED)
+ ***********************/
+function autoFillCustomer() {
+  const input = normalize(document.getElementById("store").value);
+  if (!input) return;
+
+  const match = customers.find(c => {
+    const checkName = normalize(c["Check Customer Name"]);
+    const fintechName = normalize(c["Fintech Customer Name"]);
+
+    return (
+      checkName.includes(input) ||
+      fintechName.includes(input) ||
+      input.includes(checkName) ||
+      input.includes(fintechName)
+    );
+  });
+
+  if (!match) {
+    console.log("No customer match found");
+    return;
+  }
+
+  document.getElementById("contact").value = match.Contact || "";
+  document.getElementById("email").value = match.Email || "";
+  document.getElementById("address").value = match.Address || "";
+  document.getElementById("city").value = match.City || "";
+  document.getElementById("state").value = match.State || "";
+  document.getElementById("zip").value = match.Zip || "";
+}
+
+/***********************
+ * NAVIGATION
+ ***********************/
 function nextStep() {
   state.customer = {
     store: store.value,
@@ -224,11 +266,11 @@ function reviewOrder() {
   state.cart = [];
 
   document.querySelectorAll(".qty-box input").forEach(i => {
-    if (+i.value > 0) {
+    if (Number(i.value) > 0) {
       state.cart.push({
         name: i.dataset.name,
-        qty: +i.value,
-        price: +i.dataset.price
+        qty: Number(i.value),
+        price: Number(i.dataset.price)
       });
     }
   });
