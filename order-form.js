@@ -1,311 +1,267 @@
-/************************
- * CONFIG
- ************************/
-const CHECK_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=2105303643&single=true&output=csv";
-
-const FINTECH_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=799127666&single=true&output=csv";
-
-const PRODUCT_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&single=true&output=csv";
-
-const TAX_RATE = 0.06;
+/*************************
+ * CONSTANTS
+ *************************/
 const KEG_DEPOSIT = 30;
+const TAX_RATE = 0.06;
 
-/************************
+/*************************
  * STATE
- ************************/
-let customers = [];
-let products = [];
+ *************************/
 let state = {
   step: 1,
   customer: {},
+  products: [],
   cart: []
 };
 
-/************************
- * CSV PARSER (SAFE)
- ************************/
+/*************************
+ * CSV PARSER (Safari Safe)
+ *************************/
 function parseCSV(text) {
-  const rows = text.trim().split("\n").map(r => r.split(","));
-  const headers = rows.shift();
+  const lines = text.trim().split("\n");
+  const headers = lines.shift().split(",");
 
-  return rows.map(r => {
+  return lines.map(line => {
+    const values = line.split(",");
     let obj = {};
     headers.forEach((h, i) => {
-      let v = (r[i] || "").trim();
-      if (["Price", "Qty in stock"].includes(h)) v = Number(v) || 0;
-      obj[h.trim()] = v;
+      obj[h.trim()] = (values[i] || "").trim();
     });
     return obj;
   });
 }
 
-function normalize(str) {
-  return (str || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+/*************************
+ * LOAD PRODUCTS
+ *************************/
+function loadProducts() {
+  fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&single=true&output=csv")
+    .then(res => res.text())
+    .then(text => {
+      state.products = parseCSV(text).map(p => ({
+        name: p["Product Name"],
+        price: Number(p["Price"]),
+        stock: Number(p["Qty in stock"]),
+        category: p["Category"]
+      }));
+      render();
+    });
 }
 
-/************************
- * LOAD DATA
- ************************/
-async function loadData() {
-  const [c, f, p] = await Promise.all([
-    fetch(CHECK_URL).then(r => r.text()),
-    fetch(FINTECH_URL).then(r => r.text()),
-    fetch(PRODUCT_URL).then(r => r.text())
-  ]);
+/*************************
+ * RENDER
+ *************************/
+function render() {
+  const el = document.getElementById("form-container");
+  if (!el) return;
+  el.innerHTML = "";
 
-  customers = [...parseCSV(c), ...parseCSV(f)];
-  products = parseCSV(p);
+  if (state.step === 1) renderCustomer(el);
+  if (state.step === 2) renderProducts(el);
+  if (state.step === 3) renderReview(el);
+}
+
+/*************************
+ * STEP 1 — CUSTOMER
+ *************************/
+function renderCustomer(el) {
+  el.innerHTML = `
+    <div class="card">
+      <h2>Customer Information</h2>
+
+      <input id="store" placeholder="Store Name" />
+      <select id="type">
+        <option value="retail">Retail</option>
+        <option value="restaurant">Restaurant</option>
+      </select>
+
+      <button onclick="nextStep()">Continue</button>
+    </div>
+  `;
+}
+
+/*************************
+ * STEP 2 — PRODUCTS
+ *************************/
+function renderProducts(el) {
+  let cases = state.products.filter(p => /case/i.test(p.category));
+  let kegs = state.products.filter(p => /1\/2|1\/6|keg/i.test(p.category));
+
+  el.innerHTML = `
+    <div class="card">
+      <h2>Order Products</h2>
+
+      <h3>Cases</h3>
+      <div class="grid">${renderProductGrid(cases)}</div>
+
+      <h3>Kegs</h3>
+      <div class="grid">${renderProductGrid(kegs)}</div>
+
+      <div id="live-total" class="total-box"></div>
+
+      <button onclick="reviewOrder()">Review Order</button>
+    </div>
+  `;
+
+  updateTotal();
+}
+
+/*************************
+ * PRODUCT GRID
+ *************************/
+function renderProductGrid(list) {
+  return list.map(p => `
+    <div class="product-card" onclick="toggleQty(this)">
+      <div class="product-name">${p.name}</div>
+      <div class="product-meta">$${p.price.toFixed(2)} | In Stock: ${p.stock}</div>
+
+      <div class="qty-box">
+        <input 
+          type="number" 
+          min="0" 
+          value="0"
+          data-name="${p.name}"
+          data-price="${p.price}"
+          oninput="updateTotal(); event.stopPropagation();" />
+      </div>
+    </div>
+  `).join("");
+}
+
+/*************************
+ * TOGGLE QTY
+ *************************/
+function toggleQty(card) {
+  const box = card.querySelector(".qty-box");
+  box.style.display = box.style.display === "block" ? "none" : "block";
+}
+
+/*************************
+ * LIVE TOTAL (INCLUDES KEG DEPOSIT)
+ *************************/
+function updateTotal() {
+  let productTotal = 0;
+  let kegCount = 0;
+
+  document.querySelectorAll(".qty-box input").forEach(i => {
+    const qty = Number(i.value) || 0;
+    const price = Number(i.dataset.price) || 0;
+    const name = i.dataset.name || "";
+
+    productTotal += qty * price;
+
+    if (/keg|1\/2|1\/6/i.test(name)) {
+      kegCount += qty;
+    }
+  });
+
+  const kegDepositTotal = kegCount * KEG_DEPOSIT;
+  const grandTotal = productTotal + kegDepositTotal;
+
+  document.getElementById("live-total").innerHTML = `
+    <div>Products: $${productTotal.toFixed(2)}</div>
+    <div>Keg Deposit: $${kegDepositTotal.toFixed(2)}</div>
+    <strong>Total: $${grandTotal.toFixed(2)}</strong>
+  `;
+}
+
+/*************************
+ * REVIEW ORDER
+ *************************/
+function reviewOrder() {
+  state.cart = [];
+
+  document.querySelectorAll(".qty-box input").forEach(i => {
+    const qty = Number(i.value);
+    if (qty > 0) {
+      state.cart.push({
+        name: i.dataset.name,
+        price: Number(i.dataset.price),
+        qty
+      });
+    }
+  });
+
+  state.step = 3;
   render();
 }
 
-/************************
- * CATEGORY
- ************************/
-function getCategory(p) {
-  if (/case/i.test(p.Category)) return "Cases";
-  if (/1\/2|1\/6|keg/i.test(p.Category)) return "Kegs";
-  return "Other";
-}
+/*************************
+ * STEP 3 — REVIEW PAGE
+ *************************/
+function renderReview(el) {
+  let subtotal = 0;
+  let kegCount = 0;
+  let caseCount = 0;
 
-/************************
- * RENDER
- ************************/
-function render() {
-  const el = document.getElementById("form-container");
-  el.innerHTML = "";
+  let rows = state.cart.map(i => {
+    const line = i.qty * i.price;
+    subtotal += line;
 
-  /* STEP 1 */
-  if (state.step === 1) {
-    el.innerHTML = `
-      <div class="card">
-        <h2>Store Information</h2>
+    if (/case/i.test(i.name)) caseCount += i.qty;
+    if (/keg|1\/2|1\/6/i.test(i.name)) kegCount += i.qty;
 
-        <input id="store" list="store-list"
-          placeholder="Start typing store name"
-          oninput="autoFillCustomer()">
-
-        <datalist id="store-list">
-          ${customers.map(c =>
-            `<option value="${c["Check Customer Name"] || c["Fintech Customer Name"]}">`
-          ).join("")}
-        </datalist>
-
-        <input id="contact" placeholder="Contact Name">
-        <input id="email" placeholder="Email">
-
-        <button onclick="nextStep()">Next</button>
-      </div>
+    return `
+      <tr>
+        <td>${i.name.replace(/–.*$/, "")}</td>
+        <td>${/case/i.test(i.name) ? "Case" : "Keg"}</td>
+        <td>${i.qty}</td>
+        <td>$${i.price.toFixed(2)}</td>
+        <td>$${line.toFixed(2)}</td>
+      </tr>
     `;
-  }
+  }).join("");
 
-  /* STEP 2 */
-  if (state.step === 2) {
-    const cases = products.filter(p => getCategory(p) === "Cases");
-    const kegs = products.filter(p => getCategory(p) === "Kegs");
+  const discount = caseCount >= 10 ? subtotal * 0.10 : 0;
+  const taxable = subtotal - discount;
+  const tax = state.customer?.type === "restaurant" ? taxable * TAX_RATE : 0;
+  const kegDeposit = kegCount * KEG_DEPOSIT;
+  const total = taxable + tax + kegDeposit;
 
-    el.innerHTML = `
-      <div class="card">
-        <h2>Select Products</h2>
+  el.innerHTML = `
+    <div class="card">
+      <h2>Review Order</h2>
 
-        <h3>Cases</h3>
-        <div class="grid">${cases.map(productCard).join("")}</div>
+      <hr />
 
-        <h3>Kegs</h3>
-        <div class="grid">${kegs.map(productCard).join("")}</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Description</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
 
-        <div id="live-total">Total: $0.00</div>
-        <button onclick="reviewOrder()">Review Order</button>
-      </div>
-    `;
-  }
-
-  /* STEP 3 */
-  if (state.step === 3) {
-    let subtotal = 0;
-    let caseCount = 0;
-    let kegCount = 0;
-
-    const rows = state.cart.map(i => {
-      const isCase = /case/i.test(i.name);
-      const isKeg = /keg|1\/2|1\/6/i.test(i.name);
-
-      if (isCase) caseCount += i.qty;
-      if (isKeg) kegCount += i.qty;
-
-      const lineTotal = i.qty * i.price;
-      subtotal += lineTotal;
-
-      let desc = "Package";
-      if (isCase) desc = "Case of 24";
-      if (/1\/2/i.test(i.name)) desc = "1/2 Keg";
-      if (/1\/6/i.test(i.name)) desc = "1/6 Keg";
-
-      return `
-        <tr>
-          <td>${i.name.replace(/–.*$/, "")}</td>
-          <td>${desc}</td>
-          <td>${i.qty}</td>
-          <td>$${i.price.toFixed(2)}</td>
-          <td>$${lineTotal.toFixed(2)}</td>
-        </tr>
-      `;
-    }).join("");
-
-    const discount = caseCount >= 10 ? subtotal * 0.10 : 0;
-    const taxable = subtotal - discount;
-    const tax = /restaurant/i.test(state.customer.store) ? taxable * TAX_RATE : 0;
-    const kegDeposit = kegCount * KEG_DEPOSIT;
-    const total = taxable + tax + kegDeposit;
-
-    el.innerHTML = `
-      <div class="card">
-        <h2>Order Review</h2>
-
-        <p>
-          <strong>${state.customer.store}</strong><br>
-          ${state.customer.address}<br>
-          ${state.customer.city}, ${state.customer.state} ${state.customer.zip}
-        </p>
-
-        <hr>
-
-        <table class="review-table">
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>Description</th>
-              <th>Qty</th>
-              <th>Price</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-
-        <div class="summary">
-          <div>Subtotal <span>$${subtotal.toFixed(2)}</span></div>
-          <div>Discount <span>-$${discount.toFixed(2)}</span></div>
-          <div>Tax <span>$${tax.toFixed(2)}</span></div>
-          <div>Keg Deposit <span>$${kegDeposit.toFixed(2)}</span></div>
-          <div class="grand-total">
-            Total <span>$${total.toFixed(2)}</span>
-          </div>
-        </div>
-
-        <button onclick="submitOrder()">Submit Order</button>
-      </div>
-    `;
-  }
-
-  /* STEP 4 */
-  if (state.step === 4) {
-    el.innerHTML = `
-      <div class="card">
-        <h2>Order Submitted</h2>
-        <p>Thank you for your order.</p>
-      </div>
-    `;
-  }
-}
-
-/************************
- * PRODUCT CARD
- ************************/
-function productCard(p) {
-  const id = normalize(p["Product Name"]);
-  const stock = p["Qty in stock"];
-
-  return `
-    <div class="product-card" onclick="toggleQty('${id}')">
-      <div class="product-name">${p["Product Name"]}</div>
-      <div class="product-meta">
-        $${p.Price.toFixed(2)}<br>
-        In Stock: ${stock}
-      </div>
-      <div class="qty-box" id="qty-${id}">
-        <input type="number" min="0" max="${stock}"
-          data-name="${p["Product Name"]}"
-          data-price="${p.Price}"
-          onclick="event.stopPropagation()"
-          oninput="updateTotal()">
+      <div class="summary">
+        <div>Subtotal: $${subtotal.toFixed(2)}</div>
+        <div>Discount: -$${discount.toFixed(2)}</div>
+        <div>Tax: $${tax.toFixed(2)}</div>
+        <div>Keg Deposit: $${kegDeposit.toFixed(2)}</div>
+        <strong>Total: $${total.toFixed(2)}</strong>
       </div>
     </div>
   `;
 }
 
-/************************
- * INTERACTIONS
- ************************/
-function toggleQty(id) {
-  const el = document.getElementById("qty-" + id);
-  el.style.display = el.style.display === "block" ? "none" : "block";
-}
-
-function updateTotal() {
-  let total = 0;
-  document.querySelectorAll(".qty-box input").forEach(i => {
-    total += (+i.value || 0) * (+i.dataset.price);
-  });
-  document.getElementById("live-total").innerText =
-    `Total: $${total.toFixed(2)}`;
-}
-
-/************************
- * CUSTOMER AUTOFILL
- ************************/
-function autoFillCustomer() {
-  const input = normalize(store.value);
-  const match = customers.find(c =>
-    normalize(c["Check Customer Name"] || c["Fintech Customer Name"]) === input
-  );
-
-  if (match) {
-    contact.value = match.Contact || "";
-    email.value = match.Email || "";
-    state.customer.address = match.Address || "";
-    state.customer.city = match.City || "";
-    state.customer.state = match.State || "";
-    state.customer.zip = match.Zip || "";
-  }
-}
-
-/************************
- * FLOW
- ************************/
+/*************************
+ * NAV
+ *************************/
 function nextStep() {
-  state.customer.store = store.value;
-  state.customer.contact = contact.value;
-  state.customer.email = email.value;
+  state.customer = {
+    store: document.getElementById("store").value,
+    type: document.getElementById("type").value
+  };
   state.step = 2;
   render();
 }
 
-function reviewOrder() {
-  state.cart = [];
-  document.querySelectorAll(".qty-box input").forEach(i => {
-    if (+i.value > 0) {
-      state.cart.push({
-        name: i.dataset.name,
-        qty: +i.value,
-        price: +i.dataset.price
-      });
-    }
-  });
-
-  if (!state.cart.length) return alert("Select at least one product.");
-  state.step = 3;
-  render();
-}
-
-function submitOrder() {
-  state.step = 4;
-  render();
-}
-
-/************************
+/*************************
  * INIT
- ************************/
-loadData();
+ *************************/
+loadProducts();
+render();
