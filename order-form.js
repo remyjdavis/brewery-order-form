@@ -22,15 +22,20 @@ let state = {
 };
 
 /***********************
- * CSV PARSER
+ * CSV PARSER (ROBUST)
  ***********************/
 function parseCSV(text) {
   const rows = text.trim().split("\n").map(r => r.split(","));
   const headers = rows.shift();
+
   return rows.map(r => {
-    let o = {};
-    headers.forEach((h, i) => o[h.trim()] = (r[i] || "").trim());
-    return o;
+    let obj = {};
+    headers.forEach((h, i) => {
+      let v = (r[i] || "").trim();
+      if (h === "Price" || h === "Qty in stock") v = Number(v) || 0;
+      obj[h.trim()] = v;
+    });
+    return obj;
   });
 }
 
@@ -76,8 +81,8 @@ function render() {
         <h2>Store Information</h2>
 
         <input id="store" list="store-list"
-               placeholder="Start typing store name"
-               oninput="autoFillCustomer()">
+          placeholder="Start typing store name"
+          oninput="autoFillCustomer()">
 
         <datalist id="store-list">
           ${customers.map(c => `
@@ -129,8 +134,9 @@ function render() {
     `;
 
     state.cart.forEach(i => {
-      total += i.qty * i.price;
-      el.innerHTML += `<p>${i.name} × ${i.qty}</p>`;
+      const line = i.qty * i.price;
+      total += line;
+      el.innerHTML += `<p>${i.name} × ${i.qty} — $${line.toFixed(2)}</p>`;
     });
 
     el.innerHTML += `
@@ -155,15 +161,28 @@ function render() {
  ***********************/
 function productHTML(p) {
   const id = normalize(p["Product Name"]);
+  const stock = Number(p["Qty in stock"]) || 0;
+
   return `
-    <div class="product-card" onclick="toggleQty('${id}')">
+    <div class="product-card ${stock === 0 ? "out" : ""}"
+         onclick="toggleQty('${id}')">
+
       <div class="product-name">${p["Product Name"]}</div>
-      <div class="product-meta">$${Number(p.Price).toFixed(2)}</div>
+
+      <div class="product-meta">
+        $${Number(p.Price).toFixed(2)}<br>
+        ${stock > 0 ? `In Stock: ${stock}` : `<span class="out-label">Out of stock</span>`}
+      </div>
 
       <div class="qty-box" id="qty-${id}">
-        <input type="number" min="0" value="0"
+        <input type="number"
+          min="0"
+          max="${stock}"
+          value="0"
+          ${stock === 0 ? "disabled" : ""}
           data-name="${p["Product Name"]}"
           data-price="${p.Price}"
+          data-stock="${stock}"
           onclick="event.stopPropagation()"
           oninput="updateTotal()">
       </div>
@@ -172,7 +191,7 @@ function productHTML(p) {
 }
 
 /***********************
- * LOGIC
+ * INTERACTIONS
  ***********************/
 function toggleQty(id) {
   const box = document.getElementById("qty-" + id);
@@ -183,12 +202,20 @@ function toggleQty(id) {
 function updateTotal() {
   let total = 0;
   document.querySelectorAll(".qty-box input").forEach(i => {
-    total += i.value * i.dataset.price;
+    let qty = Number(i.value);
+    const stock = Number(i.dataset.stock);
+    if (qty > stock) qty = stock;
+    i.value = qty;
+    total += qty * Number(i.dataset.price);
   });
+
   document.getElementById("live-total").innerText =
     `Total: $${total.toFixed(2)}`;
 }
 
+/***********************
+ * CUSTOMER AUTOFILL
+ ***********************/
 function autoFillCustomer() {
   const input = normalize(store.value);
   const match = customers.find(c =>
@@ -206,6 +233,9 @@ function autoFillCustomer() {
   }
 }
 
+/***********************
+ * FLOW
+ ***********************/
 function nextStep() {
   state.customer.store = store.value;
   state.customer.contact = contact.value;
