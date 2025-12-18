@@ -1,4 +1,3 @@
-/* ---------- BASE ---------- */
 * {
   box-sizing: border-box;
 }
@@ -6,33 +5,32 @@
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-  background: #f5f5f5;
+  background: #f4f4f4;
   color: #222;
 }
 
-/* ---------- HEADER ---------- */
+/* ===== HEADER ===== */
 .site-header {
-  background: #ffffff;
+  background: #fff;
   border-bottom: 1px solid #ddd;
-  padding: 14px 16px;
 }
 
 .site-header-inner {
   max-width: 1100px;
   margin: 0 auto;
+  padding: 12px 16px;
   display: flex;
   align-items: center;
   gap: 14px;
 }
 
 .site-header img {
-  height: 40px;
+  height: 42px;
 }
 
 .site-header h1 {
   font-size: 18px;
   margin: 0;
-  font-weight: 600;
   line-height: 1.2;
 }
 
@@ -41,39 +39,45 @@ body {
   color: #555;
 }
 
-/* ---------- CARDS ---------- */
+/* ===== CARD ===== */
 .card {
   background: #fff;
-  border-radius: 10px;
-  padding: 20px;
   max-width: 1100px;
   margin: 20px auto;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
 }
 
 h2 {
-  margin-top: 0;
+  margin: 0 0 14px;
   font-size: 20px;
 }
 
-/* ---------- INPUTS ---------- */
+/* ===== INPUTS ===== */
 input[type="text"],
 input[type="number"] {
   width: 100%;
-  padding: 10px 12px;
+  padding: 10px;
   font-size: 15px;
   border-radius: 6px;
   border: 1px solid #ccc;
 }
 
-/* ---------- AUTOCOMPLETE ---------- */
-#autocomplete-root {
+/* ===== AUTOCOMPLETE ===== */
+.autocomplete-wrapper {
+  position: relative;
+}
+
+#autocomplete-results {
   position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
   background: #fff;
   border: 1px solid #ccc;
   border-radius: 6px;
   z-index: 9999;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
   display: none;
   max-height: 240px;
   overflow-y: auto;
@@ -88,7 +92,7 @@ input[type="number"] {
   background: #f0f0f0;
 }
 
-/* ---------- PRODUCT GRID ---------- */
+/* ===== PRODUCT GRID ===== */
 .grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -97,55 +101,37 @@ input[type="number"] {
 }
 
 .product-card {
+  background: #fafafa;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 14px;
-  background: #fafafa;
 }
 
 .product-name {
   font-weight: 600;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
-.product-meta {
+.product-price {
   font-size: 13px;
   color: #555;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
-/* ---------- BUTTONS ---------- */
+/* ===== BUTTON ===== */
 button {
   margin-top: 20px;
   padding: 12px 18px;
   font-size: 15px;
   font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
   background: #222;
   color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
 }
 
-button:hover {
-  background: #000;
-}
-
-/* ---------- TABLE ---------- */
-.review-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-.review-table th,
-.review-table td {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-  text-align: left;
-}
-
-/* ---------- MOBILE ---------- */
+/* ===== MOBILE ===== */
 @media (max-width: 640px) {
   .grid {
     grid-template-columns: 1fr;
@@ -154,9 +140,5 @@ button:hover {
   .site-header-inner {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .site-header h1 {
-    font-size: 16px;
   }
 }
