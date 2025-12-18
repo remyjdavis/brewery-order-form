@@ -1,83 +1,218 @@
+/* ===============================
+   GLOBAL RESET
+   =============================== */
+* {
+  box-sizing: border-box;
+}
+
+html,
 body {
-  font-family: Arial, sans-serif;
-  background: #f4f4f4;
   margin: 0;
+  padding: 0;
+  background: #f4f6f8;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+  color: #222;
 }
 
-.brewery-header {
-  display: flex;
-  gap: 20px;
-  align-items: center;
-  background: #fff;
-  padding: 20px;
-  border-bottom: 3px solid #222;
+/* ===============================
+   PAGE HEADER
+   =============================== */
+h1 {
+  text-align: center;
+  margin: 24px 0 10px;
+  font-size: 28px;
+  font-weight: 700;
 }
 
-.brewery-header img {
-  height: 80px;
-}
-
-.card {
-  background: #fff;
-  max-width: 1000px;
-  margin: 20px auto;
-  padding: 20px;
-  border-radius: 8px;
-}
-
-input, button {
-  width: 100%;
+/* ===============================
+   LAYOUT
+   =============================== */
+#form-container {
+  max-width: 960px;
+  margin: 0 auto;
   padding: 10px;
+}
+
+/* ===============================
+   CARD
+   =============================== */
+.card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 22px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+}
+
+/* ===============================
+   INPUTS
+   =============================== */
+input[type="text"],
+input[type="number"],
+select {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
   margin-top: 10px;
 }
 
+input:focus {
+  outline: none;
+  border-color: #006b3f;
+  box-shadow: 0 0 0 2px rgba(0, 107, 63, 0.15);
+}
+
+/* ===============================
+   BUTTONS
+   =============================== */
 button {
-  background: #222;
-  color: #fff;
+  margin-top: 20px;
+  padding: 14px 18px;
+  font-size: 16px;
+  font-weight: 600;
+  background: #006b3f;
+  color: white;
   border: none;
+  border-radius: 8px;
   cursor: pointer;
+  width: 100%;
 }
 
 button:hover {
-  background: #444;
+  background: #005636;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
+button:disabled {
+  background: #aaa;
+  cursor: not-allowed;
 }
 
-.product-card {
-  border: 1px solid #ccc;
-  padding: 12px;
-  border-radius: 6px;
+/* ===============================
+   PRODUCT LIST
+   =============================== */
+.product-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
 }
 
-.review-table {
+.product-row:last-child {
+  border-bottom: none;
+}
+
+.product-name {
+  font-weight: 600;
+}
+
+.product-price {
+  color: #555;
+  font-size: 14px;
+}
+
+.product-row input {
+  width: 80px;
+}
+
+/* ===============================
+   REVIEW TABLE
+   =============================== */
+table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 15px;
 }
 
-.review-table th,
-.review-table td {
-  border: 1px solid #ccc;
-  padding: 8px;
+th,
+td {
+  padding: 10px;
   text-align: left;
 }
 
-.agreement {
-  margin-top: 15px;
+th {
+  background: #f0f0f0;
+  font-weight: 600;
 }
 
-@media (max-width: 700px) {
-  .grid {
-    grid-template-columns: 1fr;
+tr:nth-child(even) {
+  background: #fafafa;
+}
+
+/* ===============================
+   TOTALS
+   =============================== */
+.summary-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+}
+
+.summary-line.total {
+  font-size: 20px;
+  font-weight: 700;
+  margin-top: 10px;
+}
+
+/* ===============================
+   AUTOCOMPLETE (CRITICAL)
+   =============================== */
+#autocomplete-root {
+  position: fixed;
+  background: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  z-index: 999999;
+  max-height: 260px;
+  overflow-y: auto;
+  display: none;
+}
+
+.autocomplete-item {
+  padding: 12px 14px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.autocomplete-item:hover {
+  background: #f2f2f2;
+}
+
+/* ===============================
+   AGREEMENT
+   =============================== */
+.agreement {
+  margin-top: 16px;
+  font-size: 14px;
+}
+
+.agreement input {
+  margin-right: 8px;
+}
+
+/* ===============================
+   MOBILE OPTIMIZATION
+   =============================== */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 22px;
   }
 
-  .brewery-header {
-    flex-direction: column;
-    text-align: center;
+  .card {
+    padding: 16px;
+  }
+
+  table th,
+  table td {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  button {
+    font-size: 15px;
   }
 }
