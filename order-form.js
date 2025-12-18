@@ -1,11 +1,11 @@
-/**************** CONFIG ****************/
+/******** CONFIG ********/
 const API_URL =
   "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec";
 
 const PRODUCT_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&single=true&output=csv";
 
-/**************** STATE ****************/
+/******** STATE ********/
 let products = [];
 let state = {
   step: 1,
@@ -13,192 +13,165 @@ let state = {
   cart: []
 };
 
-let autocompleteResults = [];
-let autocompleteOpen = false;
+let resultsBox;
 
-/**************** CSV ****************/
+/******** CSV ********/
 function parseCSV(text) {
   const lines = text.trim().split("\n");
   const headers = lines.shift().split(",");
-
   return lines.map(line => {
-    const values = line.split(",");
+    const vals = line.split(",");
     let obj = {};
-    headers.forEach((h, i) => {
-      obj[h.trim()] = (values[i] || "").trim();
-    });
+    headers.forEach((h, i) => (obj[h.trim()] = (vals[i] || "").trim()));
     return obj;
   });
 }
 
-/**************** LOAD PRODUCTS ****************/
+/******** LOAD PRODUCTS ********/
 async function loadProducts() {
   const res = await fetch(PRODUCT_CSV_URL);
   const text = await res.text();
-
   products = parseCSV(text).map(p => ({
     name: p["Product Name"],
     price: Number(p["Price"])
   }));
-
-  render();
 }
 
-/**************** AUTOCOMPLETE ****************/
-async function autocomplete(val) {
-  const box = document.getElementById("results");
-  box.innerHTML = "";
-  autocompleteOpen = false;
+/******** AUTOCOMPLETE ********/
+async function handleAutocomplete(e) {
+  const q = e.target.value.trim();
+  clearResults();
 
-  if (val.length < 2) return;
+  if (q.length < 2) return;
 
-  const res = await fetch(`${API_URL}?q=${encodeURIComponent(val)}`);
+  const res = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
   const data = await res.json();
 
   if (!data.results || !data.results.length) return;
 
-  autocompleteResults = data.results;
-  autocompleteOpen = true;
+  const rect = e.target.getBoundingClientRect();
 
-  data.results.forEach((cust, index) => {
-    const item = document.createElement("div");
-    item.className = "autocomplete-item";
-    item.textContent = cust.name;
+  resultsBox.style.left = rect.left + "px";
+  resultsBox.style.top = rect.bottom + "px";
+  resultsBox.style.width = rect.width + "px";
+  resultsBox.style.display = "block";
 
-    // SAFARI FIX: mousedown fires before blur/render
-    item.addEventListener("mousedown", function (e) {
-      e.preventDefault();
-      selectCustomer(index);
+  data.results.forEach(customer => {
+    const div = document.createElement("div");
+    div.className = "autocomplete-item";
+    div.textContent = customer.name;
+
+    // SAFARI-SAFE EVENT
+    div.addEventListener("pointerdown", ev => {
+      ev.preventDefault();
+      selectCustomer(customer);
     });
 
-    box.appendChild(item);
+    resultsBox.appendChild(div);
   });
 }
 
-/**************** SELECT CUSTOMER ****************/
-function selectCustomer(index) {
-  state.customer = autocompleteResults[index];
-  autocompleteResults = [];
-  autocompleteOpen = false;
+function clearResults() {
+  resultsBox.innerHTML = "";
+  resultsBox.style.display = "none";
+}
+
+/******** SELECT CUSTOMER ********/
+function selectCustomer(customer) {
+  state.customer = customer;
   state.step = 2;
+  clearResults();
   render();
 }
 
-/**************** RENDER ****************/
+/******** RENDER ********/
 function render() {
   const el = document.getElementById("form-container");
   el.innerHTML = "";
 
-  /******** STEP 1 ********/
   if (state.step === 1) {
     el.innerHTML = `
-      <div class="card" style="position:relative">
+      <div class="card">
         <h2>Select Customer</h2>
         <input
-          id="cust"
-          placeholder="Search customer..."
+          id="customer-input"
+          type="text"
+          placeholder="Start typing customer name…"
           autocomplete="off"
         />
-        <div id="results" class="autocomplete-box"></div>
       </div>
     `;
 
     document
-      .getElementById("cust")
-      .addEventListener("input", e => autocomplete(e.target.value));
+      .getElementById("customer-input")
+      .addEventListener("input", handleAutocomplete);
   }
 
-  /******** STEP 2 ********/
   if (state.step === 2) {
     el.innerHTML = `<div class="card"><h2>Products</h2>`;
 
     products.forEach((p, i) => {
       el.innerHTML += `
-        <div class="product-line">
+        <div>
           ${p.name} ($${p.price.toFixed(2)})
           <input type="number" min="0" id="q-${i}">
         </div>
       `;
     });
 
-    el.innerHTML += `
-      <button onclick="review()">Review Order</button>
-    </div>`;
+    el.innerHTML += `<button onclick="review()">Review Order</button></div>`;
   }
 
-  /******** STEP 3 ********/
   if (state.step === 3) {
-    let subtotal = 0;
-    let kegDeposit = 0;
-    let cases = 0;
+    let subtotal = 0,
+      keg = 0,
+      cases = 0;
 
     el.innerHTML = `
       <div class="card">
-        <h2>Review Order</h2>
+        <h2>Review</h2>
         <p>
           <strong>${state.customer.name}</strong><br>
           ${state.customer.address}<br>
           ${state.customer.city}, ${state.customer.state} ${state.customer.zip}<br>
-          <em>${state.customer.businessType}</em>
+          ${state.customer.businessType}
         </p>
         <hr>
         <table>
           <tr><th>Product</th><th>Qty</th><th>Total</th></tr>
     `;
 
-    state.cart.forEach(item => {
-      const line = item.qty * item.price;
+    state.cart.forEach(i => {
+      const line = i.qty * i.price;
       subtotal += line;
-
-      if (/keg/i.test(item.name)) kegDeposit += item.qty * 30;
-      if (/case/i.test(item.name)) cases += item.qty;
+      if (/keg/i.test(i.name)) keg += i.qty * 30;
+      if (/case/i.test(i.name)) cases += i.qty;
 
       el.innerHTML += `
         <tr>
-          <td>${item.name}</td>
-          <td>${item.qty}</td>
+          <td>${i.name}</td>
+          <td>${i.qty}</td>
           <td>$${line.toFixed(2)}</td>
-        </tr>
-      `;
+        </tr>`;
     });
 
     const discount = cases >= 10 ? subtotal * 0.1 : 0;
     const tax =
-      state.customer.businessType === "Restaurant"
-        ? subtotal * 0.06
-        : 0;
-
-    const total = subtotal - discount + tax + kegDeposit;
+      state.customer.businessType === "Restaurant" ? subtotal * 0.06 : 0;
 
     el.innerHTML += `
         </table>
         <p>Subtotal: $${subtotal.toFixed(2)}</p>
         <p>Discount: -$${discount.toFixed(2)}</p>
         <p>Tax: $${tax.toFixed(2)}</p>
-        <p>Keg Deposit: $${kegDeposit.toFixed(2)}</p>
-        <h3>Total: $${total.toFixed(2)}</h3>
-
-        <label>
-          <input type="checkbox" id="agree"> I confirm this order is binding
-        </label><br><br>
-
-        <button onclick="submitOrder()">Submit Order</button>
-      </div>
-    `;
-  }
-
-  /******** STEP 4 ********/
-  if (state.step === 4) {
-    el.innerHTML = `
-      <div class="card">
-        <h2>Order Submitted</h2>
-        <p>Thank you — your order has been received.</p>
-      </div>
-    `;
+        <p>Keg Deposit: $${keg.toFixed(2)}</p>
+        <h3>Total: $${(subtotal - discount + tax + keg).toFixed(2)}</h3>
+        <button onclick="submitOrder()">Submit</button>
+      </div>`;
   }
 }
 
-/**************** ACTIONS ****************/
+/******** ACTIONS ********/
 function review() {
   state.cart = products
     .map((p, i) => ({
@@ -208,34 +181,27 @@ function review() {
     }))
     .filter(i => i.qty > 0);
 
-  if (!state.cart.length) {
-    alert("Please add at least one product.");
-    return;
-  }
-
+  if (!state.cart.length) return alert("Add products");
   state.step = 3;
   render();
 }
 
 async function submitOrder() {
-  if (!document.getElementById("agree").checked) {
-    alert("You must agree before submitting.");
-    return;
-  }
-
   await fetch(API_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      customer: state.customer,
-      items: state.cart
-    })
+    body: JSON.stringify({ customer: state.customer, items: state.cart })
   });
-
-  state.step = 4;
-  render();
+  alert("Order submitted");
+  location.reload();
 }
 
-/**************** INIT ****************/
-loadProducts();
-render();
+/******** INIT ********/
+document.addEventListener("DOMContentLoaded", async () => {
+  resultsBox = document.createElement("div");
+  resultsBox.id = "autocomplete-root";
+  document.body.appendChild(resultsBox);
+
+  await loadProducts();
+  render();
+});
