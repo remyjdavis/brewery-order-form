@@ -13,7 +13,10 @@ let state = {
   cart: []
 };
 
-/**************** CSV PARSER ****************/
+let autocompleteResults = [];
+let autocompleteOpen = false;
+
+/**************** CSV ****************/
 function parseCSV(text) {
   const lines = text.trim().split("\n");
   const headers = lines.shift().split(",");
@@ -42,35 +45,41 @@ async function loadProducts() {
 }
 
 /**************** AUTOCOMPLETE ****************/
-function autocomplete(val) {
+async function autocomplete(val) {
   const box = document.getElementById("results");
   box.innerHTML = "";
+  autocompleteOpen = false;
 
   if (val.length < 2) return;
 
-  fetch(`${API_URL}?q=${encodeURIComponent(val)}`)
-    .then(r => r.json())
-    .then(data => {
-      if (!data.results) return;
+  const res = await fetch(`${API_URL}?q=${encodeURIComponent(val)}`);
+  const data = await res.json();
 
-      data.results.forEach(c => {
-        const div = document.createElement("div");
-        div.className = "autocomplete-item";
-        div.textContent = c.name;
+  if (!data.results || !data.results.length) return;
 
-        div.dataset.customer = JSON.stringify(c);
+  autocompleteResults = data.results;
+  autocompleteOpen = true;
 
-        div.addEventListener("click", function () {
-          selectCustomer(JSON.parse(this.dataset.customer));
-        });
+  data.results.forEach((cust, index) => {
+    const item = document.createElement("div");
+    item.className = "autocomplete-item";
+    item.textContent = cust.name;
 
-        box.appendChild(div);
-      });
+    // SAFARI FIX: mousedown fires before blur/render
+    item.addEventListener("mousedown", function (e) {
+      e.preventDefault();
+      selectCustomer(index);
     });
+
+    box.appendChild(item);
+  });
 }
 
-function selectCustomer(customer) {
-  state.customer = customer;
+/**************** SELECT CUSTOMER ****************/
+function selectCustomer(index) {
+  state.customer = autocompleteResults[index];
+  autocompleteResults = [];
+  autocompleteOpen = false;
   state.step = 2;
   render();
 }
@@ -80,23 +89,26 @@ function render() {
   const el = document.getElementById("form-container");
   el.innerHTML = "";
 
-  /* STEP 1 — CUSTOMER */
+  /******** STEP 1 ********/
   if (state.step === 1) {
     el.innerHTML = `
-      <div class="card">
+      <div class="card" style="position:relative">
         <h2>Select Customer</h2>
         <input
           id="cust"
           placeholder="Search customer..."
-          oninput="autocomplete(this.value)"
           autocomplete="off"
         />
-        <div id="results"></div>
+        <div id="results" class="autocomplete-box"></div>
       </div>
     `;
+
+    document
+      .getElementById("cust")
+      .addEventListener("input", e => autocomplete(e.target.value));
   }
 
-  /* STEP 2 — PRODUCTS */
+  /******** STEP 2 ********/
   if (state.step === 2) {
     el.innerHTML = `<div class="card"><h2>Products</h2>`;
 
@@ -114,7 +126,7 @@ function render() {
     </div>`;
   }
 
-  /* STEP 3 — REVIEW */
+  /******** STEP 3 ********/
   if (state.step === 3) {
     let subtotal = 0;
     let kegDeposit = 0;
@@ -130,12 +142,8 @@ function render() {
           <em>${state.customer.businessType}</em>
         </p>
         <hr>
-        <table class="review-table">
-          <tr>
-            <th>Product</th>
-            <th>Qty</th>
-            <th>Total</th>
-          </tr>
+        <table>
+          <tr><th>Product</th><th>Qty</th><th>Total</th></tr>
     `;
 
     state.cart.forEach(item => {
@@ -154,7 +162,7 @@ function render() {
       `;
     });
 
-    const discount = cases >= 10 ? subtotal * 0.10 : 0;
+    const discount = cases >= 10 ? subtotal * 0.1 : 0;
     const tax =
       state.customer.businessType === "Restaurant"
         ? subtotal * 0.06
@@ -165,24 +173,21 @@ function render() {
     el.innerHTML += `
         </table>
         <p>Subtotal: $${subtotal.toFixed(2)}</p>
-        <p>Case Discount: -$${discount.toFixed(2)}</p>
+        <p>Discount: -$${discount.toFixed(2)}</p>
         <p>Tax: $${tax.toFixed(2)}</p>
         <p>Keg Deposit: $${kegDeposit.toFixed(2)}</p>
         <h3>Total: $${total.toFixed(2)}</h3>
 
-        <div class="agreement">
-          <label>
-            <input type="checkbox" id="agree">
-            I confirm this order is binding
-          </label>
-        </div>
+        <label>
+          <input type="checkbox" id="agree"> I confirm this order is binding
+        </label><br><br>
 
         <button onclick="submitOrder()">Submit Order</button>
       </div>
     `;
   }
 
-  /* STEP 4 — DONE */
+  /******** STEP 4 ********/
   if (state.step === 4) {
     el.innerHTML = `
       <div class="card">
