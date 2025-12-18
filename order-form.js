@@ -20,36 +20,43 @@ let customers = {
  ***********************/
 let state = {
   step: 1,
-  customer: {},
+  customer: { payment: "check" },
   cart: []
 };
 
 /***********************
- * CSV PARSER (Safari Safe)
+ * CSV PARSER (HEADER-BASED)
+ * Pulls store names from the exact header provided
  ***********************/
-function parseCSV(text) {
+function parseCSV(text, nameHeader) {
   const lines = text.trim().split("\n");
   const headers = lines.shift().split(",");
 
-  return lines.map(line => {
-    const values = line.split(",");
-    let obj = {};
-    headers.forEach((h, i) => {
-      obj[h.trim()] = (values[i] || "").trim();
-    });
-    return obj;
-  });
+  const nameIndex = headers.findIndex(
+    h => h.trim() === nameHeader
+  );
+
+  if (nameIndex === -1) return [];
+
+  return lines
+    .map(line => {
+      const cols = line.split(",");
+      return {
+        store: (cols[nameIndex] || "").trim()
+      };
+    })
+    .filter(r => r.store);
 }
 
 /***********************
- * LOAD CUSTOMERS (AUTO-SYNC)
+ * LOAD CUSTOMERS (AUTO-SYNC FROM GOOGLE SHEETS)
  ***********************/
 function loadCustomers() {
   // CHECK customers
   fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=2105303643&single=true&output=csv")
     .then(res => res.text())
     .then(text => {
-      customers.check = parseCSV(text);
+      customers.check = parseCSV(text, "Check Customer Name");
       render();
     });
 
@@ -57,7 +64,7 @@ function loadCustomers() {
   fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=799127666&single=true&output=csv")
     .then(res => res.text())
     .then(text => {
-      customers.fintech = parseCSV(text);
+      customers.fintech = parseCSV(text, "Fintech Customer Name");
       render();
     });
 }
@@ -72,9 +79,10 @@ function render() {
 
   /******** STEP 1 — STORE INFO ********/
   if (state.step === 1) {
-    const list = state.customer.payment === "fintech"
-      ? customers.fintech
-      : customers.check;
+    const list =
+      state.customer.payment === "fintech"
+        ? customers.fintech
+        : customers.check;
 
     el.innerHTML = `
       <div class="card">
@@ -82,18 +90,15 @@ function render() {
 
         <label>Payment Method</label>
         <select id="payment" onchange="changePayment()">
-          <option value="check">Check</option>
-          <option value="fintech">Fintech</option>
+          <option value="check" ${state.customer.payment === "check" ? "selected" : ""}>Check</option>
+          <option value="fintech" ${state.customer.payment === "fintech" ? "selected" : ""}>Fintech</option>
         </select>
 
         <label>Store</label>
-        <select id="store" onchange="fillContact()">
+        <select id="store">
           <option value="">Select Store</option>
           ${list.map(c => `<option value="${c.store}">${c.store}</option>`).join("")}
         </select>
-
-        <input id="contact" placeholder="Contact Name">
-        <input id="email" placeholder="Email">
 
         <button onclick="nextStep()">Next</button>
       </div>
@@ -113,7 +118,10 @@ function render() {
       `;
     });
 
-    el.innerHTML += `<button onclick="review()">Review Order</button></div>`;
+    el.innerHTML += `
+        <button onclick="review()">Review Order</button>
+      </div>
+    `;
   }
 
   /******** STEP 3 — REVIEW ********/
@@ -123,19 +131,17 @@ function render() {
     el.innerHTML = `
       <div class="card">
         <h2>Review Order</h2>
-
         <p>
           <strong>${state.customer.store}</strong><br>
-          ${state.customer.contact}<br>
-          ${state.customer.email}<br>
           Payment: ${state.customer.payment}
         </p>
     `;
 
     state.cart.forEach(i => {
-      const price = state.customer.payment === "check" ? i.check : i.fintech;
+      const price =
+        state.customer.payment === "check" ? i.check : i.fintech;
       total += price * i.qty;
-      el.innerHTML += `<p>${i.name} x ${i.qty} = $${price * i.qty}</p>`;
+      el.innerHTML += `<p>${i.name} × ${i.qty} = $${price * i.qty}</p>`;
     });
 
     el.innerHTML += `
@@ -164,26 +170,8 @@ function changePayment() {
   render();
 }
 
-function fillContact() {
-  const store = document.getElementById("store").value;
-  const list = state.customer.payment === "fintech"
-    ? customers.fintech
-    : customers.check;
-
-  const match = list.find(c => c.store === store);
-  if (match) {
-    document.getElementById("contact").value = match.contact || "";
-    document.getElementById("email").value = match.email || "";
-  }
-}
-
 function nextStep() {
-  state.customer = {
-    payment: document.getElementById("payment").value,
-    store: document.getElementById("store").value,
-    contact: document.getElementById("contact").value,
-    email: document.getElementById("email").value
-  };
+  state.customer.store = document.getElementById("store").value;
   state.step = 2;
   render();
 }
