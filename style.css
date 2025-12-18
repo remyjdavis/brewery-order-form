@@ -1,26 +1,7 @@
-/***********************
- * BASE STYLES
- ***********************/
 body {
   font-family: Arial, sans-serif;
   background: #f5f5f5;
   margin: 0;
-  padding: 0;
-}
-
-h1 {
-  text-align: center;
-  margin: 20px 0;
-}
-
-h2 {
-  margin-top: 0;
-}
-
-h3 {
-  margin-top: 30px;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 5px;
 }
 
 .card {
@@ -32,61 +13,35 @@ h3 {
 }
 
 button {
-  padding: 12px 18px;
+  padding: 12px;
+  width: 100%;
   background: #2c6e49;
   color: #fff;
   border: none;
   border-radius: 4px;
-  cursor: pointer;
-  margin-top: 20px;
-  font-size: 15px;
+  font-size: 16px;
 }
 
-button:hover {
-  background: #245a3c;
-}
-
-input,
-select {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  box-sizing: border-box;
-  font-size: 15px;
-}
-
-/***********************
- * PRODUCT GRID (FIXED)
- ***********************/
 .grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* A B / C D */
+  grid-template-columns: repeat(2, 1fr);
   gap: 15px;
-  margin-top: 10px;
 }
 
-/* Large desktop: 3 across */
-@media (min-width: 1200px) {
-  .grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
+@media (min-width: 1100px) {
+  .grid { grid-template-columns: repeat(3, 1fr); }
 }
 
-/***********************
- * PRODUCT CARD
- ***********************/
+@media (max-width: 768px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
 .product-card {
   border: 1px solid #ddd;
   border-radius: 6px;
   padding: 14px;
   cursor: pointer;
   background: #fafafa;
-  transition: border 0.2s, box-shadow 0.2s;
-}
-
-.product-card:hover {
-  border-color: #999;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
 .product-card.active {
@@ -96,77 +51,35 @@ select {
 
 .product-name {
   font-weight: bold;
-  font-size: 15px;
 }
 
 .product-meta {
   font-size: 13px;
-  color: #555;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
-/***********************
- * QUANTITY AREA
- ***********************/
 .qty-box {
-  margin-top: 12px;
   display: none;
+  margin-top: 10px;
 }
 
-.qty-box label {
-  font-size: 13px;
-  font-weight: bold;
-}
-
-.qty-box select,
 .qty-box input {
   width: 100%;
   padding: 8px;
-  margin-top: 6px;
-  font-size: 15px;
 }
 
-/***********************
- * LIVE TOTAL
- ***********************/
+.product-card.out {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.out-label {
+  color: red;
+  font-weight: bold;
+}
+
 #live-total {
   margin-top: 15px;
   font-weight: bold;
-  font-size: 16px;
-}
-
-/***********************
- * MOBILE OPTIMIZATIONS
- ***********************/
-@media (max-width: 768px) {
-
-  /* Single column grid on phones */
-  .grid {
-    grid-template-columns: 1fr;
-  }
-
-  .card {
-    margin: 10px;
-    padding: 16px;
-  }
-
-  .product-card {
-    padding: 18px;
-  }
-
-  button {
-    width: 100%;
-    font-size: 17px;
-  }
-
-  /* Sticky total on mobile */
-  #live-total {
-    position: sticky;
-    bottom: 0;
-    background: #fff;
-    padding: 14px;
-    border-top: 1px solid #ddd;
-    font-size: 18px;
-    z-index: 10;
-  }
+  font-size: 18px;
 }
