@@ -90,38 +90,33 @@ function loadProducts() {
 }
 
 /***********************
- * CATEGORY CLASSIFIER
+ * CATEGORY HELPERS
  ***********************/
 function getDisplayCategory(category) {
   const c = category.toLowerCase();
-
   if (c.includes("case")) return "Cases";
   if (c.includes("1/2") || c.includes("1/6")) return "Kegs";
-
   return "Other";
 }
 
-/***********************
- * GROUP PRODUCTS
- ***********************/
 function groupByDisplayCategory(items) {
-  return items.reduce((groups, item) => {
-    const display = getDisplayCategory(item.category);
-    if (!groups[display]) groups[display] = [];
-    groups[display].push(item);
-    return groups;
+  return items.reduce((g, item) => {
+    const d = getDisplayCategory(item.category);
+    if (!g[d]) g[d] = [];
+    g[d].push(item);
+    return g;
   }, {});
 }
 
 /***********************
- * RENDER UI
+ * RENDER
  ***********************/
 function render() {
   const el = document.getElementById("form-container");
   if (!el) return;
   el.innerHTML = "";
 
-  /** STEP 1 — STORE **/
+  /** STEP 1 **/
   if (state.step === 1) {
     el.innerHTML = `
       <div class="card">
@@ -133,35 +128,51 @@ function render() {
     `;
   }
 
-  /** STEP 2 — PRODUCTS **/
+  /** STEP 2 **/
   if (state.step === 2) {
     el.innerHTML = `<div class="card"><h2>Select Products</h2>`;
-
     const grouped = groupByDisplayCategory(products);
 
     ["Cases", "Kegs"].forEach(cat => {
       if (!grouped[cat]) return;
-
-      el.innerHTML += `<h3 style="margin-top:20px;">${cat}</h3>`;
+      el.innerHTML += `<h3>${cat}</h3><div class="grid">`;
 
       grouped[cat].forEach(p => {
-        const index = products.indexOf(p);
+        const i = products.indexOf(p);
+        const id = `prod-${i}`;
+
         el.innerHTML += `
-          <div class="product">
-            <div>
-              <strong>${p.name}</strong><br>
-              Price: $${p.price} · In stock: ${p.stock}
+          <div class="product-card" onclick="toggleQty('${id}')">
+            <div class="product-name">${p.name}</div>
+            <div class="product-meta">$${p.price} · In stock: ${p.stock}</div>
+
+            <div class="qty-box" id="${id}">
+              <label>Quantity</label>
+              <select onclick="event.stopPropagation()" onchange="syncQty('${id}', this.value)">
+                <option value="">Select</option>
+                ${[...Array(20)].map((_, n) => `<option>${n + 1}</option>`).join("")}
+              </select>
+
+              <input
+                type="number"
+                min="0"
+                placeholder="Custom quantity"
+                onclick="event.stopPropagation()"
+                oninput="syncQty('${id}', this.value)"
+              >
+              <input type="hidden" id="q-${i}" value="0">
             </div>
-            <input type="number" min="0" id="q-${index}" placeholder="Qty">
           </div>
         `;
       });
+
+      el.innerHTML += `</div>`;
     });
 
     el.innerHTML += `<button onclick="review()">Review Order</button></div>`;
   }
 
-  /** STEP 3 — REVIEW **/
+  /** STEP 3 **/
   if (state.step === 3) {
     let total = 0;
     const c = state.customer;
@@ -188,7 +199,7 @@ function render() {
     </div>`;
   }
 
-  /** STEP 4 — CONFIRM **/
+  /** STEP 4 **/
   if (state.step === 4) {
     el.innerHTML = `
       <div class="card">
@@ -200,23 +211,41 @@ function render() {
 }
 
 /***********************
- * STORE VALIDATION
+ * HELPERS
+ ***********************/
+function toggleQty(id) {
+  const box = document.getElementById(id);
+  const card = box.closest(".product-card");
+  const open = box.style.display === "block";
+
+  document.querySelectorAll(".qty-box").forEach(b => {
+    b.style.display = "none";
+    b.closest(".product-card").classList.remove("active");
+  });
+
+  if (!open) {
+    box.style.display = "block";
+    card.classList.add("active");
+  }
+}
+
+function syncQty(id, value) {
+  const index = id.split("-")[1];
+  document.getElementById(`q-${index}`).value = value || 0;
+}
+
+/***********************
+ * FLOW
  ***********************/
 function validateStore() {
-  const input = document.getElementById("store").value.trim();
+  const input = document.getElementById("store").value.trim().toLowerCase();
 
-  const check = customers.check.find(
-    c => c.store?.toLowerCase() === input.toLowerCase()
-  );
-  const fintech = customers.fintech.find(
-    c => c.store?.toLowerCase() === input.toLowerCase()
-  );
+  const c1 = customers.check.find(c => c.store?.toLowerCase() === input);
+  const c2 = customers.fintech.find(c => c.store?.toLowerCase() === input);
 
-  if (check) {
-    state.customer = { ...check, payment: "Check" };
-  } else if (fintech) {
-    state.customer = { ...fintech, payment: "Fintech" };
-  } else {
+  if (c1) state.customer = { ...c1, payment: "Check" };
+  else if (c2) state.customer = { ...c2, payment: "Fintech" };
+  else {
     state.error = "Store not found. Please check spelling.";
     render();
     return;
@@ -227,9 +256,6 @@ function validateStore() {
   render();
 }
 
-/***********************
- * ORDER FLOW
- ***********************/
 function review() {
   state.cart = products
     .map((p, i) => ({
