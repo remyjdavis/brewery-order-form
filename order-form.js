@@ -20,13 +20,13 @@ let customers = {
  ***********************/
 let state = {
   step: 1,
-  customer: { payment: "check" },
-  cart: []
+  customer: {},
+  cart: [],
+  error: ""
 };
 
 /***********************
- * CSV PARSER (HEADER-BASED)
- * Pulls store names from the exact header provided
+ * CSV PARSER
  ***********************/
 function parseCSV(text, nameHeader) {
   const lines = text.trim().split("\n");
@@ -49,23 +49,19 @@ function parseCSV(text, nameHeader) {
 }
 
 /***********************
- * LOAD CUSTOMERS (AUTO-SYNC FROM GOOGLE SHEETS)
+ * LOAD CUSTOMERS (AUTO-SYNC)
  ***********************/
 function loadCustomers() {
-  // CHECK customers
   fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=2105303643&single=true&output=csv")
     .then(res => res.text())
     .then(text => {
       customers.check = parseCSV(text, "Check Customer Name");
-      render();
     });
 
-  // FINTECH customers
   fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=799127666&single=true&output=csv")
     .then(res => res.text())
     .then(text => {
       customers.fintech = parseCSV(text, "Fintech Customer Name");
-      render();
     });
 }
 
@@ -77,30 +73,20 @@ function render() {
   if (!el) return;
   el.innerHTML = "";
 
-  /******** STEP 1 — STORE INFO ********/
+  /******** STEP 1 — STORE IDENTIFICATION ********/
   if (state.step === 1) {
-    const list =
-      state.customer.payment === "fintech"
-        ? customers.fintech
-        : customers.check;
-
     el.innerHTML = `
       <div class="card">
         <h2>Store Information</h2>
 
-        <label>Payment Method</label>
-        <select id="payment" onchange="changePayment()">
-          <option value="check" ${state.customer.payment === "check" ? "selected" : ""}>Check</option>
-          <option value="fintech" ${state.customer.payment === "fintech" ? "selected" : ""}>Fintech</option>
-        </select>
+        <input
+          id="store"
+          placeholder="Enter Store Name"
+        />
 
-        <label>Store</label>
-        <select id="store">
-          <option value="">Select Store</option>
-          ${list.map(c => `<option value="${c.store}">${c.store}</option>`).join("")}
-        </select>
+        ${state.error ? `<p style="color:red;">${state.error}</p>` : ""}
 
-        <button onclick="nextStep()">Next</button>
+        <button onclick="validateStore()">Next</button>
       </div>
     `;
   }
@@ -118,10 +104,7 @@ function render() {
       `;
     });
 
-    el.innerHTML += `
-        <button onclick="review()">Review Order</button>
-      </div>
-    `;
+    el.innerHTML += `<button onclick="review()">Review Order</button></div>`;
   }
 
   /******** STEP 3 — REVIEW ********/
@@ -131,9 +114,10 @@ function render() {
     el.innerHTML = `
       <div class="card">
         <h2>Review Order</h2>
+
         <p>
           <strong>${state.customer.store}</strong><br>
-          Payment: ${state.customer.payment}
+          Payment Method: ${state.customer.payment}
         </p>
     `;
 
@@ -163,19 +147,49 @@ function render() {
 }
 
 /***********************
- * EVENT HANDLERS
+ * STORE VALIDATION
  ***********************/
-function changePayment() {
-  state.customer.payment = document.getElementById("payment").value;
-  render();
-}
+function validateStore() {
+  const input = document.getElementById("store").value.trim();
 
-function nextStep() {
-  state.customer.store = document.getElementById("store").value;
+  if (!input) {
+    state.error = "Please enter your store name.";
+    render();
+    return;
+  }
+
+  const checkMatch = customers.check.find(
+    c => c.store.toLowerCase() === input.toLowerCase()
+  );
+
+  const fintechMatch = customers.fintech.find(
+    c => c.store.toLowerCase() === input.toLowerCase()
+  );
+
+  if (checkMatch) {
+    state.customer = {
+      store: checkMatch.store,
+      payment: "check"
+    };
+  } else if (fintechMatch) {
+    state.customer = {
+      store: fintechMatch.store,
+      payment: "fintech"
+    };
+  } else {
+    state.error = "Store not found. Please check spelling.";
+    render();
+    return;
+  }
+
+  state.error = "";
   state.step = 2;
   render();
 }
 
+/***********************
+ * ORDER FLOW
+ ***********************/
 function review() {
   state.cart = PRODUCTS
     .map(p => ({
