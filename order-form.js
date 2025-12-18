@@ -32,9 +32,14 @@ function parseCSV(text, nameHeader) {
   const lines = text.trim().split("\n");
   const headers = lines.shift().split(",");
 
-  const nameIndex = headers.findIndex(
-    h => h.trim() === nameHeader
-  );
+  const idx = header =>
+    headers.findIndex(h => h.trim() === header);
+
+  const nameIndex = idx(nameHeader);
+  const addressIndex = idx("Address");
+  const cityIndex = idx("City");
+  const stateIndex = idx("State");
+  const zipIndex = idx("Zip");
 
   if (nameIndex === -1) return [];
 
@@ -42,7 +47,11 @@ function parseCSV(text, nameHeader) {
     .map(line => {
       const cols = line.split(",");
       return {
-        store: (cols[nameIndex] || "").trim()
+        store: (cols[nameIndex] || "").trim(),
+        address: (cols[addressIndex] || "").trim(),
+        city: (cols[cityIndex] || "").trim(),
+        state: (cols[stateIndex] || "").trim(),
+        zip: (cols[zipIndex] || "").trim()
       };
     })
     .filter(r => r.store);
@@ -52,12 +61,14 @@ function parseCSV(text, nameHeader) {
  * LOAD CUSTOMERS (AUTO-SYNC)
  ***********************/
 function loadCustomers() {
+  // CHECK customers
   fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=2105303643&single=true&output=csv")
     .then(res => res.text())
     .then(text => {
       customers.check = parseCSV(text, "Check Customer Name");
     });
 
+  // FINTECH customers
   fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=799127666&single=true&output=csv")
     .then(res => res.text())
     .then(text => {
@@ -79,10 +90,7 @@ function render() {
       <div class="card">
         <h2>Store Information</h2>
 
-        <input
-          id="store"
-          placeholder="Enter Store Name"
-        />
+        <input id="store" placeholder="Enter Store Name">
 
         ${state.error ? `<p style="color:red;">${state.error}</p>` : ""}
 
@@ -111,19 +119,22 @@ function render() {
   if (state.step === 3) {
     let total = 0;
 
+    const c = state.customer;
+
     el.innerHTML = `
       <div class="card">
         <h2>Review Order</h2>
 
         <p>
-          <strong>${state.customer.store}</strong><br>
-          Payment Method: ${state.customer.payment}
+          <strong>${c.store}</strong><br>
+          ${c.address}<br>
+          ${c.city}, ${c.state} ${c.zip}<br>
+          <strong>Payment Method:</strong> ${c.payment}
         </p>
     `;
 
     state.cart.forEach(i => {
-      const price =
-        state.customer.payment === "check" ? i.check : i.fintech;
+      const price = c.payment === "check" ? i.check : i.fintech;
       total += price * i.qty;
       el.innerHTML += `<p>${i.name} × ${i.qty} = $${price * i.qty}</p>`;
     });
@@ -168,13 +179,13 @@ function validateStore() {
 
   if (checkMatch) {
     state.customer = {
-      store: checkMatch.store,
-      payment: "check"
+      ...checkMatch,
+      payment: "Check"
     };
   } else if (fintechMatch) {
     state.customer = {
-      store: fintechMatch.store,
-      payment: "fintech"
+      ...fintechMatch,
+      payment: "Fintech"
     };
   } else {
     state.error = "Store not found. Please check spelling.";
