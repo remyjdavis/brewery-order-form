@@ -1,7 +1,6 @@
 /******** CONFIG ********/
 const API_URL = "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec";
-const PRODUCT_CSV_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&single=true&output=csv";
+const PRODUCT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&single=true&output=csv";
 
 /******** STATE ********/
 let products = [];
@@ -13,16 +12,21 @@ let state = {
   cart: []
 };
 
-/******** CSV ********/
+/******** CSV PARSER (Safari Optimized) ********/
 function parseCSV(text) {
-  const lines = text.trim().split("\n");
-  const headers = lines.shift().split(",");
+  // Use regex to split by any newline variation (Unix or Windows)
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length === 0) return [];
+
+  // Trim headers to remove hidden spaces or \r
+  const headers = lines.shift().split(",").map(h => h.trim());
 
   return lines.map(line => {
     const values = line.split(",");
     const obj = {};
     headers.forEach((h, i) => {
-      obj[h.trim()] = (values[i] || "").trim();
+      // Ensure values are trimmed of whitespace and hidden characters
+      obj[h] = (values[i] || "").trim();
     });
     return obj;
   });
@@ -30,30 +34,44 @@ function parseCSV(text) {
 
 /******** LOAD PRODUCTS ********/
 async function loadProducts() {
-  const res = await fetch(PRODUCT_CSV_URL);
-  const text = await res.text();
+  try {
+    // Safari fix: Append a timestamp to prevent cached empty responses
+    const separator = PRODUCT_CSV_URL.includes('?') ? '&' : '?';
+    const res = await fetch(`${PRODUCT_CSV_URL}${separator}t=${Date.now()}`);
+    const text = await res.text();
 
-  products = parseCSV(text).map(p => ({
-    name: p["Product Name"],
-    price: Number(p["Price"]),
-    stock: Number(p["Qty In Stock"])
-  }));
+    const rawData = parseCSV(text);
+    
+    products = rawData.map(p => ({
+      name: p["Product Name"] || "Unknown",
+      price: parseFloat(p["Price"]) || 0,
+      stock: parseInt(p["Qty In Stock"], 10) || 0
+    }));
 
-  render();
+    render();
+  } catch (err) {
+    console.error("Error loading CSV:", err);
+  }
 }
 
 /******** CUSTOMER SEARCH ********/
 async function searchCustomers(query) {
   if (query.length < 2) return [];
 
-  const res = await fetch(`${API_URL}?q=${encodeURIComponent(query)}`);
-  const data = await res.json();
-  return data.results || [];
+  try {
+    const res = await fetch(`${API_URL}?q=${encodeURIComponent(query)}`);
+    const data = await res.json();
+    return data.results || [];
+  } catch (err) {
+    console.error("Error searching customers:", err);
+    return [];
+  }
 }
 
 /******** RENDER ********/
 function render() {
   const el = document.getElementById("form-container");
+  if (!el) return;
   el.innerHTML = "";
 
   /* STEP 1 — CUSTOMER */
@@ -61,12 +79,12 @@ function render() {
     el.innerHTML = `
       <div class="card">
         <h2>Select Customer</h2>
-
         <div class="autocomplete-wrapper">
           <input
             id="customer-input"
             placeholder="Start typing customer name..."
             autocomplete="off"
+            type="text"
           >
           <div id="autocomplete-results"></div>
         </div>
@@ -82,7 +100,10 @@ function render() {
   if (state.step === 2) {
     el.innerHTML = `
       <div class="card">
-        <h2>Products</h2>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2>Products</h2>
+            <small>Customer: <strong>${state.customer.name}</strong></small>
+        </div>
 
         <div class="grid">
           ${products.map((p, i) => `
@@ -93,16 +114,20 @@ function render() {
               <input
                 type="number"
                 min="0"
+                pattern="[0-9]*"
                 max="${p.stock}"
                 id="qty-${i}"
+                placeholder="0"
               >
             </div>
           `).join("")}
         </div>
 
-        <button class="primary" onclick="review()">Review Order</button>
+        <button class="primary" id="btn-review">Review Order</button>
       </div>
     `;
+    
+    document.getElementById("btn-review").onclick = review;
   }
 }
 
@@ -114,16 +139,17 @@ async function handleAutocomplete(e) {
   customerResults = await searchCustomers(query);
 
   box.innerHTML = customerResults.map((c, i) => `
-    <div class="autocomplete-item" data-index="${i}">
+    <div class="autocomplete-item" data-index="${i}" style="cursor:pointer;">
       ${c.name}
     </div>
   `).join("");
 
   box.querySelectorAll(".autocomplete-item").forEach(item => {
-    item.addEventListener("click", () => {
-      const index = Number(item.dataset.index);
+    // Safari sometimes needs 'touchstart' or specific cursor styles to trigger clicks
+    item.onclick = function() {
+      const index = Number(this.dataset.index);
       selectCustomer(customerResults[index]);
-    });
+    };
   });
 }
 
@@ -138,14 +164,15 @@ function review() {
   state.cart = products.map((p, i) => ({
     ...p,
     qty: Number(document.getElementById(`qty-${i}`).value || 0)
-  })).filter(i => i.qty > 0);
+  })).filter(item => item.qty > 0);
 
   if (!state.cart.length) {
     alert("Add at least one product.");
     return;
   }
 
-  alert("Review logic next step — state is correct.");
+  alert(`Reviewing order for ${state.customer.name} with ${state.cart.length} items.`);
+  console.log("Final State:", state);
 }
 
 /******** INIT ********/
