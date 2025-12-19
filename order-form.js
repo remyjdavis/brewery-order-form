@@ -13,6 +13,8 @@ let state = {
   cart: []
 };
 
+let autocompleteResults = [];
+
 /**************** CSV ****************/
 function parseCSV(text) {
   const lines = text.trim().split("\n");
@@ -37,46 +39,68 @@ async function loadProducts() {
   render();
 }
 
-/**************** AUTOCOMPLETE ****************/
-async function autocomplete(val) {
-  if (val.length < 2) return;
-  const res = await fetch(`${API_URL}?q=${encodeURIComponent(val)}`);
-  const data = await res.json();
+/**************** AUTOCOMPLETE (SAFE) ****************/
+let searchTimer = null;
 
+function handleCustomerInput(val) {
+  clearTimeout(searchTimer);
+  if (val.length < 2) {
+    document.getElementById("results").innerHTML = "";
+    return;
+  }
+
+  searchTimer = setTimeout(async () => {
+    const res = await fetch(`${API_URL}?q=${encodeURIComponent(val)}`);
+    const data = await res.json();
+    autocompleteResults = data.results || [];
+    drawAutocomplete();
+  }, 300);
+}
+
+function drawAutocomplete() {
   const box = document.getElementById("results");
   box.innerHTML = "";
 
-  data.results.forEach(c => {
+  autocompleteResults.forEach((c, i) => {
     const div = document.createElement("div");
     div.className = "autocomplete-item";
     div.textContent = c.name;
-    div.onclick = () => {
-      state.customer = c;
-      state.step = 2;
-      render();
-    };
+    div.dataset.index = i;
     box.appendChild(div);
   });
 }
+
+/* CLICK HANDLER — EVENT DELEGATION (SAFARI SAFE) */
+document.addEventListener("click", function (e) {
+  if (e.target.classList.contains("autocomplete-item")) {
+    const idx = e.target.dataset.index;
+    state.customer = autocompleteResults[idx];
+    state.step = 2;
+    render();
+  }
+});
 
 /**************** RENDER ****************/
 function render() {
   const el = document.getElementById("form-container");
   el.innerHTML = "";
 
-  /* STEP 1 — CUSTOMER */
+  /* STEP 1 */
   if (state.step === 1) {
     el.innerHTML = `
       <div class="card">
         <h2>Select Customer</h2>
-        <input class="customer-search" placeholder="Search customer..."
-          oninput="autocomplete(this.value)">
+        <input
+          class="customer-search"
+          placeholder="Search customer..."
+          oninput="handleCustomerInput(this.value)"
+        >
         <div id="results" class="autocomplete-results"></div>
       </div>
     `;
   }
 
-  /* STEP 2 — PRODUCTS (GRID LOCKED) */
+  /* STEP 2 — GRID (UNTOUCHED) */
   if (state.step === 2) {
     el.innerHTML = `
       <div class="card">
@@ -103,7 +127,7 @@ function render() {
     });
   }
 
-  /* STEP 3 — REVIEW */
+  /* STEP 3 */
   if (state.step === 3) {
     let subtotal = 0, keg = 0;
 
