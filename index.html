@@ -10,28 +10,22 @@
     .header-brand { display: flex; align-items: center; gap: 12px; }
     .header-brand img { height: 45px; background: white; border-radius: 4px; padding: 2px; }
     .header-text h1 { margin: 0; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.5px; }
-    
     .card { background: white; padding: 18px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); width: 92%; max-width: 1000px; margin: 12px auto; }
     .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
     .product-card { border: 1px solid #eee; padding: 10px; border-radius: 10px; background: #fff; text-align: center; }
     .qty-input { width: 70%; padding: 6px; border: 1.5px solid #007bff; border-radius: 6px; text-align: center; font-weight: bold; font-size: 0.9em; }
-    
     .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; color: white; border-top: 3px solid #007bff; padding: 12px 5%; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
-    
-    button { padding: 8px 16px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; font-size: 0.8em; transition: 0.2s; }
+    button { padding: 8px 16px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; font-size: 0.8em; }
     button:disabled { background: #ccc !important; cursor: not-allowed; }
     .primary { background: #007bff; color: white; width: 100%; height: 38px; }
     .success { background: #28a745; color: white; width: 100%; height: 42px; font-size: 0.9em; }
     .secondary { background: #eee; color: #444; width: 100%; margin-top: 8px; }
-    
     .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 5000; display: none; max-height: 250px; overflow-y: auto; }
     .dropdown-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 0.9em; }
-
     .summary-row { display: flex; justify-content: flex-end; padding: 3px 0; font-size: 0.9em; }
     .summary-label { width: 220px; text-align: right; color: #666; padding-right: 15px; }
     .summary-val { width: 100px; text-align: right; font-weight: bold; }
     .grand-total { border-top: 2px solid #1a1a1a; margin-top: 8px; padding-top: 8px; font-size: 1.4em; color: #1a1a1a; }
-
     @media print {
         body * { visibility: hidden; }
         #receipt-printable, #receipt-printable * { visibility: visible; }
@@ -55,8 +49,9 @@
 <main id="app"></main>
 
 <div id="live-bar" class="live-bar" style="display:none;">
-  <div>
-    <small id="savings-label" style="color: #2ecc71; font-weight:700; font-size:0.75em; text-transform:uppercase;"></small>
+  <div style="line-height:1.2;">
+    <small id="savings-label" style="color: #2ecc71; font-weight:700; font-size:0.65em; text-transform:uppercase; display:block;"></small>
+    <small id="tax-label" style="color: #aaa; font-size:0.65em; display:block;"></small>
     <strong id="live-total" style="font-size:1.4em;">$0.00</strong>
   </div>
   <button style="background:#007bff; color:white;" onclick="state.step=3;render()">Review Order &rarr;</button>
@@ -82,40 +77,42 @@
     } catch(e) { console.error(e); }
   }
 
+  function checkIsRestaurant(name) {
+    if (!name) return false;
+    const keywords = ["restaurant", "pub", "grill", "cafe", "bistro", "tavern", "kitchen", "inn", "bar"];
+    const lowerName = name.toLowerCase();
+    return keywords.some(word => lowerName.includes(word));
+  }
+
   function render() {
     const app = document.getElementById("app");
     const bar = document.getElementById("live-bar");
     app.innerHTML = ""; bar.style.display = "none";
 
-    // STEP 0: USER AGREEMENT
     if (state.step === 0) {
       app.innerHTML = `<div class="card">
         <h2 style="font-size:1.1em; border-bottom:2px solid #007bff; padding-bottom:8px;">Wholesale User Agreement</h2>
-        <div style="font-size:0.85em; height: 200px; overflow-y: auto; border: 1px solid #eee; padding: 10px; margin: 15px 0; background: #fafafa; line-height: 1.4;">
-            <strong>Suburban Brewing Co. Wholesale Terms:</strong><br><br>
-            1. All orders are subject to availability.<br>
-            2. Payment terms are based on your account status (Fintech or Check).<br>
-            3. Keg deposits are $30.00 per unit.<br>
-            4. Bulk discounts (10%) apply to orders of 10 or more items.<br>
-            5. By proceeding, you confirm you are an authorized buyer for the selected account.
+        <div style="font-size:0.85em; max-height: 250px; overflow-y: auto; border: 1px solid #eee; padding: 10px; margin: 15px 0; background: #fafafa; line-height: 1.5;">
+            <strong>Wholesale Purchasing Terms:</strong><br><br>
+            By proceeding, you acknowledge you are an authorized representative of the selected business. 
+            All orders are subject to sales tax where applicable by law. 
+            Keg deposits ($30.00) are added per unit. Bulk discounts (10%) apply to 10+ items.
         </div>
-        <label style="display:block; margin-bottom:15px; font-size:0.9em;">
+        <label style="display:flex; align-items:center; gap:10px; margin-bottom:15px; font-size:0.9em; cursor:pointer;">
             <input type="checkbox" id="agree-cb" onchange="document.getElementById('proceed-btn').disabled = !this.checked"> 
-            I have read and agree to the wholesale terms.
+            I agree to the wholesale terms and conditions.
         </label>
-        <button id="proceed-btn" class="primary" disabled onclick="state.step=1;render()">Proceed to Account Selection</button>
+        <button id="proceed-btn" class="primary" disabled onclick="state.step=1;render()">I Agree & Proceed</button>
       </div>`;
     }
-    // STEP 1: CUSTOMER SEARCH
     else if (state.step === 1) {
       app.innerHTML = `<div class="card">
         <h2 style="font-size:1em;">Account Selection</h2>
-        <input type="text" id="cust-input" placeholder="Search account..." style="width:100%; padding:10px; border-radius:6px; border:2px solid #ddd; font-size:0.95em; box-sizing:border-box;">
+        <input type="text" id="cust-input" placeholder="Search for account name..." style="width:100%; padding:10px; border-radius:6px; border:2px solid #ddd; font-size:0.95em; box-sizing:border-box;">
         <div id="results" class="dropdown"></div>
       </div>`;
       document.getElementById("cust-input").oninput = (e) => doSearch(e.target.value);
     } 
-    // STEP 2: PRODUCT SELECTION
     else if (state.step === 2) {
       bar.style.display = "flex";
       app.innerHTML = `<div class="card">
@@ -130,57 +127,44 @@
       </div>`;
       updateLiveDisplay();
     }
-    // STEP 3: REVIEW PAGE
     else if (state.step === 3) {
       const items = state.cart.filter(i => i.qty > 0);
       const subtotal = items.reduce((s, i) => s + (i.price * i.qty), 0);
       const kegCount = items.reduce((s, i) => s + (i.name.toLowerCase().includes("keg") ? i.qty : 0), 0);
       const kegDeposit = kegCount * 30.00;
       const discount = (items.reduce((s, i) => s + i.qty, 0) >= 10) ? subtotal * 0.10 : 0;
-      const grandTotal = (subtotal - discount) + kegDeposit;
+      const taxableAmount = subtotal - discount;
+      const taxRate = checkIsRestaurant(state.customer.name) ? 0.06 : 0;
+      const tax = taxableAmount * taxRate;
+      const grandTotal = taxableAmount + tax + kegDeposit;
 
       app.innerHTML = `
       <div class="card" id="receipt-printable">
-        <h2 style="font-size:1.2em; border-bottom:2px solid #007bff; padding-bottom:8px; margin-bottom:12px;">Review Final Order</h2>
-        
-        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.8em; line-height: 1.3;">
-            <div>
-                <strong>Suburban Brewing Co.</strong><br>
-                3041 Horseshoe Pike Suite 120 & 130<br>
-                Honey Brook, PA 19344
-            </div>
-            <div style="text-align: right;">
-                <strong>Order Date:</strong><br>${new Date().toLocaleDateString()}
-            </div>
+        <h2 style="font-size:1.2em; border-bottom:2px solid #007bff; padding-bottom:8px; margin-bottom:12px;">Order Summary</h2>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.8em;">
+            <div><strong>Suburban Brewing Co.</strong><br>3041 Horseshoe Pike, Honey Brook, PA</div>
+            <div style="text-align: right;"><strong>Date:</strong> ${new Date().toLocaleDateString()}</div>
         </div>
-
-        <div style="margin-bottom: 18px; font-size: 0.9em; line-height: 1.3; border-top: 1px solid #eee; padding-top: 10px;">
+        <div style="margin-bottom: 18px; font-size: 0.9em; line-height: 1.4; border-top: 1px solid #eee; padding-top: 10px;">
             <div style="font-weight: bold; color: #007bff;">${state.customer.name}</div>
             <div>${state.customer.address}</div>
             <div>${state.customer.city}, ${state.customer.state} ${state.customer.zip}</div>
         </div>
-
         <table style="width:100%; border-collapse:collapse; margin-bottom:12px; font-size:0.85em;">
-            ${items.map(item => `
-            <tr>
-                <td style="padding:6px 0; border-bottom:1px solid #eee;">${item.name} (x${item.qty})</td>
-                <td style="text-align:right; padding:6px 0; border-bottom:1px solid #eee; font-weight:bold;">$${(item.price * item.qty).toFixed(2)}</td>
-            </tr>`).join("")}
+            ${items.map(item => `<tr><td style="padding:6px 0; border-bottom:1px solid #eee;">${item.name} (x${item.qty})</td><td style="text-align:right; font-weight:bold;">$${(item.price * item.qty).toFixed(2)}</td></tr>`).join("")}
         </table>
-
         <div class="summary-area">
             <div class="summary-row"><div class="summary-label">Subtotal:</div><div class="summary-val">$${subtotal.toFixed(2)}</div></div>
             ${discount > 0 ? `<div class="summary-row" style="color:#2ecc71;"><div class="summary-label">10% Bulk Discount:</div><div class="summary-val">-$${discount.toFixed(2)}</div></div>` : ''}
+            ${tax > 0 ? `<div class="summary-row"><div class="summary-label">Sales Tax (6%):</div><div class="summary-val">$${tax.toFixed(2)}</div></div>` : ''}
             ${kegDeposit > 0 ? `<div class="summary-row"><div class="summary-label">Keg Deposits:</div><div class="summary-val">$${kegDeposit.toFixed(2)}</div></div>` : ''}
             <div class="summary-row grand-total"><div class="summary-label">Total:</div><div class="summary-val">$${grandTotal.toFixed(2)}</div></div>
         </div>
-        
         <div id="post-order-actions" style="margin-top:20px; border-top:1px solid #ddd; padding-top:15px;">
-            <label style="display:block; margin-bottom:10px; font-size:0.85em;">
-                <input type="checkbox" id="send-email-cb" onchange="toggleEmailInput(this.checked)"> Email me a receipt
+            <label style="display:flex; align-items:center; gap:8px; margin-bottom:10px; font-size:0.85em; cursor:pointer;">
+                <input type="checkbox" id="send-email-cb" onchange="toggleEmailInput(this.checked)"> Email receipt
             </label>
-            <input type="email" id="client-email" placeholder="Enter email address" style="display:none; width:100%; padding:8px; margin-bottom:15px; border:1px solid #ccc; border-radius:4px; font-size:0.9em;">
-            
+            <input type="email" id="client-email" placeholder="Email address" style="display:none; width:100%; padding:8px; margin-bottom:15px; border:1px solid #ccc; border-radius:4px; font-size:0.9em;">
             <button class="success" onclick="submitOrder()">Submit Final Order</button>
             <button class="secondary" onclick="window.print()">Print Receipt</button>
             <button class="secondary" style="background:#fff; border:1px solid #ccc;" onclick="state.step=2;render()">← Back</button>
@@ -190,8 +174,7 @@
     else if (state.step === 4) {
         app.innerHTML = `<div class="card" style="text-align:center; padding:40px 20px;">
             <h2 style="color:#28a745;">Order Submitted!</h2>
-            <p>The order has been recorded and receipts have been generated.</p>
-            <button class="primary" onclick="location.reload()" style="max-width:200px; margin-top:20px;">Start New Order</button>
+            <button class="primary" onclick="location.reload()" style="max-width:200px; margin-top:20px;">New Order</button>
         </div>`;
     }
   }
@@ -212,8 +195,12 @@
     const subtotal = state.cart.reduce((s, i) => s + (i.price * i.qty), 0);
     const totalQty = state.cart.reduce((s, i) => s + i.qty, 0);
     const discount = totalQty >= 10 ? subtotal * 0.10 : 0;
-    document.getElementById("live-total").innerText = "$" + (subtotal - discount).toFixed(2);
-    document.getElementById("savings-label").innerText = discount > 0 ? "Bulk Discount Applied" : "";
+    const taxableAmount = subtotal - discount;
+    const taxRate = (state.customer && checkIsRestaurant(state.customer.name)) ? 0.06 : 0;
+    const tax = taxableAmount * taxRate;
+    document.getElementById("live-total").innerText = "$" + (taxableAmount + tax).toFixed(2);
+    document.getElementById("savings-label").innerText = discount > 0 ? "10% BULK DISCOUNT APPLIED" : "";
+    document.getElementById("tax-label").innerText = tax > 0 ? "+6% Sales Tax included" : "";
   }
 
   async function doSearch(val) {
@@ -234,36 +221,20 @@
     const btn = document.querySelector(".success");
     const sendEmail = document.getElementById('send-email-cb').checked;
     const clientEmail = document.getElementById('client-email').value;
-
-    if (sendEmail && !clientEmail) {
-        alert("Please enter an email address if you want a receipt emailed.");
-        return;
-    }
-
+    if (sendEmail && !clientEmail) { alert("Please enter an email address."); return; }
     btn.innerText = "Processing..."; btn.disabled = true;
-
     const payload = {
       customer: state.customer,
       items: state.cart.filter(i => i.qty > 0),
       sendEmail: sendEmail,
       clientEmail: clientEmail
     };
-
     try {
       const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
       const result = await res.json();
-      if(result.success) {
-        state.step = 4;
-        render();
-      } else {
-        throw new Error(result.error);
-      }
-    } catch(e) { 
-      alert("Submission Error: " + e.message); 
-      btn.disabled = false; btn.innerText = "Submit Final Order"; 
-    }
+      if(result.success) { state.step = 4; render(); }
+    } catch(e) { alert("Error: " + e.message); btn.disabled = false; btn.innerText = "Submit Final Order"; }
   }
-
   init();
 </script>
 </body>
