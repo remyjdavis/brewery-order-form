@@ -5,58 +5,58 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>SBC Wholesale Portal</title>
   <style>
-    body { font-family: -apple-system, system-ui, sans-serif; background: #f4f4f9; margin: 0; padding-bottom: 120px; color: #333; }
+    body { font-family: -apple-system, system-ui, sans-serif; background: #f4f4f9; margin: 0; padding-bottom: 140px; color: #333; }
     
     .site-header { 
       background: #1a1a1a; color: white; padding: 20px 5%; display: flex; align-items: center; justify-content: space-between;
       border-bottom: 4px solid #007bff; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
     .header-brand { display: flex; align-items: center; gap: 20px; }
-    .site-header img { height: 80px; width: auto; border-radius: 4px; background: #fff; padding: 3px; }
-    .header-text h1 { margin: 0; font-size: 1.4em; letter-spacing: 1px; text-transform: uppercase; }
+    .header-brand img { height: 75px; background: white; border-radius: 4px; padding: 2px; }
 
-    /* ENHANCED USER AGREEMENT SCREEN */
-    .agreement-card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 30px rgba(0,0,0,0.15); width: 92%; max-width: 800px; margin: 40px auto; text-align: center; }
-    .agreement-title { font-size: 2.2em; color: #1a1a1a; margin-bottom: 25px; border-bottom: 4px solid #007bff; display: inline-block; padding-bottom: 10px; }
-    .agreement-box { text-align: left; background: #fdfdfd; border: 2px solid #eee; padding: 30px; border-radius: 10px; font-size: 1.25em; line-height: 1.8; color: #333; margin-bottom: 30px; }
+    /* MASSIVE LONG-FORM USER AGREEMENT */
+    .agreement-card { background: white; padding: 50px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); width: 92%; max-width: 900px; margin: 40px auto; border: 4px solid #007bff; }
+    .agreement-title { font-size: 2.8em; color: #1a1a1a; margin-bottom: 20px; border-bottom: 8px solid #007bff; display: inline-block; text-transform: uppercase; text-align: center; width: 100%; }
+    .agreement-box { 
+      text-align: left; background: #f9f9f9; border: 1px solid #ddd; padding: 35px; border-radius: 12px; 
+      font-size: 1.2em; line-height: 1.5; color: #1a1a1a; margin-bottom: 40px; 
+      max-height: 400px; overflow-y: scroll; /* For very long legal text */
+    }
 
-    /* INVOICE & GRID */
+    /* PRODUCT GRID */
     .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 92%; max-width: 1000px; margin: 20px auto; }
-    .invoice-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-    .invoice-table th { text-align: left; border-bottom: 2px solid #007bff; padding: 10px; }
-    .invoice-table td { padding: 12px 10px; border-bottom: 1px solid #eee; }
-    .summary-row { display: flex; justify-content: flex-end; padding: 5px 0; font-size: 1.1em; }
-    .summary-label { width: 250px; text-align: right; color: #666; padding-right: 20px; }
-    .summary-val { width: 120px; text-align: right; font-weight: bold; }
-    .grand-total { border-top: 3px solid #1a1a1a; margin-top: 15px; padding-top: 15px; font-size: 2em; color: #1a1a1a; }
-
-    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-    .product-card { border: 1px solid #eee; padding: 20px; border-radius: 12px; background: #fff; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
-    .qty-input { width: 85%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; text-align: center; font-weight: bold; font-size: 1.2em; }
-    .override-input { width: 85px; padding: 8px; border: 2px solid #ffc107; background: #fffde7; text-align: right; font-weight: bold; border-radius: 6px; margin-top: 10px; }
-
-    /* LIVE BAR */
-    .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 4px solid #007bff; padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; z-index: 1000; box-shadow: 0 -8px 25px rgba(0,0,0,0.15); }
-    #savings-label { color: #28a745; font-size: 1.1em; font-weight: 800; display: block; margin-bottom: 4px; text-transform: uppercase; }
-
-    button { padding: 18px 32px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 1.1em; }
-    .primary { background: #007bff; color: white; width: 100%; }
-    .success { background: #28a745; color: white; width: 100%; font-size: 1.3em; }
-    .secondary { background: #eee; color: #444; width: 100%; margin-top: 12px; }
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+    .product-card { border: 1px solid #eee; padding: 20px; border-radius: 12px; background: #fff; text-align: center; }
+    .qty-input { width: 90%; padding: 15px; border: 2px solid #007bff; border-radius: 8px; text-align: center; font-weight: bold; font-size: 1.5em; }
     
-    .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 5000; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-    .dropdown-item { padding: 18px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 1.1em; }
+    /* LIVE BAR */
+    .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; color: white; border-top: 5px solid #007bff; padding: 25px 5%; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
+    #savings-label { color: #2ecc71; font-size: 1.5em; font-weight: 900; display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+    #live-total { font-size: 2.8em; display: block; line-height: 1; font-weight: 800; }
+
+    button { padding: 22px 45px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; font-size: 1.4em; }
+    .primary { background: #007bff; color: white; width: 100%; }
+    .success { background: #28a745; color: white; width: 100%; }
+    .secondary { background: #eee; color: #444; width: 100%; margin-top: 15px; }
+    
+    .override-input { width: 110px; padding: 10px; border: 2px solid #ffc107; background: #fffde7; text-align: right; font-weight: bold; border-radius: 8px; margin-top: 15px; }
+    .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 5000; display: none; }
+    .dropdown-item { padding: 22px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 1.4em; }
+
+    .summary-row { display: flex; justify-content: flex-end; padding: 10px 0; font-size: 1.4em; }
+    .summary-label { width: 320px; text-align: right; color: #666; padding-right: 30px; }
+    .summary-val { width: 160px; text-align: right; font-weight: bold; }
+    .grand-total { border-top: 6px solid #1a1a1a; margin-top: 20px; padding-top: 20px; font-size: 2.6em; color: #1a1a1a; }
   </style>
 </head>
 <body>
 
 <header class="site-header">
   <div class="header-brand">
-    <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" alt="SBC Logo" onerror="this.src='https://via.placeholder.com/80?text=SBC'">
-    <div class="header-text">
-      <h1>Suburban Brewing Co.</h1>
-      <p>3041 Horseshoe Pike, Honey Brook, PA 19344</p>
-      <p>Wholesale Portal | Remy Davis</p>
+    <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" alt="SBC" onerror="this.src='https://via.placeholder.com/80'">
+    <div>
+      <h1 style="margin:0; text-transform:uppercase; font-size:1.4em;">Suburban Brewing Co.</h1>
+      <p style="margin:2px 0; opacity:0.8; font-size:0.9em;">Wholesale Portal | Rep: Remy Davis</p>
     </div>
   </div>
 </header>
@@ -66,15 +66,17 @@
 <div id="live-bar" class="live-bar" style="display:none;">
   <div>
     <small id="savings-label"></small>
-    <strong id="live-total" style="font-size: 2em;">$0.00</strong>
+    <strong id="live-total">$0.00</strong>
   </div>
-  <button style="background:#007bff; color:white; padding: 20px 40px;" onclick="state.step=3;render()">Review Order &rarr;</button>
+  <button style="background:#007bff; color:white; padding: 25px 50px;" onclick="state.step=3;render()">Review Order &rarr;</button>
 </div>
 
 <script>
   const API_URL = "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec";
   const PRODUCT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&single=true&output=csv";
   const OVERRIDE_PW = "Yankees1";
+  const BULK_THRESHOLD = 10; 
+  const BULK_DISCOUNT_PERCENT = 0.10; 
 
   let products = [];
   let state = { step: 0, customer: null, cart: [], overrideMode: false };
@@ -100,25 +102,27 @@
 
     if (state.step === 0) {
       app.innerHTML = `<div class="agreement-card">
-        <h2 class="agreement-title">Wholesale Agreement</h2>
+        <h2 class="agreement-title">Wholesale Terms & Conditions</h2>
         <div class="agreement-box">
-          <strong>Terms & Conditions:</strong><br><br>
-          1. Authorized purchasing only.<br>
-          2. Wholesale prices confidential.<br>
-          3. $30.00 Keg deposit applies.<br>
-          4. Inspect goods upon delivery.
+          <p><strong>1. PROOF OF LICENSE:</strong> By accessing this portal, the Customer represents and warrants that they hold a valid PA Liquor License and all necessary permits for the purchase and resale of malt and brewed beverages. Suburban Brewing Co. (SBC) reserves the right to request proof of licensure at any time.</p>
+          <p><strong>2. PRICING & CONFIDENTIALITY:</strong> All wholesale pricing provided herein is strictly confidential and proprietary to SBC. Unauthorized disclosure of wholesale pricing to third parties or retail customers is strictly prohibited and may result in immediate termination of wholesale privileges.</p>
+          <p><strong>3. PAYMENTS & DEPOSITS:</strong> A $30.00 deposit is required for each keg (1/2bbl, 1/6bbl) provided. All payments are due upon delivery unless credit terms have been formally established and approved in writing by SBC management.</p>
+          <p><strong>4. BULK DISCOUNT ELIGIBILITY:</strong> A bulk discount of 10% is automatically applied to orders where the total quantity of cases/units equals ten (10) or more. SBC reserves the right to modify or revoke bulk pricing at any time without notice.</p>
+          <p><strong>5. INSPECTION & RETURNS:</strong> Customers must inspect all products upon delivery. Claims for shortages, damaged goods, or quality issues must be made at the time of delivery. Once delivery is accepted, SBC is not responsible for damages occurring at the customer's location.</p>
+          <p><strong>6. COMPLIANCE:</strong> Customer agrees to comply with all local, state, and federal laws regarding the sale and service of alcohol.</p>
         </div>
-        <label style="font-size: 1.3em; cursor:pointer; display:block; margin-bottom:25px;">
-          <input type="checkbox" id="agree-check" style="width:25px; height:25px;" onchange="document.getElementById('start-btn').disabled = !this.checked"> 
-          <strong>I accept the Wholesale Terms</strong>
+        <label style="font-size: 1.8em; cursor:pointer; display:block; margin-bottom:40px; font-weight:bold; text-align:center;">
+          <input type="checkbox" id="agree-check" style="transform: scale(3); margin-right: 25px;" onchange="document.getElementById('start-btn').disabled = !this.checked"> 
+          I AGREE TO THE ABOVE TERMS
         </label>
-        <button id="start-btn" class="primary" style="font-size:1.4em; padding:25px;" disabled onclick="state.step=1;render()">Access Account Search</button>
+        <button id="start-btn" class="primary" style="padding:35px;" disabled onclick="state.step=1;render()">Proceed to Portal</button>
       </div>`;
     } 
+    // ... rest of the app logic follows (Step 1, 2, 3 as previously provided)
     else if (state.step === 1) {
-      app.innerHTML = `<div class="card" style="position:relative;">
-        <h2>Find Account</h2>
-        <input type="text" id="cust-input" placeholder="Search customer name..." style="width:100%; padding:20px; border-radius:10px; border:2px solid #ddd; font-size:1.2em;">
+      app.innerHTML = `<div class="card">
+        <h2 style="font-size:2em;">Account Selection</h2>
+        <input type="text" id="cust-input" placeholder="Search account name..." style="width:100%; padding:25px; border-radius:10px; border:3px solid #ddd; font-size:1.6em;">
         <div id="results" class="dropdown"></div>
       </div>`;
       document.getElementById("cust-input").oninput = (e) => doSearch(e.target.value);
@@ -126,21 +130,21 @@
     else if (state.step === 2) {
       bar.style.display = "flex";
       app.innerHTML = `<div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
-            <h3 style="margin:0; font-size:1.5em;">Account: ${state.customer.name}</h3>
-            <button style="background:#f8f9fa; color:#007bff; border:1px solid #ddd; padding:10px 20px; font-size:0.9em;" onclick="toggleOverride()">Rep Override</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+            <h3 style="margin:0; font-size:1.8em; color:#007bff;">${state.customer.name}</h3>
+            <button style="background:#f8f9fa; border:1px solid #ccc; padding:10px 20px;" onclick="toggleOverride()">Override</button>
         </div>
         <div class="product-grid">${products.map((p, i) => `
           <div class="product-card">
-            <span style="font-weight:700; display:block; height:45px; font-size:1.1em;">${p.name}</span>
-            <span style="color:#007bff; font-weight:800; display:block; margin:10px 0; font-size:1.2em;">$${p.price.toFixed(2)}</span>
+            <span style="font-weight:800; display:block; height:50px; font-size:1.4em;">${p.name}</span>
+            <span style="color:#007bff; font-weight:900; display:block; margin:15px 0; font-size:1.5em;">$${p.price.toFixed(2)}</span>
             <input type="number" class="qty-input" min="0" placeholder="0" value="${getQty(p.name) || ''}" oninput="updateCart(${i}, this.value)">
-            ${state.overrideMode ? `<br><input type="number" step="0.01" class="override-input" value="${p.price}" oninput="updateOverridePrice('${p.name}', this.value)" placeholder="Price">` : ''}
+            ${state.overrideMode ? `<br><input type="number" step="0.01" class="override-input" value="${p.price}" oninput="updateOverridePrice('${p.name}', this.value)">` : ''}
           </div>`).join("")}
         </div>
       </div>`;
       updateLiveDisplay();
-    } 
+    }
     else if (state.step === 3) {
       const items = state.cart.filter(i => i.qty > 0);
       const subtotal = calculateSubtotal();
@@ -150,50 +154,33 @@
         return s + (n.includes("keg") || n.includes("1/2bbl") || n.includes("1/6bbl") ? i.qty : 0);
       }, 0);
       const kegDeposit = kegCount * 30.00;
-      const tax = (state.customer.type === "Restaurant" || state.customer.type === "Retail") ? (subtotal * 0.06) : 0;
-      const grandTotal = subtotal + tax + kegDeposit;
+      const grandTotal = (subtotal - discount) + kegDeposit;
 
       app.innerHTML = `<div class="card">
-        <div style="display:flex; justify-content:space-between; border-bottom: 3px solid #eee; padding-bottom: 20px;">
-            <div>
-                <h2 style="margin:0; font-size:1.8em;">Order Invoice</h2>
-                <p style="margin:8px 0; font-size:1.1em;"><strong>${state.customer.name}</strong><br>${state.customer.address || "PA, United States"}</p>
-            </div>
-            <div style="text-align:right; color:#666; font-size:1.1em;">Date: ${new Date().toLocaleDateString()}</div>
-        </div>
-        
-        <table class="invoice-table">
-            <thead>
-                <tr><th style="font-size:1.1em;">Product</th><th style="text-align:center;">Qty</th><th style="text-align:right;">Total</th></tr>
-            </thead>
-            <tbody>
-                ${items.map(item => `
-                <tr>
-                    <td style="font-size:1.1em; font-weight:500;">${item.name}</td>
-                    <td style="text-align:center; font-weight:bold;">${item.qty}</td>
-                    <td style="text-align:right; font-weight:bold;">$${(item.price * item.qty).toFixed(2)}</td>
-                </tr>`).join("")}
-            </tbody>
+        <h2 style="font-size:2.4em; border-bottom:5px solid #007bff; padding-bottom:15px;">Final Review</h2>
+        <div style="margin:25px 0; font-size:1.5em; font-weight:bold;">${state.customer.name}</div>
+        <table style="width:100%; border-collapse:collapse; margin-bottom:30px;">
+            ${items.map(item => `
+            <tr>
+                <td style="padding:20px 0; border-bottom:1px solid #eee; font-size:1.3em;">${item.name} (x${item.qty})</td>
+                <td style="text-align:right; padding:20px 0; border-bottom:1px solid #eee; font-weight:bold; font-size:1.3em;">$${(item.price * item.qty).toFixed(2)}</td>
+            </tr>`).join("")}
         </table>
-
         <div class="summary-area">
             <div class="summary-row"><div class="summary-label">Subtotal:</div><div class="summary-val">$${subtotal.toFixed(2)}</div></div>
-            ${discount > 0 ? `<div class="summary-row" style="color:#28a745; font-weight:800;"><div class="summary-label">Bulk/Special Discount:</div><div class="summary-val">-$${discount.toFixed(2)}</div></div>` : ''}
-            ${tax > 0 ? `<div class="summary-row"><div class="summary-label">Restaurant Tax (6%):</div><div class="summary-val">$${tax.toFixed(2)}</div></div>` : ''}
-            ${kegDeposit > 0 ? `<div class="summary-row"><div class="summary-label">Keg Deposit ($30/ea):</div><div class="summary-val">$${kegDeposit.toFixed(2)}</div></div>` : ''}
-            <div class="summary-row grand-total"><div class="summary-label">Total Amount Due:</div><div class="summary-val">$${grandTotal.toFixed(2)}</div></div>
+            ${discount > 0 ? `<div class="summary-row" style="color:#2ecc71; font-weight:900;"><div class="summary-label">Bulk Case Discount (10%):</div><div class="summary-val">-$${discount.toFixed(2)}</div></div>` : ''}
+            ${kegDeposit > 0 ? `<div class="summary-row"><div class="summary-label">Keg Deposits:</div><div class="summary-val">$${kegDeposit.toFixed(2)}</div></div>` : ''}
+            <div class="summary-row grand-total"><div class="summary-label">Total Due:</div><div class="summary-val">$${grandTotal.toFixed(2)}</div></div>
         </div>
-
-        <button class="success" style="margin-top:40px; padding:25px;" onclick="submitOrder()">Submit Order</button>
-        <button class="secondary" onclick="state.step=2;render()">← Edit Order</button>
+        <button class="success" style="margin-top:45px; padding:35px;" onclick="submitOrder()">Submit Final Order</button>
+        <button class="secondary" onclick="state.step=2;render()">← Back to Shop</button>
       </div>`;
     }
   }
 
   function toggleOverride() {
     if (prompt("Enter Sales Rep Code:") === OVERRIDE_PW) { 
-        state.overrideMode = !state.overrideMode; 
-        render(); 
+        state.overrideMode = !state.overrideMode; render(); 
     }
   }
 
@@ -207,25 +194,23 @@
 
   function updateOverridePrice(name, val) {
     const newPrice = parseFloat(val) || 0;
-    // Update global product price
     let p = products.find(prod => prod.name === name);
     p.price = newPrice;
-    
-    // Update cart item price
     let itemInCart = state.cart.find(i => i.name === name);
     if (itemInCart) itemInCart.price = newPrice;
-    
     updateLiveDisplay();
   }
 
   function updateLiveDisplay() {
     const subtotal = calculateSubtotal();
     const discount = calculateDiscount();
-    document.getElementById("live-total").innerText = "$" + subtotal.toFixed(2);
+    document.getElementById("live-total").innerText = "$" + (subtotal - discount).toFixed(2);
     
     const label = document.getElementById("savings-label");
+    const totalQty = state.cart.reduce((s, i) => s + i.qty, 0);
+    
     if (discount > 0) {
-        label.innerText = `Bulk Discount Applied: -$${discount.toFixed(2)}`;
+        label.innerText = `Bulk Discount Applied (${totalQty} cases): -$${discount.toFixed(2)}`;
     } else {
         label.innerText = "";
     }
@@ -234,11 +219,11 @@
   function calculateSubtotal() { return state.cart.reduce((s, i) => s + (i.price * i.qty), 0); }
   
   function calculateDiscount() { 
-    return state.cart.reduce((totalDisc, item) => {
-        const prod = products.find(p => p.name === item.name);
-        const discPerUnit = prod.originalPrice - item.price;
-        return totalDisc + (discPerUnit * item.qty);
-    }, 0);
+    const totalQty = state.cart.reduce((s, i) => s + i.qty, 0);
+    if (totalQty >= BULK_THRESHOLD) {
+        return calculateSubtotal() * BULK_DISCOUNT_PERCENT;
+    }
+    return 0;
   }
 
   function getQty(name) { let i = state.cart.find(c => c.name === name); return i ? i.qty : 0; }
