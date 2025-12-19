@@ -17,11 +17,11 @@ let state = {
 function parseCSV(text) {
   const lines = text.trim().split("\n");
   const headers = lines.shift().split(",");
-  return lines.map(l => {
-    const v = l.split(",");
-    let o = {};
-    headers.forEach((h, i) => (o[h.trim()] = (v[i] || "").trim()));
-    return o;
+  return lines.map(line => {
+    const values = line.split(",");
+    let obj = {};
+    headers.forEach((h, i) => (obj[h.trim()] = (values[i] || "").trim()));
+    return obj;
   });
 }
 
@@ -39,32 +39,44 @@ async function loadProducts() {
   render();
 }
 
-/**************** AUTOCOMPLETE ****************/
-async function searchCustomers(q) {
-  if (q.length < 2) return [];
-  const r = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
-  const d = await r.json();
-  return d.results || [];
+/**************** AUTOCOMPLETE (LOCKED) ****************/
+async function searchCustomers(query) {
+  if (query.length < 2) return [];
+  const res = await fetch(`${API_URL}?q=${encodeURIComponent(query)}`);
+  const data = await res.json();
+  return data.results || [];
 }
 
-async function autocomplete(val) {
-  const results = await searchCustomers(val);
-  document.getElementById("autocomplete-results").innerHTML =
-    results.map(c => `
-      <div class="autocomplete-item"
-        onclick='selectCustomer(${JSON.stringify(c)})'>
-        <strong>${c.name}</strong><br>
-        ${c.city}, ${c.state}
-      </div>`).join("");
+async function autocomplete(value) {
+  const results = await searchCustomers(value);
+  const box = document.getElementById("autocomplete-results");
+
+  box.innerHTML = "";
+
+  results.forEach((c, idx) => {
+    const div = document.createElement("div");
+    div.className = "autocomplete-item";
+    div.textContent = `${c.name} — ${c.city}, ${c.state}`;
+
+    // STORE DATA SAFELY
+    div.dataset.customer = JSON.stringify(c);
+
+    box.appendChild(div);
+  });
 }
 
-function selectCustomer(c) {
-  state.customer = c;
+/* CLICK HANDLER — EVENT DELEGATION */
+document.addEventListener("click", function (e) {
+  if (!e.target.classList.contains("autocomplete-item")) return;
+
+  const customer = JSON.parse(e.target.dataset.customer);
+  state.customer = customer;
   state.step = 2;
-  render();
-}
 
-/**************** TOTALS (AUTHORITATIVE) ****************/
+  render();
+});
+
+/**************** TOTALS ****************/
 function calculateTotals(cart) {
   let subtotal = 0;
   let kegDeposit = 0;
@@ -156,7 +168,6 @@ function render() {
   const el = document.getElementById("form-container");
   el.innerHTML = "";
 
-  /* STEP 1 */
   if (state.step === 1) {
     el.innerHTML = `
       <div class="card">
@@ -168,7 +179,6 @@ function render() {
       </div>`;
   }
 
-  /* STEP 2 */
   if (state.step === 2) {
     el.innerHTML = `
       <div class="card">
@@ -179,8 +189,7 @@ function render() {
               <strong>${p.name}</strong>
               $${p.price.toFixed(2)}<br>
               In Stock: ${p.stock}
-              <input type="number" min="0" id="q-${i}"
-                oninput="updateLiveTotals()">
+              <input type="number" min="0" id="q-${i}" oninput="updateLiveTotals()">
             </div>`).join("")}
         </div>
 
@@ -195,7 +204,6 @@ function render() {
       </div>`;
   }
 
-  /* STEP 3 — FIXED */
   if (state.step === 3) {
     const t = calculateTotals(state.cart);
 
@@ -204,12 +212,11 @@ function render() {
         <h2>Review Order</h2>
 
         <table class="review-table">
-          <tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th></tr>
+          <tr><th>Product</th><th>Qty</th><th>Total</th></tr>
           ${state.cart.map(i => `
             <tr>
               <td>${i.name}</td>
               <td>${i.qty}</td>
-              <td>$${i.price.toFixed(2)}</td>
               <td>$${(i.qty * i.price).toFixed(2)}</td>
             </tr>`).join("")}
         </table>
