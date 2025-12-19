@@ -9,17 +9,17 @@ const LOW_STOCK_THRESHOLD = 10;
 
 /**************** STATE ****************/
 let products = [];
+let customerResults = [];
 let state = {
   step: 1,
   customer: null,
   cart: []
 };
 
-/**************** CSV PARSER ****************/
+/**************** CSV ****************/
 function parseCSV(text) {
   const lines = text.trim().split("\n");
   const headers = lines.shift().split(",");
-
   return lines.map(line => {
     const values = line.split(",");
     let obj = {};
@@ -38,7 +38,6 @@ async function loadProducts() {
   products = parseCSV(text).map(p => ({
     name: p["Product Name"],
     price: Number(p["Price"]),
-    category: p["Category"] || "",
     inventory: Number(p["Qty In Stock"] || 0)
   }));
 
@@ -63,17 +62,17 @@ function render() {
     el.innerHTML = `
       <div class="card">
         <h2>Select Customer</h2>
-        <input
-          id="customerSearch"
-          placeholder="Start typing customer name..."
-          oninput="autocomplete(this.value)"
-        />
+        <input id="customerSearch" placeholder="Start typing customer name">
         <div id="autocomplete-results"></div>
       </div>
     `;
+
+    document
+      .getElementById("customerSearch")
+      .addEventListener("input", handleAutocomplete);
   }
 
-  /* STEP 2 — PRODUCTS (GRID LOCKED) */
+  /* STEP 2 — PRODUCTS (DESKTOP GRID LOCKED) */
   if (state.step === 2) {
     el.innerHTML = `
       <div class="card">
@@ -81,18 +80,16 @@ function render() {
         <div class="product-grid">
           ${products.map((p, i) => {
             let badge = "";
-            if (p.inventory === 0) {
-              badge = `<span class="badge out">Out of Stock</span>`;
-            } else if (p.inventory < LOW_STOCK_THRESHOLD) {
-              badge = `<span class="badge low">Low Stock</span>`;
-            }
+            if (p.inventory === 0) badge = `<span class="badge out">Out</span>`;
+            else if (p.inventory < LOW_STOCK_THRESHOLD)
+              badge = `<span class="badge low">Low</span>`;
 
             return `
               <div class="product-card">
                 ${badge}
                 <strong>${p.name}</strong>
                 <div>$${p.price.toFixed(2)}</div>
-                <input type="number" min="0" id="q-${i}" placeholder="Qty">
+                <input type="number" min="0" id="q-${i}">
               </div>
             `;
           }).join("")}
@@ -105,102 +102,81 @@ function render() {
   /* STEP 3 — REVIEW */
   if (state.step === 3) {
     let subtotal = 0;
-    let kegDeposit = 0;
-    let caseCount = 0;
 
     el.innerHTML = `
       <div class="card">
         <h2>Review Order</h2>
-
-        <p>
-          <strong>${state.customer.name}</strong><br>
-          ${state.customer.address}<br>
-          ${state.customer.city}, ${state.customer.state} ${state.customer.zip}
-        </p>
-
+        <p><strong>${state.customer.name}</strong></p>
         <table class="review-table">
-          <tr>
-            <th>Product</th>
-            <th>Qty</th>
-            <th>Total</th>
-          </tr>
+          <tr><th>Product</th><th>Qty</th><th>Total</th></tr>
     `;
 
-    state.cart.forEach(item => {
-      const line = item.qty * item.price;
+    state.cart.forEach(i => {
+      const line = i.qty * i.price;
       subtotal += line;
-
-      if (/keg/i.test(item.name)) kegDeposit += item.qty * 30;
-      if (/case/i.test(item.name)) caseCount += item.qty;
-
       el.innerHTML += `
         <tr>
-          <td>${item.name}</td>
-          <td>${item.qty}</td>
+          <td>${i.name}</td>
+          <td>${i.qty}</td>
           <td>$${line.toFixed(2)}</td>
         </tr>
       `;
     });
 
-    const discount = caseCount >= 10 ? subtotal * 0.10 : 0;
-    const tax =
-      state.customer.businessType === "Restaurant" ? subtotal * 0.06 : 0;
-
     el.innerHTML += `
         </table>
+        <h3>Total: $${subtotal.toFixed(2)}</h3>
 
-        <p>Subtotal: $${subtotal.toFixed(2)}</p>
-        <p>Case Discount: -$${discount.toFixed(2)}</p>
-        <p>Tax: $${tax.toFixed(2)}</p>
-        <p>Keg Deposit: $${kegDeposit.toFixed(2)}</p>
-
-        <h3>Total: $${(subtotal - discount + tax + kegDeposit).toFixed(2)}</h3>
-
-        <div class="agreement">
-          <label>
-            <input type="checkbox" id="agree">
-            I agree that this order is binding and final
-          </label>
-        </div>
+        <label class="agreement">
+          <input type="checkbox" id="agree"> I agree this order is binding
+        </label>
 
         <div class="button-row">
           <button onclick="state.step=2;render()">Back</button>
-          <button class="primary-btn" onclick="submitOrder()">Submit Order</button>
+          <button class="primary-btn" onclick="submitOrder()">Submit</button>
         </div>
       </div>
     `;
   }
 }
 
-/**************** AUTOCOMPLETE ****************/
-async function autocomplete(val) {
-  const results = await searchCustomers(val);
+/**************** AUTOCOMPLETE (FIXED) ****************/
+async function handleAutocomplete(e) {
+  customerResults = await searchCustomers(e.target.value);
   const box = document.getElementById("autocomplete-results");
 
-  box.innerHTML = results.map(c => `
-    <div class="autocomplete-item"
-         onclick='selectCustomer(${JSON.stringify(c)})'>
-      ${c.name}
-    </div>
-  `).join("");
+  box.innerHTML = customerResults
+    .map(
+      (_, i) =>
+        `<div class="autocomplete-item" data-index="${i}">${customerResults[i].name}</div>`
+    )
+    .join("");
+
+  box.onclick = event => {
+    const item = event.target.closest(".autocomplete-item");
+    if (!item) return;
+    selectCustomer(customerResults[item.dataset.index]);
+  };
 }
 
-function selectCustomer(cust) {
-  state.customer = cust;
+function selectCustomer(customer) {
+  state.customer = customer;
   state.step = 2;
   render();
 }
 
 /**************** ACTIONS ****************/
 function review() {
-  state.cart = products.map((p, i) => ({
-    name: p.name,
-    price: p.price,
-    qty: Number(document.getElementById(`q-${i}`).value || 0)
-  })).filter(i => i.qty > 0);
+  state.cart = products
+    .map((p, i) => ({
+      name: p.name,
+      price: p.price,
+      qty: Number(document.getElementById(`q-${i}`).value || 0)
+    }))
+    .filter(i => i.qty > 0);
 
   if (!state.cart.length) {
-    alert("Please add at least one product.");
+    alert("Add at least one product");
     return;
   }
 
@@ -210,7 +186,7 @@ function review() {
 
 async function submitOrder() {
   if (!document.getElementById("agree").checked) {
-    alert("You must agree before submitting.");
+    alert("Agreement required");
     return;
   }
 
@@ -223,7 +199,7 @@ async function submitOrder() {
     })
   });
 
-  alert("Order submitted successfully.");
+  alert("Order submitted");
   location.reload();
 }
 
