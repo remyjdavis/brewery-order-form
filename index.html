@@ -25,15 +25,15 @@
       max-height: 300px; overflow-y: auto;
     }
 
-    /* PRODUCT GRID */
+    /* CARDS & GRIDS */
     .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); width: 92%; max-width: 1000px; margin: 15px auto; }
-    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
     .product-card { border: 1px solid #eee; padding: 15px; border-radius: 10px; background: #fff; text-align: center; }
     .qty-input { width: 80%; padding: 10px; border: 1.5px solid #007bff; border-radius: 6px; text-align: center; font-weight: bold; font-size: 1.1em; }
     
     /* LIVE BAR */
     .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; color: white; border-top: 3px solid #007bff; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
-    #savings-label { color: #2ecc71; font-size: 0.95em; font-weight: 700; display: block; margin-bottom: 3px; text-transform: uppercase; }
+    #savings-label { color: #2ecc71; font-size: 0.9em; font-weight: 700; display: block; margin-bottom: 3px; text-transform: uppercase; }
     #live-total { font-size: 1.8em; display: block; line-height: 1; font-weight: 700; }
 
     button { padding: 14px 28px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; font-size: 1em; transition: 0.2s; }
@@ -42,7 +42,7 @@
     .secondary { background: #eee; color: #444; width: 100%; margin-top: 10px; font-size: 0.9em; }
     .print-btn { background: #f8f9fa; color: #007bff; border: 1px solid #007bff; font-size: 0.85em; padding: 8px 15px; margin-bottom: 15px; }
     
-    .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 5000; display: none; }
+    .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 5000; display: none; max-height: 300px; overflow-y: auto; }
     .dropdown-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 1.1em; }
 
     .summary-row { display: flex; justify-content: flex-end; padding: 6px 0; font-size: 1.1em; }
@@ -145,15 +145,15 @@
       bar.style.display = "flex";
       app.innerHTML = `<div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h3 style="margin:0; font-size:1.2em; color:#007bff;">${state.customer.name}</h3>
+            <h3 style="margin:0; font-size:1.1em; color:#007bff;">${state.customer.name}</h3>
             <button style="background:#f8f9fa; border:1px solid #ccc; padding:8px 15px; font-size:0.75em;" onclick="toggleOverride()">Rep Override</button>
         </div>
         <div class="product-grid">${products.map((p, i) => `
           <div class="product-card">
-            <span style="font-weight:700; display:block; height:40px; font-size:0.95em;">${p.name}</span>
-            <span style="color:#007bff; font-weight:800; display:block; margin:10px 0; font-size:1.1em;">$${p.price.toFixed(2)}</span>
+            <span style="font-weight:700; display:block; height:35px; font-size:0.9em;">${p.name}</span>
+            <span style="color:#007bff; font-weight:800; display:block; margin:8px 0; font-size:1.1em;">$${p.price.toFixed(2)}</span>
             <input type="number" class="qty-input" min="0" placeholder="0" value="${getQty(p.name) || ''}" oninput="updateCart(${i}, this.value)">
-            ${state.overrideMode ? `<br><input type="number" step="0.01" style="width:75px; padding:5px; border:1.5px solid #ffc107; background:#fffde7; text-align:right; font-weight:bold; border-radius:5px; margin-top:10px; font-size:0.85em;" value="${p.price}" oninput="updateOverridePrice('${p.name}', this.value)">` : ''}
+            ${state.overrideMode ? `<br><input type="number" step="0.01" style="width:70px; padding:5px; border:1.5px solid #ffc107; background:#fffde7; text-align:right; font-weight:bold; border-radius:5px; margin-top:10px; font-size:0.8em;" value="${p.price}" oninput="updateOverridePrice('${p.name}', this.value)">` : ''}
           </div>`).join("")}
         </div>
       </div>`;
@@ -172,42 +172,48 @@
       const orderDate = new Date().toLocaleDateString();
 
       app.innerHTML = `<div class="card">
-        <h2 style="font-size:1.5em; border-bottom:3px solid #007bff; padding-bottom:10px;">Review Order</h2>
+        <h2 style="font-size:1.4em; border-bottom:3px solid #007bff; padding-bottom:10px; margin-bottom:20px;">Review Final Order</h2>
         
-        <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.9em; line-height: 1.4;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.85em; line-height: 1.4;">
             <div>
                 <strong>Suburban Brewing Co.</strong><br>
                 2536 West Chester Pike<br>
-                Broomall, PA 19008
+                Broomall, PA 19008<br>
+                (610) 353-2506
             </div>
             <div style="text-align: right;">
-                <strong>Date:</strong> ${orderDate}
+                <strong>Order Date:</strong> ${orderDate}
             </div>
         </div>
 
-        <div style="margin-bottom: 25px; font-size: 1.05em; line-height: 1.3; border-top: 1px solid #eee; padding-top: 15px;">
-            <div style="font-weight: bold;">${state.customer.name}</div>
-            <div>${state.customer.address || 'Street Address Not Provided'}</div>
+        <div style="margin-bottom: 25px; font-size: 1.0em; line-height: 1.3; border-top: 1px solid #eee; padding-top: 15px;">
+            <div style="font-weight: bold; color: #007bff;">${state.customer.name}</div>
+            <div>${state.customer.address || 'Street Address Not Found'}</div>
             <div>${state.customer.city || ''}, ${state.customer.state || ''} ${state.customer.zip || ''}</div>
         </div>
 
         <table style="width:100%; border-collapse:collapse; margin-bottom:20px;">
             ${items.map(item => `
             <tr>
-                <td style="padding:12px 0; border-bottom:1px solid #eee; font-size:0.95em;">${item.name} (x${item.qty})</td>
-                <td style="text-align:right; padding:12px 0; border-bottom:1px solid #eee; font-weight:bold; font-size:0.95em;">$${(item.price * item.qty).toFixed(2)}</td>
+                <td style="padding:10px 0; border-bottom:1px solid #eee; font-size:0.9em;">${item.name} (x${item.qty})</td>
+                <td style="text-align:right; padding:10px 0; border-bottom:1px solid #eee; font-weight:bold; font-size:0.9em;">$${(item.price * item.qty).toFixed(2)}</td>
             </tr>`).join("")}
         </table>
 
         <div class="summary-area">
             <div class="summary-row"><div class="summary-label">Subtotal:</div><div class="summary-val">$${subtotal.toFixed(2)}</div></div>
-            ${discount > 0 ? `<div class="summary-row" style="color:#2ecc71; font-weight:700;"><div class="summary-label">Bulk Discount (10%):</div><div class="summary-val">-$${discount.toFixed(2)}</div></div>` : ''}
+            ${discount > 0 ? `<div class="summary-row" style="color:#2ecc71; font-weight:700;"><div class="summary-label">Bulk Discount Applied:</div><div class="summary-val">-$${discount.toFixed(2)}</div></div>` : ''}
             ${kegDeposit > 0 ? `<div class="summary-row"><div class="summary-label">Keg Deposits:</div><div class="summary-val">$${kegDeposit.toFixed(2)}</div></div>` : ''}
-            <div class="summary-row grand-total"><div class="summary-label">Total:</div><div class="summary-val">$${grandTotal.toFixed(2)}</div></div>
+            <div class="summary-row grand-total"><div class="summary-label">Total Due:</div><div class="summary-val">$${grandTotal.toFixed(2)}</div></div>
         </div>
         
-        <button class="success" style="margin-top:30px; padding:20px;" onclick="submitOrder()">Submit Final Order</button>
-        <button class="secondary" onclick="state.step=2;render()">← Back</button>
+        <div style="margin-top:20px;">
+           <label style="font-size:0.85em; font-weight:bold; color:#666;">Delivery Notes:</label>
+           <textarea id="order-notes" style="width:100%; height:60px; border:1px solid #ddd; border-radius:6px; margin-top:5px; padding:10px; font-family:inherit;"></textarea>
+        </div>
+
+        <button class="success" style="margin-top:25px; padding:20px;" onclick="submitOrder()">Submit Final Order</button>
+        <button class="secondary" onclick="state.step=2;render()">← Back to Selection</button>
       </div>`;
     }
   }
@@ -275,9 +281,20 @@
 
   async function submitOrder() {
     const btn = document.querySelector(".success");
+    const notes = document.getElementById("order-notes") ? document.getElementById("order-notes").value : "";
     btn.innerText = "Processing..."; btn.disabled = true;
-    await fetch(API_URL, { method: "POST", body: JSON.stringify({ customer: state.customer, items: state.cart.filter(i => i.qty > 0) }) });
-    alert("Order Submitted Successfully!"); location.reload();
+    
+    await fetch(API_URL, { 
+      method: "POST", 
+      body: JSON.stringify({ 
+        customer: state.customer, 
+        items: state.cart.filter(i => i.qty > 0),
+        notes: notes 
+      }) 
+    });
+    
+    alert("Order Submitted Successfully!"); 
+    location.reload();
   }
 
   init();
