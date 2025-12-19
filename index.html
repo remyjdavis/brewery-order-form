@@ -1,192 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SBC Wholesale Portal</title>
-  <style>
-    :root { --sbc-blue: #007bff; --sbc-dark: #1a1a1a; }
-    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; color: #333; }
-    
-    .site-header { background: var(--sbc-dark); color: white; padding: 15px 5%; border-bottom: 4px solid var(--sbc-blue); display: flex; align-items: center; justify-content: space-between; }
-    .header-info { display: flex; align-items: center; gap: 15px; }
-    .header-info img { height: 60px; background: white; padding: 5px; border-radius: 4px; }
-    
-    .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
-    .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-    
-    /* LAPTOP SIDE-BY-SIDE AGREEMENT */
-    .agreement-layout { display: grid; grid-template-columns: 1.5fr 1fr; gap: 40px; }
-    .legal-scroll { height: 450px; overflow-y: scroll; border: 1px solid #ddd; padding: 20px; background: #fafafa; font-size: 0.9em; line-height: 1.6; border-radius: 8px; }
-    
-    /* SEARCH & DROPDOWN */
-    .search-box { position: relative; width: 100%; max-width: 600px; margin: 20px auto; }
-    #cust-search { width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 1.1em; }
-    .dropdown { 
-      position: absolute; width: 100%; background: white; border: 1px solid #ccc; 
-      z-index: 10000; display: none; max-height: 300px; overflow-y: auto; 
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2); border-radius: 0 0 8px 8px;
-    }
-    .dropdown-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; }
-    .dropdown-item:hover { background: #f0f7ff; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SBC Wholesale Portal</title>
+    <style>
+        :root { --blue: #007bff; --dark: #1a1a1a; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; color: #333; }
+        .site-header { background: var(--dark); color: white; padding: 15px 5%; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid var(--blue); }
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: relative; }
+        
+        /* SEARCH BOX & DROPDOWN */
+        .search-container { position: relative; width: 100%; max-width: 600px; margin: 20px auto; }
+        #search-input { width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 1.1em; outline: none; }
+        #search-input:focus { border-color: var(--blue); }
+        
+        .dropdown { 
+            position: absolute; width: 100%; background: white; border: 1px solid #ccc; 
+            border-radius: 0 0 8px 8px; z-index: 10000; display: none; 
+            max-height: 300px; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            top: 100%; left: 0;
+        }
+        .dropdown-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; text-align: left; }
+        .dropdown-item:hover { background: #f0f7ff; }
+        .dropdown-item strong { color: var(--blue); }
 
-    /* BUTTONS */
-    .btn { padding: 15px 25px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-    .btn-primary { background: var(--sbc-blue); color: white; width: 100%; font-size: 1.1em; }
-    .btn-primary:hover { background: #0056b3; }
-    
-    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-top: 20px; }
-    .product-card { border: 1px solid #eee; padding: 15px; text-align: center; border-radius: 8px; }
-    .qty-input { width: 60px; padding: 8px; border: 1px solid var(--sbc-blue); border-radius: 4px; text-align: center; font-weight: bold; }
-  </style>
+        /* REVIEW PAGE */
+        .review-header { display: flex; justify-content: space-between; margin-bottom: 30px; }
+        .client-block { font-size: 1.1em; line-height: 1.4; }
+        .btn { padding: 15px 25px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
+        .btn-primary { background: var(--blue); color: white; }
+    </style>
 </head>
 <body>
 
 <header class="site-header">
-  <div class="header-info">
-    <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" alt="SBC Logo">
-    <div>
-      <h2 style="margin:0;">Suburban Brewing Co.</h2>
-      <small>Wholesale Ordering Portal</small>
+    <div style="display:flex; align-items:center; gap:15px;">
+        <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" height="50" style="background:white; padding:3px; border-radius:4px;">
+        <h2 style="margin:0;">Suburban Brewing Co.</h2>
     </div>
-  </div>
-  <div style="text-align:right; font-size:0.85em;">
-    3041 Horseshoe Pike, Honey Brook, PA<br>
-    Remy Davis | (908) 642-1019
-  </div>
 </header>
 
 <div class="container" id="app"></div>
 
 <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec";
-  const PRODUCT_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&output=csv";
+    const API_URL = "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec";
+    let state = { step: 0, customer: null, cart: [] };
 
-  let products = [];
-  let state = { step: 0, customer: null, cart: [], notes: "" };
+    function render() {
+        const app = document.getElementById("app");
+        app.innerHTML = "";
 
-  // This loads products in the background so Step 0 isn't empty
-  async function loadProducts() {
-    try {
-      const res = await fetch(PRODUCT_CSV);
-      const text = await res.text();
-      products = text.split("\n").slice(1).map(r => {
-        const c = r.split(",");
-        return { name: c[0].trim(), price: parseFloat(c[1]) || 0 };
-      }).filter(p => p.name);
-    } catch(e) { console.error("Product Load Error", e); }
-  }
-
-  function render() {
-    const app = document.getElementById("app");
-    app.innerHTML = "";
-
-    if (state.step === 0) {
-      app.innerHTML = `
-        <div class="card">
-          <div class="agreement-layout">
-            <div>
-              <h2 style="margin-top:0; color:var(--sbc-blue);">Wholesale Purchase & Distribution Agreement</h2>
-              <div class="legal-scroll">
-                <p><strong>1. TERMS:</strong> This agreement governs the distribution of Suburban Brewing Co. ("Seller") products to the Licensee ("Purchaser").</p>
-                <p><strong>2. LICENSURE:</strong> Purchaser warrants they hold a valid PA Liquor License. Any changes in license status must be reported to SBC immediately.</p>
-                <p><strong>3. TEMPERATURE CONTROL:</strong> SBC products are unpasteurized. They MUST be kept at 38°F. Seller is not responsible for spoilage due to improper storage.</p>
-                <p><strong>4. PAYMENTS:</strong> Payment is Net-on-Delivery. Fintech accounts draft automatically. Others must provide a business check at the time of delivery.</p>
-                <p><strong>5. EQUIPMENT:</strong> Kegs remain the property of SBC. A $30 deposit is required per unit. Lost or damaged kegs will be invoiced at $120.00 each.</p>
-                <p><strong>6. TAXES:</strong> A 6% Sales Tax applies to all retail/restaurant accounts unless a valid exemption certificate is on file.</p>
-              </div>
-            </div>
-            <div style="border-left: 1px solid #eee; padding-left: 40px; display: flex; flex-direction: column; justify-content: center;">
-              <h3>Acceptance</h3>
-              <p>By checking the box below and clicking proceed, you agree to the SBC Wholesale Terms & Conditions.</p>
-              <label style="display: block; background: #eef6ff; padding: 20px; border-radius: 8px; cursor: pointer; margin-bottom: 20px;">
-                <input type="checkbox" id="agree" style="transform: scale(1.4); margin-right: 15px;">
-                <strong>I agree to the terms above</strong>
-              </label>
-              <button class="btn btn-primary" onclick="if(document.getElementById('agree').checked){state.step=1;render()}else{alert('Please agree to terms')}">Agree & Proceed</button>
-            </div>
-          </div>
-        </div>`;
-    } 
-    else if (state.step === 1) {
-      app.innerHTML = `
-        <div class="card" style="max-width:700px; margin: 0 auto; text-align:center;">
-          <h2>Select Your Account</h2>
-          <div class="search-box">
-            <input type="text" id="cust-search" placeholder="Type business name..." autocomplete="off">
-            <div id="results" class="dropdown"></div>
-          </div>
-          <p style="color:#666; font-size:0.9em;">Min. 2 characters to search</p>
-        </div>`;
-      document.getElementById("cust-search").oninput = (e) => doSearch(e.target.value);
+        if (state.step === 0) {
+            app.innerHTML = `
+                <div class="card">
+                    <h2>Wholesale Agreement</h2>
+                    <div style="height:250px; overflow-y:scroll; border:1px solid #eee; padding:15px; background:#fafafa; font-size:0.9em; margin-bottom:20px;">
+                        <p><strong>Terms:</strong> Payment is Net-on-Delivery. All products must be refrigerated at 38°F. Kegs remain property of SBC ($30 deposit applies).</p>
+                    </div>
+                    <label style="display:block; margin-bottom:20px; cursor:pointer;">
+                        <input type="checkbox" id="agree"> I agree to the wholesale terms and conditions.
+                    </label>
+                    <button class="btn btn-primary" onclick="if(document.getElementById('agree').checked){state.step=1;render()}">Agree & Proceed</button>
+                </div>`;
+        } else if (state.step === 1) {
+            app.innerHTML = `
+                <div class="card" style="text-align:center;">
+                    <h2>Find Your Account</h2>
+                    <div class="search-container">
+                        <input type="text" id="search-input" placeholder="Start typing business name..." autocomplete="off">
+                        <div id="results" class="dropdown"></div>
+                    </div>
+                </div>`;
+            document.getElementById("search-input").oninput = (e) => doSearch(e.target.value);
+        } else if (state.step === 3) {
+            app.innerHTML = `
+                <div class="card">
+                    <div class="review-header">
+                        <div class="client-block">
+                            <div style="color:var(--blue); font-weight:bold; margin-bottom:10px;">Suburban Brewing Co.</div>
+                            <div style="font-weight:900; font-size:1.3em;">${state.customer.name}</div>
+                            <div>${state.customer.address}</div>
+                            <div>${state.customer.city}, ${state.customer.state} ${state.customer.zip}</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="color:#666; font-size:0.8em;">DATE</div>
+                            <div style="font-weight:bold;">${new Date().toLocaleDateString()}</div>
+                        </div>
+                    </div>
+                    <hr>
+                    <p style="text-align:center; padding:20px; color:#666;">[Product Table Goes Here]</p>
+                    <button class="btn btn-primary" style="background:#28a745;">Submit Final Order</button>
+                </div>`;
+        }
     }
-    else if (state.step === 2) {
-      app.innerHTML = `
-        <div class="card">
-          <h2 style="margin-top:0; color:var(--sbc-blue);">${state.customer.name}</h2>
-          <div class="product-grid">${products.map((p, i) => `
-            <div class="product-card">
-              <strong style="display:block; min-height:40px;">${p.name}</strong>
-              <div style="color:var(--sbc-blue); font-weight:bold; margin:10px 0;">$${p.price.toFixed(2)}</div>
-              <input type="number" class="qty-input" min="0" value="${getQty(p.name)}" onchange="updateCart('${p.name}', ${p.price}, this.value)">
-            </div>
-          `).join("")}</div>
-          <button class="btn btn-primary" style="margin-top:30px;" onclick="state.step=3;render()">Review Final Order &rarr;</button>
-        </div>`;
+
+    async function doSearch(val) {
+        if (val.length < 2) return;
+        const res = await fetch(`${API_URL}?q=${encodeURIComponent(val)}`);
+        const data = await res.json();
+        const box = document.getElementById("results");
+        
+        if (data.results && data.results.length > 0) {
+            box.style.display = "block";
+            box.innerHTML = data.results.map(c => `
+                <div class="dropdown-item" onclick='selectCust(${JSON.stringify(c).replace(/'/g, "&apos;")})'>
+                    <strong>${c.name}</strong><br><small>${c.address}, ${c.city}</small>
+                </div>
+            `).join("");
+        } else {
+            box.style.display = "none";
+        }
     }
-    else if (state.step === 3) {
-      const items = state.cart.filter(i => i.qty > 0);
-      const total = items.reduce((s, i) => s + (i.price * i.qty), 0);
-      app.innerHTML = `
-        <div class="card">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px;">
-            <div>
-               <div style="color:var(--sbc-blue); font-weight:bold; margin-bottom:10px;">FROM: Suburban Brewing Co.</div>
-               <div style="font-weight:bold; font-size:1.4em;">${state.customer.name}</div>
-               <div>${state.customer.address}</div>
-               <div>${state.customer.city}, ${state.customer.state} ${state.customer.zip}</div>
-            </div>
-            <div style="text-align:right;">
-               <div style="color:#666; font-size:0.9em;">ORDER DATE</div>
-               <div style="font-weight:bold; font-size:1.2em;">${new Date().toLocaleDateString()}</div>
-            </div>
-          </div>
-          <table style="width:100%; border-collapse:collapse;">
-            <tr style="border-bottom:2px solid #333;"><th style="text-align:left; padding:10px;">Item</th><th>Qty</th><th style="text-align:right; padding:10px;">Total</th></tr>
-            ${items.map(i => `<tr style="border-bottom:1px solid #eee;"><td style="padding:10px;">${i.name}</td><td style="text-align:center;">${i.qty}</td><td style="text-align:right; padding:10px;">$${(i.price*i.qty).toFixed(2)}</td></tr>`).join("")}
-          </table>
-          <h2 style="text-align:right; margin-top:20px;">Order Total: $${total.toFixed(2)}</h2>
-          <button class="btn btn-primary" style="background:#28a745;" onclick="submitOrder()">Submit Final Order</button>
-        </div>`;
-    }
-  }
 
-  async function doSearch(val) {
-    if (val.length < 2) return;
-    const res = await fetch(`${API_URL}?q=${encodeURIComponent(val)}`);
-    const data = await res.json();
-    const box = document.getElementById("results");
-    box.style.display = "block";
-    box.innerHTML = data.results.map(c => `<div class="dropdown-item" onclick='selectCust(${JSON.stringify(c).replace(/'/g, "&apos;")})'><strong>${c.name}</strong><br><small>${c.address}</small></div>`).join("");
-  }
+    window.selectCust = (c) => { state.customer = c; state.step = 3; render(); };
 
-  function selectCust(c) { state.customer = c; state.step = 2; render(); }
-  function updateCart(name, price, qty) {
-    const idx = state.cart.findIndex(i => i.name === name);
-    if (idx > -1) state.cart[idx].qty = parseInt(qty);
-    else state.cart.push({name, price, qty: parseInt(qty)});
-  }
-  function getQty(name) { const i = state.cart.find(c => c.name === name); return i ? i.qty : 0; }
-  
-  async function submitOrder() {
-    const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(state) });
-    alert("Order Submitted Successfully!");
-    location.reload();
-  }
-
-  // Load everything
-  loadProducts();
-  render();
+    render();
 </script>
 </body>
 </html>
