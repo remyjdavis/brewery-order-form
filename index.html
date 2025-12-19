@@ -6,47 +6,36 @@
   <title>SBC Wholesale Portal</title>
   <style>
     body { font-family: -apple-system, system-ui, sans-serif; background: #f4f4f9; margin: 0; padding-bottom: 110px; color: #333; }
-    
-    /* MAIN HEADER */
     .site-header { background: #1a1a1a; color: white; padding: 15px 5%; border-bottom: 3px solid #007bff; }
     .header-content { display: flex; align-items: center; gap: 20px; max-width: 1000px; margin: 0 auto; }
     .header-brand img { height: 60px; background: white; border-radius: 4px; padding: 4px; }
     .header-contact { font-size: 0.75em; line-height: 1.4; opacity: 0.9; }
     .header-contact strong { font-size: 1.1em; color: #007bff; display: block; margin-bottom: 2px; }
-    
     .card { background: white; padding: 18px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); width: 92%; max-width: 1000px; margin: 12px auto; }
     .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
     .product-card { border: 1px solid #eee; padding: 10px; border-radius: 10px; background: #fff; text-align: center; }
     .qty-input { width: 70%; padding: 6px; border: 1.5px solid #007bff; border-radius: 6px; text-align: center; font-weight: bold; font-size: 0.9em; }
-    
     .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; color: white; border-top: 3px solid #007bff; padding: 12px 5%; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
-    
     button { padding: 8px 16px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; font-size: 0.8em; }
     button:disabled { background: #ccc !important; cursor: not-allowed; }
     .primary { background: #007bff; color: white; width: 100%; height: 38px; }
     .success { background: #28a745; color: white; width: 100%; height: 42px; font-size: 0.9em; }
     .secondary { background: #eee; color: #444; width: 100%; margin-top: 8px; }
-    
     .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 5000; display: none; max-height: 250px; overflow-y: auto; }
     .dropdown-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 0.9em; }
-
-    /* FORMAL TABLE STYLING */
     .order-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85em; }
-    .order-table th { text-align: left; background: #f8f9fa; padding: 10px; border-bottom: 2px solid #dee2e6; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+    .order-table th { text-align: left; background: #f8f9fa; padding: 10px; border-bottom: 2px solid #dee2e6; color: #666; text-transform: uppercase; }
     .order-table td { padding: 12px 10px; border-bottom: 1px solid #eee; }
     .text-right { text-align: right; }
-
     .summary-row { display: flex; justify-content: flex-end; padding: 3px 0; font-size: 0.9em; }
     .summary-label { width: 220px; text-align: right; color: #666; padding-right: 15px; }
     .summary-val { width: 100px; text-align: right; font-weight: bold; }
     .grand-total { border-top: 2px solid #1a1a1a; margin-top: 8px; padding-top: 8px; font-size: 1.4em; color: #1a1a1a; }
-
     @media print {
         body * { visibility: hidden; }
         #receipt-printable, #receipt-printable * { visibility: visible; }
-        #receipt-printable { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; border: none; }
+        #receipt-printable { position: absolute; left: 0; top: 0; width: 100%; }
         #post-order-actions, .site-header, .live-bar, #notes-area { display: none !important; }
-        #print-notes { display: block !important; margin-top: 20px; font-size: 0.85em; }
     }
   </style>
 </head>
@@ -54,9 +43,7 @@
 
 <header class="site-header">
   <div class="header-content">
-    <div class="header-brand">
-      <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" alt="SBC">
-    </div>
+    <div class="header-brand"><img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" alt="SBC"></div>
     <div class="header-contact">
       <strong>Suburban Brewing Co.</strong>
       3041 Horseshoe Pike, Suite 120 & 130, Honey Brook, PA 19344<br>
@@ -77,6 +64,7 @@
 </div>
 
 <script>
+  // YOUR API URL
   const API_URL = "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec";
   const PRODUCT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&single=true&output=csv";
   
@@ -99,8 +87,7 @@
   function checkIsRestaurant(name) {
     if (!name) return false;
     const keywords = ["restaurant", "pub", "grill", "cafe", "bistro", "tavern", "kitchen", "inn", "bar"];
-    const lowerName = name.toLowerCase();
-    return keywords.some(word => lowerName.includes(word));
+    return keywords.some(word => name.toLowerCase().includes(word));
   }
 
   function render() {
@@ -111,28 +98,27 @@
     if (state.step === 0) {
       app.innerHTML = `<div class="card">
         <h2 style="font-size:1.1em; border-bottom:2px solid #007bff; padding-bottom:8px;">Wholesale Purchase & Distribution Agreement</h2>
-        <div style="font-size:0.75em; max-height: 400px; overflow-y: auto; border: 1px solid #eee; padding: 20px; margin: 15px 0; background: #fafafa; line-height: 1.8; color: #444; text-align: justify;">
-            <p><strong>1. SCOPE OF AGREEMENT:</strong> This Agreement governs the sale and distribution of malt or brewed beverages by Suburban Brewing Co. ("Seller") to the Retail Licensee ("Purchaser").</p>
-            <p><strong>2. LICENSURE AND COMPLIANCE:</strong> The Purchaser represents and warrants that they hold a current and valid retail liquor license issued by the Pennsylvania Liquor Control Board (PLCB). Purchaser agrees to comply with all local, state, and federal laws regarding the sale and service of alcohol.</p>
-            <p><strong>3. PRICING AND TAXATION:</strong> All prices are subject to change based on market fluctuations. In accordance with PA Title 47, Seller is required to collect appropriate taxes. A 6% Sales Tax will be automatically applied to accounts identified as retail/restaurant entities unless a valid Tax Exempt certificate is on file.</p>
-            <p><strong>4. DELIVERY AND ACCEPTANCE:</strong> Risk of loss passes to the Purchaser upon delivery to the licensed premises. Purchaser must inspect all goods upon arrival. Claims for breakage or shortage must be made at the time of delivery.</p>
-            <p><strong>5. EQUIPMENT AND COOPERAGE:</strong> All kegs (cooperage) remain the property of Suburban Brewing Co. A deposit of $30.00 per unit is required. Deposits are refundable upon the return of undamaged, authorized cooperage. Purchaser is liable for the full replacement cost ($120.00) of any lost or destroyed kegs.</p>
-            <p><strong>6. PAYMENT TERMS:</strong> Payment is due net-on-delivery. Fintech-enabled accounts will be drafted automatically upon invoice finalization. For non-Fintech accounts, payment via business check must be presented at the time of drop-off. Failure to pay may result in a "No-Service" status and reporting to the PLCB credit list where applicable.</p>
-            <p><strong>7. PRODUCT QUALITY:</strong> Seller guarantees the quality of product at the time of delivery. Because our product is unpasteurized, it MUST be maintained at a constant refrigeration temperature of 38°F. Seller is not responsible for product spoilage due to improper storage or line maintenance by the Purchaser.</p>
-            <p><strong>8. LIMITATION OF LIABILITY:</strong> Seller’s liability for any claim shall not exceed the purchase price of the specific goods giving rise to the claim. Seller shall not be liable for any indirect, special, or consequential damages.</p>
-            <p><strong>9. FORCE MAJEURE:</strong> Neither party shall be liable for failure to perform duties due to acts of God, strikes, or governmental restrictions beyond their control.</p>
+        <div style="font-size:0.75em; max-height: 350px; overflow-y: auto; border: 1px solid #eee; padding: 15px; margin: 15px 0; background: #fafafa; line-height: 1.7; color: #444;">
+            <p><strong>1. SCOPE:</strong> This Agreement governs the distribution of malt beverages by Suburban Brewing Co. ("Seller") to the Retail Licensee ("Purchaser").</p>
+            <p><strong>2. COMPLIANCE:</strong> Purchaser warrants they hold a valid PA Liquor License and will comply with all PLCB regulations. Seller is required to collect appropriate taxes based on entity status.</p>
+            <p><strong>3. PRICING:</strong> Prices are subject to market change. A 6% Sales Tax applies to restaurant entities unless a Tax Exempt certificate is provided.</p>
+            <p><strong>4. DELIVERY:</strong> Risk of loss passes at delivery. Inspection must occur upon arrival; breakage claims must be filed immediately.</p>
+            <p><strong>5. COOPERAGE:</strong> Kegs remain Seller property. A $30 deposit per unit applies. Purchaser is liable for replacement cost ($120) of lost/damaged units.</p>
+            <p><strong>6. PAYMENT:</strong> Due Net-on-Delivery. Fintech accounts draft automatically; others require business checks at drop-off. Defaults may lead to "No-Service" status.</p>
+            <p><strong>7. QUALITY:</strong> Product must be kept at 38°F. Seller is not liable for spoilage due to improper storage or maintenance.</p>
+            <p><strong>8. LIABILITY:</strong> Seller's liability is limited to the purchase price of the specific goods in question.</p>
         </div>
-        <label style="display:flex; align-items:center; gap:12px; margin-bottom:20px; font-size:0.9em; cursor:pointer; background: #eef6ff; padding: 12px; border-radius: 6px;">
-            <input type="checkbox" id="agree-cb" style="transform: scale(1.3);" onchange="document.getElementById('proceed-btn').disabled = !this.checked"> 
-            <strong>I acknowledge that I am an authorized agent of the licensee and agree to the terms above.</strong>
+        <label style="display:flex; align-items:center; gap:10px; margin-bottom:20px; font-size:0.9em;">
+            <input type="checkbox" id="agree-cb" onchange="document.getElementById('proceed-btn').disabled = !this.checked"> 
+            <strong>I acknowledge I am an authorized agent and agree to the terms.</strong>
         </label>
-        <button id="proceed-btn" class="primary" disabled onclick="state.step=1;render()">I Agree & Proceed</button>
+        <button id="proceed-btn" class="primary" disabled onclick="state.step=1;render()">Agree & Proceed</button>
       </div>`;
     }
     else if (state.step === 1) {
       app.innerHTML = `<div class="card">
         <h2 style="font-size:1em;">Account Selection</h2>
-        <input type="text" id="cust-input" placeholder="Search for account name..." style="width:100%; padding:10px; border-radius:6px; border:2px solid #ddd; font-size:0.95em; box-sizing:border-box;">
+        <input type="text" id="cust-input" placeholder="Search for account (starts in Column B)..." style="width:100%; padding:10px; border-radius:6px; border:2px solid #ddd; box-sizing:border-box;">
         <div id="results" class="dropdown"></div>
       </div>`;
       document.getElementById("cust-input").oninput = (e) => doSearch(e.target.value);
@@ -140,11 +126,11 @@
     else if (state.step === 2) {
       bar.style.display = "flex";
       app.innerHTML = `<div class="card">
-        <h3 style="margin:0 0 12px 0; font-size:0.95em; color:#007bff;">${state.customer.name}</h3>
+        <h3 style="margin:0 0 12px 0; color:#007bff;">${state.customer.name}</h3>
         <div class="product-grid">${products.map((p, i) => `
           <div class="product-card">
             <span style="font-weight:700; display:block; height:30px; font-size:0.8em;">${p.name}</span>
-            <span style="color:#007bff; font-weight:800; display:block; margin:5px 0; font-size:0.95em;">$${p.price.toFixed(2)}</span>
+            <span style="color:#007bff; font-weight:800; display:block; margin:5px 0;">$${p.price.toFixed(2)}</span>
             <input type="number" class="qty-input" min="0" value="${getQty(p.name) || ''}" oninput="updateCart(${i}, this.value)">
           </div>`).join("")}
         </div>
@@ -153,147 +139,58 @@
     }
     else if (state.step === 3) {
       const items = state.cart.filter(i => i.qty > 0);
-      const subtotal = items.reduce((s, i) => s + (i.price * i.qty), 0);
-      const kegCount = items.reduce((s, i) => s + (i.name.toLowerCase().includes("keg") ? i.qty : 0), 0);
-      const kegDeposit = kegCount * 30.00;
-      const discount = (items.reduce((s, i) => s + i.qty, 0) >= 10) ? subtotal * 0.10 : 0;
-      const taxableAmount = subtotal - discount;
+      const sub = items.reduce((s, i) => s + (i.price * i.qty), 0);
       const taxRate = checkIsRestaurant(state.customer.name) ? 0.06 : 0;
-      const tax = taxableAmount * taxRate;
-      const grandTotal = taxableAmount + tax + kegDeposit;
-
-      app.innerHTML = `
-      <div class="card" id="receipt-printable">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
-            <div style="font-size: 0.8em; line-height: 1.4;">
-                <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" style="height: 50px; margin-bottom: 10px;"><br>
-                <strong>Suburban Brewing Co.</strong><br>
-                3041 Horseshoe Pike, Honey Brook, PA<br>
-                Remy Davis | (908) 642-1019
-            </div>
-            <div style="text-align: right; font-size: 0.85em; font-weight: bold;">
-                ORDER DATE:<br>${new Date().toLocaleDateString()}
-            </div>
-        </div>
-
-        <div style="margin-bottom: 18px; font-size: 0.9em; line-height: 1.4; border-top: 2px solid #007bff; padding-top: 15px;">
-            <div style="font-weight: 900; color: #1a1a1a; font-size: 1.1em; text-transform: uppercase;">${state.customer.name}</div>
-            <hr style="border: 0; border-top: 1px solid #ddd; margin: 8px 0;">
-            <div>${state.customer.address}</div>
-            <div>${state.customer.city}, ${state.customer.state} ${state.customer.zip}</div>
-        </div>
-
-        <table class="order-table">
-            <thead><tr><th>Description</th><th class="text-right">Price</th><th class="text-right">Qty</th><th class="text-right">Total</th></tr></thead>
-            <tbody>
-                ${items.map(item => `<tr><td>${item.name}</td><td class="text-right">$${item.price.toFixed(2)}</td><td class="text-right">${item.qty}</td><td class="text-right">$${(item.price * item.qty).toFixed(2)}</td></tr>`).join("")}
-            </tbody>
-        </table>
-
-        <div class="summary-area">
-            <div class="summary-row"><div class="summary-label">Subtotal:</div><div class="summary-val">$${subtotal.toFixed(2)}</div></div>
-            ${discount > 0 ? `<div class="summary-row" style="color:#2ecc71;"><div class="summary-label">10% Bulk Discount:</div><div class="summary-val">-$${discount.toFixed(2)}</div></div>` : ''}
-            ${tax > 0 ? `<div class="summary-row"><div class="summary-label">Sales Tax (6%):</div><div class="summary-val">$${tax.toFixed(2)}</div></div>` : ''}
-            ${kegDeposit > 0 ? `<div class="summary-row"><div class="summary-label">Keg Deposits:</div><div class="summary-val">$${kegDeposit.toFixed(2)}</div></div>` : ''}
-            <div class="summary-row grand-total"><div class="summary-label">Amount Due:</div><div class="summary-val">$${grandTotal.toFixed(2)}</div></div>
-        </div>
-
-        <div id="notes-area" style="margin-top: 20px;">
-            <label style="font-size: 0.8em; font-weight: bold; color: #666; display: block; margin-bottom: 5px;">SPECIAL INSTRUCTIONS / NOTES:</label>
-            <textarea id="order-notes" style="width: 100%; height: 60px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; font-size: 0.9em; box-sizing: border-box;" placeholder="Add delivery notes or requests...">${state.notes}</textarea>
-        </div>
-
-        <div id="print-notes" style="display:none; border: 1px solid #eee; padding: 10px; margin-top: 15px;">
-            <strong>Notes:</strong> <span id="notes-text-print"></span>
-        </div>
-        
-        <div id="post-order-actions" style="margin-top:25px; border-top:1px solid #eee; padding-top:15px;">
-            <label style="display:flex; align-items:center; gap:8px; margin-bottom:12px; font-size:0.85em; cursor:pointer;">
-                <input type="checkbox" id="send-email-cb" onchange="toggleEmailInput(this.checked)"> Email receipt
-            </label>
-            <input type="email" id="client-email" placeholder="Enter recipient email" style="display:none; width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:4px; font-size:0.9em; box-sizing:border-box;">
-            
-            <button class="success" onclick="submitOrder()">Submit Final Order</button>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-                <button class="secondary" onclick="preparePrint()">Print Order</button>
-                <button class="secondary" style="background:#fff; border:1px solid #ccc;" onclick="state.step=2;render()">Edit Order</button>
-            </div>
-        </div>
-      </div>`;
+      const tax = sub * taxRate;
       
-      document.getElementById('order-notes').oninput = (e) => { state.notes = e.target.value; };
+      app.innerHTML = `<div class="card" id="receipt-printable">
+        <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+          <div style="font-size:0.8em;">
+            <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" style="height:40px;"><br>
+            <strong>Suburban Brewing Co.</strong>
+          </div>
+          <div style="text-align:right; font-size:0.85em;">DATE: ${new Date().toLocaleDateString()}</div>
+        </div>
+        <div style="margin-bottom:15px; border-top:2px solid #007bff; padding-top:10px;">
+          <div style="font-weight:900; font-size:1.1em;">${state.customer.name}</div>
+          <div>${state.customer.address}</div>
+          <div>${state.customer.city}, ${state.customer.state} ${state.customer.zip}</div>
+        </div>
+        <table class="order-table">
+          <thead><tr><th>Item</th><th class="text-right">Price</th><th class="text-right">Qty</th><th class="text-right">Total</th></tr></thead>
+          <tbody>${items.map(item => `<tr><td>${item.name}</td><td class="text-right">$${item.price.toFixed(2)}</td><td class="text-right">${item.qty}</td><td class="text-right">$${(item.price*item.qty).toFixed(2)}</td></tr>`).join("")}</tbody>
+        </table>
+        <div class="summary-row grand-total"><div class="summary-label">Total Due:</div><div class="summary-val">$${(sub + tax).toFixed(2)}</div></div>
+        <button class="success" style="margin-top:20px;" onclick="submitOrder()">Submit Final Order</button>
+      </div>`;
     }
-    else if (state.step === 4) {
-        app.innerHTML = `<div class="card" style="text-align:center; padding:50px 20px;">
-            <div style="font-size: 3em; color: #28a745; margin-bottom: 10px;">✓</div>
-            <h2>Order Submitted!</h2>
-            <p>SBC has been notified. Check your email for a summary.</p>
-            <button class="primary" onclick="location.reload()" style="max-width:220px; margin-top:25px;">Start New Order</button>
-        </div>`;
-    }
-  }
-
-  function preparePrint() {
-    document.getElementById('notes-text-print').innerText = state.notes || "None";
-    window.print();
-  }
-
-  function toggleEmailInput(show) {
-    document.getElementById('client-email').style.display = show ? 'block' : 'none';
-  }
-
-  function updateCart(idx, qty) {
-    const p = products[idx];
-    const q = Math.max(0, parseInt(qty) || 0);
-    let item = state.cart.find(i => i.name === p.name);
-    if (item) item.qty = q; else state.cart.push({...p, qty: q});
-    updateLiveDisplay();
-  }
-
-  function updateLiveDisplay() {
-    const subtotal = state.cart.reduce((s, i) => s + (i.price * i.qty), 0);
-    const totalQty = state.cart.reduce((s, i) => s + i.qty, 0);
-    const discount = totalQty >= 10 ? subtotal * 0.10 : 0;
-    const taxableAmount = subtotal - discount;
-    const taxRate = (state.customer && checkIsRestaurant(state.customer.name)) ? 0.06 : 0;
-    const tax = taxableAmount * taxRate;
-    document.getElementById("live-total").innerText = "$" + (taxableAmount + tax).toFixed(2);
-    document.getElementById("savings-label").innerText = discount > 0 ? "10% BULK DISCOUNT APPLIED" : "";
-    document.getElementById("tax-label").innerText = tax > 0 ? "+6% Sales Tax included" : "";
   }
 
   async function doSearch(val) {
     const box = document.getElementById("results");
     if (val.length < 2) { box.style.display="none"; return; }
-    try {
-        const res = await fetch(`${API_URL}?q=${encodeURIComponent(val)}`);
-        const data = await res.json();
-        box.style.display = "block";
-        box.innerHTML = data.results.map(c => `<div class="dropdown-item" onmousedown='setCustomer(${JSON.stringify(c).replace(/'/g, "&apos;")})'>${c.name}</div>`).join("");
-    } catch(e) { console.error("Search error", e); }
+    const res = await fetch(`${API_URL}?q=${encodeURIComponent(val)}`);
+    const data = await res.json();
+    box.style.display = "block";
+    box.innerHTML = data.results.map(c => `<div class="dropdown-item" onmousedown='setCustomer(${JSON.stringify(c)})'>${c.name}</div>`).join("");
   }
 
   function setCustomer(c) { state.customer = c; state.step = 2; render(); }
+  function updateCart(idx, qty) {
+    const p = products[idx], q = parseInt(qty) || 0;
+    let item = state.cart.find(i => i.name === p.name);
+    if (item) item.qty = q; else state.cart.push({...p, qty: q});
+    updateLiveDisplay();
+  }
+  function updateLiveDisplay() {
+    const sub = state.cart.reduce((s, i) => s + (i.price * i.qty), 0);
+    document.getElementById("live-total").innerText = "$" + sub.toFixed(2);
+  }
   function getQty(name) { let i = state.cart.find(c => c.name === name); return i ? i.qty : 0; }
-
   async function submitOrder() {
-    const btn = document.querySelector(".success");
-    const sendEmail = document.getElementById('send-email-cb').checked;
-    const clientEmail = document.getElementById('client-email').value;
-    if (sendEmail && !clientEmail) { alert("Please enter an email address."); return; }
-    btn.innerText = "Processing..."; btn.disabled = true;
-    const payload = {
-      customer: state.customer,
-      items: state.cart.filter(i => i.qty > 0),
-      notes: state.notes,
-      sendEmail: sendEmail,
-      clientEmail: clientEmail
-    };
-    try {
-      const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
-      const result = await res.json();
-      if(result.success) { state.step = 4; render(); }
-    } catch(e) { alert("Error: " + e.message); btn.disabled = false; btn.innerText = "Submit Final Order"; }
+    const payload = { customer: state.customer, items: state.cart.filter(i => i.qty > 0) };
+    await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
+    alert("Order Submitted!"); location.reload();
   }
   init();
 </script>
