@@ -42,7 +42,7 @@ body {
   border-radius: 6px;
 }
 
-/* SEARCH */
+/* AUTOCOMPLETE */
 .customer-search {
   width: 100%;
   padding: 12px;
@@ -50,8 +50,10 @@ body {
 }
 
 .autocomplete-results {
+  position: relative;
   border: 1px solid #ccc;
   background: #fff;
+  z-index: 9999;
 }
 
 .autocomplete-item {
@@ -63,10 +65,7 @@ body {
   background: #eee;
 }
 
-/* ============================= */
-/* 🔒 PRODUCT GRID — DO NOT TOUCH */
-/* ============================= */
-
+/* 🔒 PRODUCT GRID — LOCKED FOREVER */
 .product-grid {
   display: grid !important;
   grid-template-columns: repeat(4, 1fr) !important;
@@ -87,36 +86,15 @@ body {
   margin-top: 4px;
 }
 
-/* Tablet */
+/* Responsive */
 @media (max-width: 768px) {
   .product-grid {
     grid-template-columns: repeat(2, 1fr) !important;
   }
 }
 
-/* Phone */
 @media (max-width: 480px) {
   .product-grid {
     grid-template-columns: 1fr !important;
   }
-}
-
-/* REVIEW TABLE */
-.review-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.review-table th,
-.review-table td {
-  border: 1px solid #ccc;
-  padding: 8px;
-}
-
-/* BUTTONS */
-button {
-  padding: 12px 18px;
-  font-size: 16px;
-  margin-top: 15px;
-  cursor: pointer;
 }
