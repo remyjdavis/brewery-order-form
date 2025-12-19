@@ -13,16 +13,22 @@ let state = {
   cart: []
 };
 
-/**************** CSV PARSER ****************/
+/**************** ROBUST CSV PARSER ****************/
 function parseCSV(text) {
   const lines = text.trim().split("\n");
-  const headers = lines.shift().split(",");
+  const rawHeaders = lines.shift().split(",");
+
+  // 🔒 Normalize headers once
+  const headers = rawHeaders.map(h =>
+    h.trim().toLowerCase()
+      .replace(/\s+/g, "_")
+  );
 
   return lines.map(line => {
     const values = line.split(",");
     let obj = {};
     headers.forEach((h, i) => {
-      obj[h.trim()] = (values[i] || "").trim();
+      obj[h] = (values[i] || "").trim();
     });
     return obj;
   });
@@ -34,10 +40,18 @@ async function loadProducts() {
   const text = await res.text();
 
   products = parseCSV(text).map(p => ({
-    name: p["Product Name"],
-    price: Number(p["Price"]),
-    stock: Number(p["Qty In Stock"])
+    // ✅ THESE KEYS NOW ALWAYS EXIST
+    name: p.product_name,
+    price: Number(p.price),
+    stock: Number(p.qty_in_stock)
   }));
+
+  // 🔒 Hard validation (dev safety)
+  products.forEach(p => {
+    if (!p.name) console.error("Missing product name", p);
+    if (isNaN(p.price)) console.error("Invalid price", p);
+    if (isNaN(p.stock)) console.error("Invalid stock", p);
+  });
 
   render();
 }
@@ -90,11 +104,10 @@ function render() {
     return;
   }
 
-  /* STEP 2 — PRODUCT GRID (LOCKED) */
+  /* STEP 2 — PRODUCT GRID (DESKTOP LOCKED) */
   if (state.step === 2) {
     const card = document.createElement("div");
     card.className = "card";
-
     card.innerHTML = `<h2>Select Products</h2>`;
 
     const grid = document.createElement("div");
@@ -109,12 +122,7 @@ function render() {
         <div>Price: $${p.price.toFixed(2)}</div>
         <div>In Stock: ${p.stock}</div>
         ${p.stock <= 5 ? `<div style="color:red;">Low stock</div>` : ""}
-        <input
-          type="number"
-          min="0"
-          max="${p.stock}"
-          id="q-${i}"
-        >
+        <input type="number" min="0" max="${p.stock}" id="q-${i}">
       `;
 
       grid.appendChild(prod);
@@ -146,11 +154,7 @@ function render() {
         </p>
 
         <table class="review-table">
-          <tr>
-            <th>Product</th>
-            <th>Qty</th>
-            <th>Total</th>
-          </tr>
+          <tr><th>Product</th><th>Qty</th><th>Total</th></tr>
           ${state.cart.map(i => {
             const line = i.qty * i.price;
             subtotal += line;
@@ -181,14 +185,10 @@ function review() {
     const qty = Number(document.getElementById(`q-${i}`).value || 0);
     if (qty > 0) {
       if (qty > p.stock) {
-        alert(`Only ${p.stock} units available for ${p.name}`);
+        alert(`Only ${p.stock} available for ${p.name}`);
         return;
       }
-      state.cart.push({
-        name: p.name,
-        price: p.price,
-        qty: qty
-      });
+      state.cart.push({ name: p.name, price: p.price, qty });
     }
   });
 
