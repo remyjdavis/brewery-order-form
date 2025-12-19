@@ -1,12 +1,27 @@
-<div class="customer-search">
-  <input
-    id="customer-search"
-    type="text"
-    placeholder="Search customer..."
-    oninput="onCustomerInput(this.value)"
-    autocomplete="off"
-  />
-  <div id="autocomplete-results"></div>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Suburban Brewing – Wholesale Order</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-<div id="selected-customer" class="selected-customer"></div>
+<header class="header">
+  <img src="logo.png" class="logo">
+  <div class="header-info">
+    <h1>Suburban Brewing Company</h1>
+    <p>
+      3041 Horseshoe Pike Suite 120 & 130<br>
+      Honey Brook, PA 19344<br>
+      Remy Davis • (908) 642-1019 • remyjdavis90@gmail.com
+    </p>
+  </div>
+</header>
+
+<div class="container" id="form-container"></div>
+
+<script src="order-form.js"></script>
+</body>
+</html>
