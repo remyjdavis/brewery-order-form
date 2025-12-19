@@ -7,10 +7,17 @@
   <style>
     body { font-family: -apple-system, system-ui, sans-serif; background: #f4f4f9; margin: 0; padding-bottom: 120px; color: #333; }
     .site-header { background: #1a1a1a; color: white; padding: 15px; display: flex; align-items: center; gap: 15px; border-bottom: 3px solid #007bff; }
-    .site-header img { max-width: 60px; height: auto; }
+    .site-header img { max-width: 60px; height: auto; border-radius: 4px; }
     .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 92%; max-width: 600px; margin: 20px auto; }
     .product-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
-    .product-row input { width: 60px; padding: 8px; border: 2px solid #007bff; border-radius: 6px; text-align: center; font-weight: bold; }
+    .product-row input { width: 65px; padding: 8px; border: 2px solid #007bff; border-radius: 6px; text-align: center; font-weight: bold; }
+    
+    /* DROPDOWN FIXES */
+    .search-container { position: relative; }
+    .dropdown { position: absolute; top: 100%; left: 0; right: 0; border: 1px solid #ddd; border-radius: 0 0 8px 8px; background: white; max-height: 250px; overflow-y: auto; z-index: 5000; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .dropdown-item { padding: 14px; border-bottom: 1px solid #eee; cursor: pointer; text-align: left; font-size: 1.1em; }
+    .dropdown-item:active { background: #e6f2ff; }
+
     .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 2px solid #007bff; padding: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); z-index: 1000; }
     .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 2000; }
     .modal-content { background: white; padding: 30px; border-radius: 15px; text-align: center; width: 90%; max-width: 400px; }
@@ -18,16 +25,13 @@
     .primary { background: #007bff; color: white; }
     .success { background: #28a745; color: white; }
     .secondary { background: #6c757d; color: white; margin-top: 10px; }
-    .dropdown { border: 1px solid #ddd; border-radius: 8px; background: white; margin-top: 5px; max-height: 250px; overflow-y: auto; display: none; }
-    .dropdown-item { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; text-align: left; }
-    .dropdown-item:hover { background: #f0f7ff; }
-    input[type="text"], input[type="number"] { font-size: 16px; } /* Prevents iOS zoom */
+    input[type="text"] { width:100%; padding:14px; border:2px solid #ddd; border-radius:8px; box-sizing:border-box; font-size: 16px; }
   </style>
 </head>
 <body>
 
 <header class="site-header">
-  <img src="https://drive.google.com/uc?export=view&id=17FIGn4rtHEiFpylADgccuFxYo9dAnUHb" alt="SBC Logo">
+  <img src="https://drive.google.com/uc?export=view&id=17FIGn4rtHEiFpylADgccuFxYo9dAnUHb" alt="SBC">
   <div>
     <h1 style="margin:0; font-size:1.1em;">Suburban Brewing Co.</h1>
     <p style="margin:0; font-size:0.8em; opacity:0.8;">Wholesale Portal | Remy Davis</p>
@@ -38,7 +42,7 @@
 
 <div id="live-bar" class="live-bar" style="display:none;">
   <div>
-    <small style="display:block; color:#666;">Current Total</small>
+    <small style="display:block; color:#666;">Total</small>
     <strong id="live-total" style="font-size:1.4em;">$0.00</strong>
   </div>
   <button class="primary" onclick="state.step=3;render()">Review Order</button>
@@ -71,10 +75,10 @@
       const rows = text.split("\n").slice(1);
       products = rows.map(r => {
         const c = r.split(",");
-        return { name: c[0], price: parseFloat(c[1]) || 0 };
+        return { name: (c[0]||"").trim(), price: parseFloat(c[1]) || 0 };
       }).filter(p => p.name);
       render();
-    } catch(e) { console.error("Error loading products", e); }
+    } catch(e) { console.error(e); }
   }
 
   function render() {
@@ -83,87 +87,79 @@
     app.innerHTML = ""; 
     bar.style.display = "none";
 
-    // STEP 0: USER AGREEMENT
     if (state.step === 0) {
       app.innerHTML = `
         <div class="card">
           <h2>Wholesale Agreement</h2>
-          <div style="height:150px; overflow-y:scroll; border:1px solid #eee; padding:10px; font-size:0.9em; margin-bottom:15px; background:#fafafa;">
-            <p><strong>1. Authorization:</strong> I represent that I am an authorized buyer.</p>
-            <p><strong>2. Kegs:</strong> All kegs include a $30.00 untaxed deposit.</p>
-            <p><strong>3. Payment:</strong> Due via Check or Fintech as indicated in customer profile.</p>
+          <div style="height:140px; overflow-y:scroll; border:1px solid #eee; padding:12px; font-size:0.9em; margin-bottom:15px; background:#fafafa; border-radius:6px;">
+            <p><strong>Authorization:</strong> I am an authorized buyer for this account.</p>
+            <p><strong>Kegs:</strong> Includes a $30.00 untaxed deposit per keg.</p>
+            <p><strong>Invoicing:</strong> A PDF invoice will be generated upon submission.</p>
           </div>
-          <label style="display:block; margin-bottom:15px;">
-            <input type="checkbox" id="agree-check" onchange="document.getElementById('agree-btn').disabled = !this.checked"> I agree to the terms
+          <label style="display:flex; align-items:center; gap:10px; cursor:pointer; margin-bottom:20px;">
+            <input type="checkbox" id="agree-check" style="width:20px; height:20px;" onchange="document.getElementById('agree-btn').disabled = !this.checked"> 
+            <strong>I agree to the terms</strong>
           </label>
-          <button id="agree-btn" class="primary" style="width:100%" disabled onclick="state.step=1;render()">Next</button>
+          <button id="agree-btn" class="primary" style="width:100%; padding:16px;" disabled onclick="state.step=1;render()">Begin Order</button>
         </div>`;
     } 
-    
-    // STEP 1: CUSTOMER SEARCH
     else if (state.step === 1) {
       app.innerHTML = `
-        <div class="card">
+        <div class="card" style="overflow:visible;">
           <h2>Select Customer</h2>
-          <input type="text" id="cust-input" placeholder="Search Check or Fintech customers..." autocomplete="off" style="width:100%; padding:14px; border:2px solid #ddd; border-radius:8px; box-sizing:border-box;">
-          <div id="results" class="dropdown"></div>
+          <div class="search-container">
+            <input type="text" id="cust-input" placeholder="Start typing company name..." autocomplete="off">
+            <div id="results" class="dropdown"></div>
+          </div>
         </div>`;
-      
-      const input = document.getElementById("cust-input");
-      input.focus();
-      input.addEventListener("input", (e) => doSearch(e.target.value));
+      document.getElementById("cust-input").addEventListener("input", (e) => doSearch(e.target.value));
     } 
-    
-    // STEP 2: PRODUCT SELECTION
     else if (state.step === 2) {
       bar.style.display = "flex";
       app.innerHTML = `
         <div class="card">
           <h3 style="margin-top:0;">Order for: ${state.customer.name}</h3>
-          <p style="font-size:0.8em; color:#666;">Payment Method: ${state.customer.paymentMethod}</p>
           <div id="product-list">${products.map((p, i) => `
             <div class="product-row">
-              <span>${p.name} <br><small>$${p.price.toFixed(2)}</small></span>
+              <span>${p.name} <br><small style="color:#666;">$${p.price.toFixed(2)}</small></span>
               <input type="number" min="0" value="${getQty(p.name)}" oninput="updateCart(${i}, this.value)">
             </div>`).join("")}
           </div>
         </div>`;
     } 
-    
-    // STEP 3: FINAL REVIEW
     else if (state.step === 3) {
       const sub = calculateTotal();
       app.innerHTML = `
         <div class="card">
           <h2>Review Order</h2>
-          <p><strong>${state.customer.name}</strong></p>
-          <p>Payment: ${state.customer.paymentMethod}</p>
+          <p><strong>Customer:</strong> ${state.customer.name}</p>
           <hr>
           <div style="text-align:right">
             <h3>Total: $${sub.toFixed(2)}</h3>
           </div>
-          <button class="success" style="width:100%; padding:18px;" onclick="submitOrder()">Confirm & Send to !Main Screen</button>
+          <button class="success" style="width:100%; padding:18px;" onclick="submitOrder()">Submit & Generate PDF</button>
           <button class="secondary" style="width:100%" onclick="state.step=2;render()">← Back to Items</button>
         </div>`;
     }
   }
 
   async function doSearch(val) {
-    if (val.length < 2) return;
     const box = document.getElementById("results");
+    if (val.length < 2) { box.style.display = "none"; return; }
+    
     try {
       const res = await fetch(`${API_URL}?q=${encodeURIComponent(val)}`);
       const data = await res.json();
-      if (data.results.length > 0) {
+      if (data.results && data.results.length > 0) {
         box.style.display = "block";
         box.innerHTML = data.results.map(c => `
-          <div class="dropdown-item" onclick='setCustomer(${JSON.stringify(c).replace(/'/g, "&apos;")})'>
-            <strong>${c.name}</strong><br><small>${c.paymentMethod} Customer</small>
+          <div class="dropdown-item" onmousedown='setCustomer(${JSON.stringify(c).replace(/'/g, "&apos;")})'>
+            ${c.name}
           </div>`).join("");
       } else {
-        box.innerHTML = `<div class="dropdown-item">No customers found.</div>`;
+        box.innerHTML = `<div class="dropdown-item" style="color:#999;">No matches found</div>`;
       }
-    } catch(e) { console.error("Search failed", e); }
+    } catch(e) { console.error(e); }
   }
 
   function setCustomer(c) { 
@@ -179,7 +175,7 @@
 
   function updateCart(idx, qty) {
     const p = products[idx];
-    const q = parseInt(qty) || 0;
+    const q = Math.max(0, parseInt(qty) || 0);
     const existing = state.cart.find(item => item.name === p.name);
     if (existing) existing.qty = q;
     else state.cart.push({ ...p, qty: q });
@@ -192,37 +188,25 @@
 
   async function submitOrder() {
     const btn = document.querySelector(".success");
-    btn.innerText = "Saving Order..."; btn.disabled = true;
-    
+    btn.innerText = "Processing..."; btn.disabled = true;
     try {
-      const filteredCart = state.cart.filter(i => i.qty > 0);
-      const res = await fetch(API_URL, { 
-        method: "POST", 
-        body: JSON.stringify({ customer: state.customer, items: filteredCart }) 
-      });
+      const cart = state.cart.filter(i => i.qty > 0);
+      const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ customer: state.customer, items: cart }) });
       const data = await res.json();
       state.pdfUrl = data.pdfUrl;
       document.getElementById("success-modal").style.display = "flex";
-    } catch(e) {
-      alert("Submission failed. Check your internet.");
-      btn.innerText = "Confirm & Send to !Main Screen";
-      btn.disabled = false;
-    }
+    } catch(e) { alert("Error saving order."); btn.disabled = false; }
   }
 
   function printPdf() { window.open(state.pdfUrl, "_blank"); }
 
   async function sendEmail() {
     const email = document.getElementById("client-email").value;
-    if (!email) return alert("Please enter an email address.");
-    const btn = document.querySelector("#success-modal .success");
-    btn.innerText = "Sending...";
-    await fetch(API_URL, { 
-      method: "POST", 
-      body: JSON.stringify({ action: "emailReceipt", email: email, pdfUrl: state.pdfUrl }) 
-    });
-    alert("Email Sent!");
-    btn.innerText = "📧 Send Email";
+    if (!email) return alert("Enter email");
+    document.querySelector("#success-modal .success").innerText = "Sending...";
+    await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "emailReceipt", email: email, pdfUrl: state.pdfUrl }) });
+    alert("Sent!");
+    document.querySelector("#success-modal .success").innerText = "📧 Send Email";
   }
 
   init();
