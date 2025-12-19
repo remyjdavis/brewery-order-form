@@ -10,20 +10,18 @@ let products = [];
 let state = {
   step: 1,
   customer: null,
-  cart: [],
-  totals: null
+  cart: []
 };
 
-/**************** CSV PARSER ****************/
+/**************** CSV ****************/
 function parseCSV(text) {
   const lines = text.trim().split("\n");
   const headers = lines.shift().split(",");
-
-  return lines.map(line => {
-    const values = line.split(",");
-    let obj = {};
-    headers.forEach((h, i) => (obj[h.trim()] = (values[i] || "").trim()));
-    return obj;
+  return lines.map(l => {
+    const v = l.split(",");
+    let o = {};
+    headers.forEach((h, i) => (o[h.trim()] = (v[i] || "").trim()));
+    return o;
   });
 }
 
@@ -51,18 +49,13 @@ async function searchCustomers(q) {
 
 async function autocomplete(val) {
   const results = await searchCustomers(val);
-  const box = document.getElementById("autocomplete-results");
-
-  box.innerHTML = results
-    .map(
-      c => `
+  document.getElementById("autocomplete-results").innerHTML =
+    results.map(c => `
       <div class="autocomplete-item"
         onclick='selectCustomer(${JSON.stringify(c)})'>
         <strong>${c.name}</strong><br>
         ${c.city}, ${c.state}
-      </div>`
-    )
-    .join("");
+      </div>`).join("");
 }
 
 function selectCustomer(c) {
@@ -71,22 +64,16 @@ function selectCustomer(c) {
   render();
 }
 
-/**************** TOTAL CALCULATION (LOCKED) ****************/
-function calculateTotals() {
+/**************** TOTALS (AUTHORITATIVE) ****************/
+function calculateTotals(cart) {
   let subtotal = 0;
   let kegDeposit = 0;
   let caseCount = 0;
 
-  state.cart.forEach(i => {
+  cart.forEach(i => {
     subtotal += i.qty * i.price;
-
-    if (/keg/i.test(i.name)) {
-      kegDeposit += i.qty * 30;
-    }
-
-    if (/case/i.test(i.name)) {
-      caseCount += i.qty;
-    }
+    if (/keg/i.test(i.name)) kegDeposit += i.qty * 30;
+    if (/case/i.test(i.name)) caseCount += i.qty;
   });
 
   const discount = caseCount >= 10 ? subtotal * 0.1 : 0;
@@ -110,12 +97,11 @@ function updateLiveTotals() {
 
   products.forEach((p, i) => {
     const qty = Number(document.getElementById(`q-${i}`).value || 0);
-    if (qty > 0) {
-      state.cart.push({ ...p, qty });
-    }
+    if (qty > 0) state.cart.push({ ...p, qty });
   });
 
-  const t = calculateTotals();
+  const t = calculateTotals(state.cart);
+
   document.getElementById("live-subtotal").innerText = t.subtotal.toFixed(2);
   document.getElementById("live-discount").innerText = t.discount.toFixed(2);
   document.getElementById("live-tax").innerText = t.tax.toFixed(2);
@@ -129,40 +115,35 @@ function review() {
 
   products.forEach((p, i) => {
     const qty = Number(document.getElementById(`q-${i}`).value || 0);
-
     if (qty > 0) {
       if (qty > p.stock) {
         alert(`Only ${p.stock} available for ${p.name}`);
         return;
       }
-
-      state.cart.push({
-        name: p.name,
-        price: p.price,
-        qty
-      });
+      state.cart.push({ name: p.name, price: p.price, qty });
     }
   });
 
   if (!state.cart.length) {
-    alert("Please add items.");
+    alert("Add items");
     return;
   }
 
-  state.totals = calculateTotals();
   state.step = 3;
   render();
 }
 
 /**************** SUBMIT ****************/
 async function submit() {
+  const totals = calculateTotals(state.cart);
+
   await fetch(API_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       customer: state.customer,
       items: state.cart,
-      totals: state.totals
+      totals
     })
   });
 
@@ -181,8 +162,7 @@ function render() {
       <div class="card">
         <h2>Select Customer</h2>
         <div class="autocomplete-wrapper">
-          <input id="customer-input" placeholder="Search customer..."
-            oninput="autocomplete(this.value)">
+          <input id="customer-input" oninput="autocomplete(this.value)">
           <div id="autocomplete-results"></div>
         </div>
       </div>`;
@@ -194,18 +174,14 @@ function render() {
       <div class="card">
         <h2>Products</h2>
         <div class="grid">
-          ${products
-            .map(
-              (p, i) => `
+          ${products.map((p, i) => `
             <div class="product-card">
               <strong>${p.name}</strong>
               $${p.price.toFixed(2)}<br>
               In Stock: ${p.stock}
-              <input type="number" min="0"
-                id="q-${i}" oninput="updateLiveTotals()">
-            </div>`
-            )
-            .join("")}
+              <input type="number" min="0" id="q-${i}"
+                oninput="updateLiveTotals()">
+            </div>`).join("")}
         </div>
 
         <hr>
@@ -219,29 +195,23 @@ function render() {
       </div>`;
   }
 
-  /* STEP 3 */
+  /* STEP 3 — FIXED */
   if (state.step === 3) {
-    const t = state.totals;
+    const t = calculateTotals(state.cart);
 
     el.innerHTML = `
       <div class="card">
         <h2>Review Order</h2>
 
         <table class="review-table">
-          <tr>
-            <th>Product</th><th>Qty</th><th>Price</th><th>Total</th>
-          </tr>
-          ${state.cart
-            .map(
-              i => `
+          <tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th></tr>
+          ${state.cart.map(i => `
             <tr>
               <td>${i.name}</td>
               <td>${i.qty}</td>
               <td>$${i.price.toFixed(2)}</td>
               <td>$${(i.qty * i.price).toFixed(2)}</td>
-            </tr>`
-            )
-            .join("")}
+            </tr>`).join("")}
         </table>
 
         <p>Subtotal: $${t.subtotal.toFixed(2)}</p>
