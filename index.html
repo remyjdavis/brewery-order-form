@@ -18,7 +18,7 @@
         .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
         .card { background: white; padding: 40px; border-radius: 4px; border: 1px solid #e1e4e8; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         
-        /* AGREEMENT */
+        /* AGREEMENT BOX */
         .legal-scroll { height: 350px; overflow-y: scroll; border: 1px solid #eee; padding: 25px; background: #fafafa; font-size: 0.9em; line-height: 1.7; margin: 20px 0; border-radius: 4px; }
         
         /* LIVE BAR */
@@ -32,7 +32,6 @@
         .btn-primary { background: var(--sbc-blue); color: white; width: 100%; }
         .btn-success { background: #28a745; color: white; width: 100%; font-size: 1.2em; margin-top: 20px; }
         
-        /* SEARCH & GRID */
         .search-wrap { position: relative; width: 100%; margin: 20px 0; }
         input[type="text"] { width: 100%; padding: 15px; border: 1px solid #ccc; font-size: 1.1em; box-sizing: border-box; }
         #results { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 100; box-shadow: 0 8px 16px rgba(0,0,0,0.1); display: none;}
@@ -86,9 +85,11 @@
     function calculate() {
         let sub = 0, totalQty = 0, dep = 0;
         state.cart.forEach(i => {
-            sub += (i.price * i.qty);
-            totalQty += i.qty;
-            if (i.name.toLowerCase().includes("keg")) dep += (i.qty * 30);
+            if (i.qty > 0) {
+                sub += (i.price * i.qty);
+                totalQty += i.qty;
+                if (i.name.toLowerCase().includes("keg")) dep += (i.qty * 30);
+            }
         });
         const disc = (totalQty >= 10) ? (sub * 0.10) : 0;
         const tax = (state.customer && state.customer.type === "Check") ? ((sub - disc) * 0.06) : 0;
@@ -111,11 +112,12 @@
                         <p><strong>3. PAYMENTS:</strong> Payment is Net-on-Delivery. Fintech accounts are drafted automatically. Non-fintech accounts must provide a business check at the time of delivery.</p>
                         <p><strong>4. COOPERAGE:</strong> All kegs remain the property of Suburban Brewing Co. A $30.00 deposit is required for each unit. Lost or damaged kegs will be billed at $120.00 per unit.</p>
                         <p><strong>5. TAXATION & DISCOUNTS:</strong> A 6% PA Sales Tax is applied only to restaurant (non-fintech) accounts. A 10% volume discount is applied to orders of 10 units or more.</p>
+                        <p><strong>6. ACCEPTANCE:</strong> By proceeding with this order, the purchaser agrees to all terms and conditions stated above.</p>
                     </div>
                     <label style="display:block; margin-bottom:20px; cursor:pointer; text-align:center;">
                         <input type="checkbox" id="agree"> I agree to the Suburban Brewing Co. Wholesale Terms.
                     </label>
-                    <button class="btn btn-primary" onclick="if(document.getElementById('agree').checked){state.step=1;render()}">Enter Portal</button>
+                    <button class="btn btn-primary" onclick="if(document.getElementById('agree').checked){state.step=1;render()}">Accept & Enter Portal</button>
                 </div>`;
         } else if (state.step === 1) {
             app.innerHTML = `
