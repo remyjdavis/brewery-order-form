@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>SBC Wholesale Portal</title>
   <style>
-    body { font-family: -apple-system, system-ui, sans-serif; background: #f4f4f9; margin: 0; padding: 0; color: #333; padding-bottom: 90px; }
+    body { font-family: -apple-system, system-ui, sans-serif; background: #f4f4f9; margin: 0; padding: 0; color: #333; padding-bottom: 100px; }
     
-    /* LEFT-ALIGNED HEADER */
+    /* HEADER STYLES */
     .site-header { background: #1a1a1a; color: white; padding: 12px 5%; display: flex; align-items: center; justify-content: flex-start; gap: 20px; border-bottom: 3px solid #007bff; }
     .site-header img { max-width: 65px; height: auto; }
     .header-info { text-align: left; }
@@ -17,28 +17,28 @@
     .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 92%; max-width: 850px; margin: 20px auto; position: relative; }
     h2 { margin-top: 0; font-size: 1.2em; color: #007bff; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 15px; }
 
-    /* AGREEMENT STYLES */
-    .agreement-text { height: 300px; overflow-y: scroll; border: 1px solid #ddd; padding: 15px; background: #fdfdfd; font-size: 0.9em; line-height: 1.5; margin-bottom: 20px; border-radius: 6px; }
-    .agreement-text h3 { margin-top: 0; font-size: 1em; }
+    /* AGREEMENT SCROLL */
+    .agreement-text { height: 250px; overflow-y: scroll; border: 1px solid #ddd; padding: 15px; background: #fdfdfd; font-size: 0.9em; line-height: 1.5; margin-bottom: 20px; border-radius: 6px; }
     
-    /* PRODUCT GRID */
+    /* GRID */
     .grid { display: grid; gap: 12px; margin-top: 20px; grid-template-columns: 1fr; }
     @media (min-width: 600px) { .grid { grid-template-columns: 1fr 1fr; } }
     .product-card { border: 1px solid #eee; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: #fff; }
-    .product-card input { width: 70px; border: 2px solid #007bff; font-weight: bold; border-radius: 5px; padding: 8px; font-size: 16px; }
+    .product-card input { width: 70px; border: 2px solid #007bff; font-weight: bold; border-radius: 5px; padding: 8px; font-size: 16px; text-align: center; }
 
-    /* STICKY BAR */
+    /* STICKY LIVE BAR */
     .live-total-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 2px solid #007bff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 15px rgba(0,0,0,0.1); z-index: 10000; }
-    
+    .live-info strong { font-size: 1.3em; color: #1a1a1a; display: block; }
+    .deposit-label { font-size: 0.8em; color: #dc3545; font-weight: bold; }
+
     /* BUTTONS */
     .btn-group { display: flex; gap: 10px; margin-top: 20px; }
     button { padding: 15px 25px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 15px; }
     .primary { background: #007bff; color: white; }
     .success { background: #28a745; color: white; }
     .secondary { background: #e4e6eb; color: #333; }
-    button:disabled { background: #ccc; cursor: not-allowed; }
-
-    .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 9999; display: none; top: 100%; }
+    
+    .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 9999; display: none; top: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     .dropdown div { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; }
     input[type="text"] { width: 100%; padding: 14px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
   </style>
@@ -59,8 +59,9 @@
 
 <div id="live-bar" class="live-total-bar" style="display:none;">
   <div class="live-info">
-    <div id="case-count">0 Cases</div>
+    <div id="case-count">0 Items</div>
     <strong id="live-subtotal">$0.00</strong>
+    <span id="keg-warning" class="deposit-label"></span>
   </div>
   <button class="primary" onclick="toReview()">Review Order</button>
 </div>
@@ -68,9 +69,10 @@
 <script>
   const API_URL = "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec"; 
   const PRODUCT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&single=true&output=csv";
-  
+  const KEG_DEPOSIT_FEE = 30.00;
+
   let products = [];
-  let state = { step: 0, customer: null, cart: [] }; // Starts at Step 0
+  let state = { step: 0, customer: null, cart: [] };
 
   async function loadProducts() {
     try {
@@ -82,7 +84,11 @@
         const v = line.split(",");
         const obj = {};
         headers.forEach((h, i) => obj[h] = (v[i] || "").trim());
-        return { name: obj["Product Name"], price: parseFloat(obj["Price"]) || 0 };
+        return { 
+          name: obj["Product Name"], 
+          price: parseFloat(obj["Price"]) || 0,
+          isKeg: obj["Product Name"].toLowerCase().includes("keg")
+        };
       }).filter(p => p.name);
       render();
     } catch(e) { console.error(e); }
@@ -94,59 +100,83 @@
     el.innerHTML = "";
     bar.style.display = "none";
 
-    // STEP 0: USER AGREEMENT
     if (state.step === 0) {
-      el.innerHTML = `
-        <div class="card">
-          <h2>Wholesale User Agreement</h2>
-          <div class="agreement-text">
-            <h3>Suburban Brewing Company Wholesale Terms</h3>
-            <p><strong>1. Authorization:</strong> By accessing this portal, you represent that you are an authorized representative of a licensed establishment and have the authority to place binding orders.</p>
-            <p><strong>2. Compliance:</strong> All orders are subject to PA LCB regulations. Establishments must maintain active licensure at the time of delivery.</p>
-            <p><strong>3. Pricing & Discounts:</strong> Prices are subject to change without notice. The 10% bulk discount applies only to orders of 10 or more cases of qualifying product.</p>
-            <p><strong>4. Payment Terms:</strong> Payment is due upon delivery via Check or Fintech as previously established in your account profile. Late payments may result in a suspension of wholesale privileges.</p>
-            <p><strong>5. Delivery:</strong> Claims for breakage or shortages must be noted at the time of delivery. Suburban Brewing Co. is not responsible for products after a signed delivery receipt is obtained.</p>
-            <p><strong>6. Data Privacy:</strong> Order data is collected for fulfillment and internal analytics only. By proceeding, you consent to our digital record-keeping.</p>
-          </div>
-          <div style="display:flex; align-items:center; gap:10px;">
-            <input type="checkbox" id="agree-check" onchange="document.getElementById('start-btn').disabled = !this.checked">
-            <label for="agree-check">I have read and agree to the Wholesale Terms & Conditions.</label>
-          </div>
-          <button id="start-btn" class="primary" style="margin-top:20px; width:100%;" disabled onclick="state.step=1;render();">Proceed to Order</button>
-        </div>`;
+      el.innerHTML = `<div class="card"><h2>Wholesale Agreement</h2><div class="agreement-text"><h3>Terms & Conditions</h3><p>1. Authorization required... [Standard Terms]</p><p>2. Kegs subject to $30.00 untaxed deposit per unit.</p></div><div style="display:flex; gap:10px;"><input type="checkbox" id="agree-check" onchange="document.getElementById('start-btn').disabled = !this.checked"><label for="agree-check">I agree to the wholesale terms.</label></div><button id="start-btn" class="primary" style="margin-top:20px; width:100%;" disabled onclick="state.step=1;render();">Proceed</button></div>`;
     } 
-    
-    // STEP 1: SEARCH
     else if (state.step === 1) {
-      el.innerHTML = `<div class="card"><h2>Select Customer</h2><input id="c-search" type="text" placeholder="Search customer..."><div id="c-results" class="dropdown"></div></div>`;
+      el.innerHTML = `<div class="card"><h2>Select Customer</h2><input id="c-search" type="text" placeholder="Search..."><div id="c-results" class="dropdown"></div></div>`;
       document.getElementById("c-search").addEventListener("input", handleSearch);
     } 
-
-    // STEP 2: PRODUCTS
     else if (state.step === 2) {
       bar.style.display = "flex";
-      el.innerHTML = `
-        <div class="card">
-          <h2>Order for: ${state.customer.name}</h2>
-          <div class="grid">${products.map((p, i) => `
-            <div class="product-card">
-              <div><strong>${p.name}</strong><br><small>$${p.price.toFixed(2)}</small></div>
-              <input type="number" id="qty-${i}" min="0" value="0" oninput="updateLiveTotal()">
-            </div>`).join("")}
-          </div>
-          <button class="secondary" style="margin-top:20px;" onclick="state.step=1;render()">Back</button>
-        </div>`;
+      el.innerHTML = `<div class="card"><h2>Order: ${state.customer.name}</h2><div class="grid">${products.map((p, i) => `<div class="product-card"><div><strong>${p.name}</strong><br><small>$${p.price.toFixed(2)}</small></div><input type="number" id="qty-${i}" min="0" value="${getQty(p.name)}" oninput="updateLiveTotal()"></div>`).join("")}</div><button class="secondary" style="margin-top:20px;" onclick="state.step=1;render()">Back</button></div>`;
+      updateLiveTotal();
     }
-    
-    // STEP 3: REVIEW
-    else if (state.step === 3) {
-      renderReview(el);
-    }
+    else if (state.step === 3) { renderReview(el); }
   }
 
-  // --- Utility functions (handleSearch, updateLiveTotal, renderReview, submitOrder) remain the same ---
-  // (Include previous search and submit logic here)
+  function getQty(name) {
+    const item = state.cart.find(i => i.name === name);
+    return item ? item.qty : 0;
+  }
 
+  function updateLiveTotal() {
+    let sub = 0; let qty = 0; let kegs = 0;
+    products.forEach((p, i) => {
+      const val = parseInt(document.getElementById(`qty-${i}`).value) || 0;
+      sub += (val * p.price); qty += val;
+      if (p.isKeg) kegs += val;
+    });
+    document.getElementById("case-count").innerText = `${qty} Items Selected`;
+    const depositTotal = kegs * KEG_DEPOSIT_FEE;
+    document.getElementById("live-subtotal").innerText = `$${(sub + depositTotal).toFixed(2)}`;
+    document.getElementById("keg-warning").innerText = kegs > 0 ? `Includes $${depositTotal} Keg Deposits` : "";
+  }
+
+  function toReview() {
+    state.cart = products.map((p, i) => ({ 
+      ...p, 
+      qty: parseInt(document.getElementById(`qty-${i}`).value) || 0 
+    })).filter(i => i.qty > 0);
+    if (!state.cart.length) return alert("Select items first.");
+    state.step = 3; render();
+  }
+
+  function renderReview(el) {
+    const sub = state.cart.reduce((s, i) => s + (i.price * i.qty), 0);
+    const totalQty = state.cart.reduce((s, i) => s + i.qty, 0);
+    const kegCount = state.cart.reduce((s, i) => s + (i.isKeg ? i.qty : 0), 0);
+    const disc = totalQty >= 10 ? sub * 0.10 : 0;
+    const isRest = (state.customer.businessType || "").toLowerCase().includes("restaurant");
+    const tax = isRest ? (sub - disc) * 0.06 : 0;
+    const kegDepositTotal = kegCount * KEG_DEPOSIT_FEE;
+    const grandTotal = sub - disc + tax + kegDepositTotal;
+
+    el.innerHTML = `
+      <div class="card">
+        <h2>Review Order</h2>
+        <div style="margin-bottom:20px; border-left:4px solid #007bff; padding-left:15px;">
+          <strong>${state.customer.name}</strong><br>${state.customer.address}
+        </div>
+        <table style="width:100%; border-collapse:collapse; font-size:0.9em; margin-bottom:20px;">
+          <tr style="border-bottom:2px solid #333;"><th style="text-align:left; padding:8px 0;">Item</th><th style="text-align:right;">Total</th></tr>
+          ${state.cart.map(i => `<tr style="border-bottom:1px solid #eee;"><td style="padding:10px 0;">${i.name} (x${i.qty}) ${i.isKeg ? '<br><small style="color:#dc3545;">+$30 Deposit/ea</small>' : ''}</td><td style="text-align:right;">$${(i.qty*i.price).toFixed(2)}</td></tr>`).join("")}
+        </table>
+        <div style="text-align:right;">
+          <div>Subtotal: $${sub.toFixed(2)}</div>
+          ${disc > 0 ? `<div style="color:green;">10% Discount: -$${disc.toFixed(2)}</div>` : ""}
+          ${tax > 0 ? `<div>Tax (6%): $${tax.toFixed(2)}</div>` : ""}
+          ${kegCount > 0 ? `<div style="font-weight:bold; color:#dc3545; margin-top:5px;">Keg Deposits (${kegCount}): $${kegDepositTotal.toFixed(2)}</div>` : ""}
+          <strong style="font-size:1.4em; border-top:2px solid #333; display:inline-block; margin-top:10px; padding-top:10px;">Total Due: $${grandTotal.toFixed(2)}</strong>
+        </div>
+        <div class="btn-group">
+          <button class="secondary" onclick="state.step=2;render()">← Back / Edit Items</button>
+          <button class="success" onclick="submitOrder()">Confirm & Submit Order</button>
+        </div>
+      </div>`;
+  }
+
+  // SEARCH & SUBMIT
   async function handleSearch(e) {
     const q = e.target.value; if (q.length < 2) return;
     const res = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
@@ -158,35 +188,10 @@
 
   window.selectCustomer = (c) => { state.customer = c; state.step = 2; render(); };
 
-  function updateLiveTotal() {
-    let sub = 0; let qty = 0;
-    products.forEach((p, i) => {
-      const val = parseInt(document.getElementById(`qty-${i}`).value) || 0;
-      sub += (val * p.price); qty += val;
-    });
-    document.getElementById("case-count").innerText = `${qty} Cases`;
-    document.getElementById("live-subtotal").innerText = `$${sub.toFixed(2)}`;
-  }
-
-  function toReview() {
-    state.cart = products.map((p, i) => ({ ...p, qty: parseInt(document.getElementById(`qty-${i}`).value) || 0 })).filter(i => i.qty > 0);
-    if (!state.cart.length) return alert("Select items first.");
-    state.step = 3; render();
-  }
-
-  function renderReview(el) {
-    const sub = state.cart.reduce((s, i) => s + (i.price * i.qty), 0);
-    const qty = state.cart.reduce((s, i) => s + i.qty, 0);
-    const disc = qty >= 10 ? sub * 0.10 : 0;
-    const isRest = (state.customer.businessType || "").toLowerCase().includes("restaurant");
-    const tax = isRest ? (sub - disc) * 0.06 : 0;
-    el.innerHTML = `<div class="card"><h2>Review Order</h2><div style="margin-bottom:20px; border-left:4px solid #007bff; padding-left:15px;"><strong>${state.customer.name}</strong><br>${state.customer.address}</div><table style="width:100%; border-collapse:collapse; font-size:0.9em;">${state.cart.map(i => `<tr style="border-bottom:1px solid #eee;"><td style="padding:8px 0;">${i.name} (x${i.qty})</td><td style="text-align:right;">$${(i.qty*i.price).toFixed(2)}</td></tr>`).join("")}</table><div style="text-align:right; margin-top:15px;"><div>Subtotal: $${sub.toFixed(2)}</div>${disc > 0 ? `<div style="color:green;">Discount: -$${disc.toFixed(2)}</div>` : ""}${tax > 0 ? `<div>Tax: $${tax.toFixed(2)}</div>` : ""}<strong style="font-size:1.3em; display:block; border-top:2px solid #333; margin-top:10px;">Total: $${(sub - disc + tax).toFixed(2)}</strong></div><div class="btn-group"><button class="secondary" onclick="state.step=2;render()">Edit</button><button class="success" onclick="submitOrder()">Confirm & Submit</button></div></div>`;
-  }
-
   async function submitOrder() {
     const btn = document.querySelector(".success"); btn.disabled = true; btn.innerText = "Sending...";
     await fetch(API_URL, { method: "POST", body: JSON.stringify({ customer: state.customer, items: state.cart }) });
-    alert("Order Submitted to !Main!");
+    alert("Order Submitted Successfully!");
     state = { step: 0, customer: null, cart: [] }; render();
   }
 
