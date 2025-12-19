@@ -1,61 +1,62 @@
+/* ---------- RESET ---------- */
 * {
   box-sizing: border-box;
-  font-family: Arial, sans-serif;
+}
+
+html {
+  font-size: 16px;
 }
 
 body {
   margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
   background: #f4f4f4;
 }
 
+/* ---------- HEADER ---------- */
 .header {
   display: flex;
   align-items: center;
-  padding: 10px 20px;
+  gap: 16px;
+  padding: 12px 20px;
   background: #111;
-  color: white;
+  color: #fff;
 }
 
-.logo {
-  height: 50px;
-  margin-right: 20px;
+.header img {
+  height: 42px;
 }
 
-.header-info h1 {
-  font-size: 20px;
-  margin: 0;
+.header .info {
+  font-size: 14px;
+  line-height: 1.3;
 }
 
-.header-info p {
-  font-size: 12px;
-  margin: 3px 0 0;
-}
-
-.container {
-  padding: 20px;
-}
-
+/* ---------- LAYOUT ---------- */
 .card {
-  background: white;
+  max-width: 1200px;
+  margin: 20px auto;
+  background: #fff;
   padding: 20px;
   border-radius: 6px;
 }
 
+/* ---------- CUSTOMER SEARCH ---------- */
 .customer-search {
-  position: relative;
   width: 100%;
+  position: relative;
 }
 
 .customer-search input {
   width: 100%;
   padding: 12px;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 #autocomplete-results {
   position: absolute;
   width: 100%;
-  background: white;
+  background: #fff;
   border: 1px solid #ccc;
   z-index: 999;
 }
@@ -69,27 +70,28 @@ body {
   background: #eee;
 }
 
+/* ---------- PRODUCT GRID (DESKTOP DEFAULT) ---------- */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(4, 1fr); /* 🔥 FORCED DESKTOP GRID */
+  gap: 16px;
+  margin-top: 20px;
 }
 
 .product-card {
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
   padding: 12px;
-  border-radius: 6px;
-}
-
-.product-card.low-stock {
-  border-color: red;
+  border-radius: 4px;
+  background: #fafafa;
 }
 
 .product-card input {
   width: 100%;
   margin-top: 8px;
+  padding: 6px;
 }
 
+/* ---------- REVIEW TABLE ---------- */
 .review-table {
   width: 100%;
   border-collapse: collapse;
@@ -99,25 +101,35 @@ body {
 .review-table td {
   border-bottom: 1px solid #ddd;
   padding: 8px;
+  text-align: left;
 }
 
-.actions {
-  margin-top: 20px;
-  display: flex;
-  gap: 10px;
-}
-
+/* ---------- BUTTONS ---------- */
 button {
-  padding: 12px 16px;
+  padding: 10px 16px;
   font-size: 16px;
+  margin-top: 20px;
   cursor: pointer;
 }
 
-@media print {
-  body * {
-    visibility: hidden;
+/* ---------- MOBILE ONLY ---------- */
+@media (max-width: 768px) {
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
   }
-  .print-area, .print-area * {
-    visibility: visible;
+
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr); /* Mobile = 2 wide */
   }
+
+}
+
+@media (max-width: 480px) {
+
+  .product-grid {
+    grid-template-columns: 1fr; /* Phone = single column */
+  }
+
 }
