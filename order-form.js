@@ -3,7 +3,7 @@ const API_URL =
   "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec";
 
 const PRODUCT_CSV_URL =
-  "PUT_YOUR_PUBLISHED_CSV_URL_HERE";
+  "PUT_YOUR_PUBLISHED_PRODUCT_CSV_URL_HERE";
 
 /******** STATE ********/
 let products = [];
@@ -13,18 +13,20 @@ let state = {
   cart: []
 };
 
-/******** CSV PARSER ********/
+/******** CSV PARSER — TAB + COMMA SAFE ********/
 function parseCSV(text) {
-  const lines = text.trim().split("\n");
-  const rawHeaders = lines.shift().split(",");
+  const lines = text.trim().split(/\r?\n/);
 
-  // normalize headers
+  // detect delimiter (TAB > COMMA)
+  const delimiter = lines[0].includes("\t") ? "\t" : ",";
+
+  const rawHeaders = lines.shift().split(delimiter);
   const headers = rawHeaders.map(h =>
     h.toLowerCase().replace(/\s+/g, " ").trim()
   );
 
   return lines.map(line => {
-    const values = line.split(",");
+    const values = line.split(delimiter);
     let obj = {};
     headers.forEach((h, i) => {
       obj[h] = (values[i] || "").trim();
@@ -33,44 +35,25 @@ function parseCSV(text) {
   });
 }
 
-/******** LOAD PRODUCTS — BULLETPROOF ********/
+/******** LOAD PRODUCTS — FINAL ********/
 async function loadProducts() {
   const res = await fetch(PRODUCT_CSV_URL);
   const text = await res.text();
   const rows = parseCSV(text);
 
-  products = rows.map((row, index) => {
-    const name =
-      row["product name"] ||
-      row["name"] ||
-      row["product"] ||
-      "";
-
-    const price =
-      Number(row["price"]) ||
-      Number(row["unit price"]) ||
-      0;
-
-    const stock =
-      Number(
-        row["qty in stock"] ||
-        row["quantity in stock"] ||
-        row["stock"] ||
-        row["inventory"] ||
-        0
-      );
-
-    return {
-      name,
-      price,
-      stock
-    };
-  }).filter(p => p.name); // remove empty rows
+  products = rows
+    .map(row => ({
+      name: row["product name"] || "",
+      price: Number(row["price"]) || 0,
+      stock: Number(row["qty in stock"]) || 0,
+      category: row["category"] || ""
+    }))
+    .filter(p => p.name);
 
   render();
 }
 
-/******** AUTOCOMPLETE — UNTOUCHED ********/
+/******** AUTOCOMPLETE (LOCKED) ********/
 async function fetchCustomers(q) {
   if (q.length < 2) return [];
   const r = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
@@ -110,6 +93,7 @@ function render() {
   const el = document.getElementById("form-container");
   el.innerHTML = "";
 
+  /* STEP 1 */
   if (state.step === 1) {
     el.innerHTML = `
       <div class="card">
@@ -123,6 +107,7 @@ function render() {
     bindAutocomplete();
   }
 
+  /* STEP 2 */
   if (state.step === 2) {
     let html = `<div class="card"><h2>Select Products</h2><div class="grid">`;
 
@@ -144,13 +129,15 @@ function render() {
     el.innerHTML = html;
   }
 
+  /* STEP 3 */
   if (state.step === 3) {
     let subtotal = 0;
+
     let html = `
       <div class="card">
-      <h2>Review Order</h2>
-      <table class="review-table">
-      <tr><th>Product</th><th>Qty</th><th>Total</th></tr>`;
+        <h2>Review Order</h2>
+        <table class="review-table">
+          <tr><th>Product</th><th>Qty</th><th>Total</th></tr>`;
 
     state.cart.forEach(i => {
       const line = i.qty * i.price;
@@ -164,10 +151,10 @@ function render() {
     });
 
     html += `
-      </table>
-      <h3>Total: $${subtotal.toFixed(2)}</h3>
-      <button onclick="state.step=2;render()">Back</button>
-      <button class="primary">Submit</button>
+        </table>
+        <h3>Total: $${subtotal.toFixed(2)}</h3>
+        <button onclick="state.step=2;render()">Back</button>
+        <button class="primary">Submit</button>
       </div>`;
 
     el.innerHTML = html;
@@ -176,11 +163,13 @@ function render() {
 
 /******** REVIEW ********/
 function review() {
-  state.cart = products.map((p, i) => {
-    const qty = Number(document.getElementById(`q-${i}`).value || 0);
-    if (qty > p.stock) return null;
-    return qty > 0 ? { ...p, qty } : null;
-  }).filter(Boolean);
+  state.cart = products
+    .map((p, i) => {
+      const qty = Number(document.getElementById(`q-${i}`).value || 0);
+      if (qty > p.stock) return null;
+      return qty > 0 ? { ...p, qty } : null;
+    })
+    .filter(Boolean);
 
   if (!state.cart.length) {
     alert("Please add at least one product.");
