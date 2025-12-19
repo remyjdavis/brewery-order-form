@@ -6,60 +6,55 @@
   <title>SBC Order System</title>
   <style>
     /* BASE STYLES */
-    body { font-family: -apple-system, system-ui, sans-serif; background: #f4f4f9; margin: 0; padding: 0; color: #333; }
+    body { font-family: -apple-system, system-ui, sans-serif; background: #f4f4f9; margin: 0; padding: 0; color: #333; padding-bottom: 80px; }
     
-    /* SMALLER COMPACT HEADER */
-    .site-header { 
-      background: #1a1a1a; 
-      color: white; 
-      padding: 10px 20px; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-      gap: 20px;
-      border-bottom: 3px solid #007bff; 
-    }
-    .site-header img { max-width: 60px; height: auto; } /* Shrunk from 150px */
+    /* COMPACT HEADER */
+    .site-header { background: #1a1a1a; color: white; padding: 10px 20px; display: flex; align-items: center; justify-content: center; gap: 20px; border-bottom: 3px solid #007bff; }
+    .site-header img { max-width: 60px; height: auto; }
     .header-info { text-align: left; }
-    .site-header h1 { margin: 0; font-size: 1.1em; letter-spacing: 0.5px; }
-    .header-info p { margin: 0; font-size: 0.75em; opacity: 0.7; line-height: 1.2; }
+    .site-header h1 { margin: 0; font-size: 1.1em; }
+    .header-info p { margin: 0; font-size: 0.75em; opacity: 0.7; }
 
     /* CARD CONTAINER */
     .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 92%; max-width: 850px; margin: 20px auto; position: relative; }
     h2 { margin-top: 0; font-size: 1.2em; color: #007bff; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 15px; }
 
-    /* SEARCH & AUTOCOMPLETE */
-    input[type="text"], input[type="number"] { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
-    .autocomplete-wrapper { position: relative; max-width: 500px; margin: 0 auto; }
-    .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 9999; border-radius: 0 0 8px 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); max-height: 250px; overflow-y: auto; display: none; top: 100%; left: 0; }
-    .dropdown div { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; background: white; font-size: 0.9em; }
-    .dropdown div:hover { background: #f0f7ff; }
-
-    /* GRID LOGIC */
+    /* PRODUCT GRID */
     .grid { display: grid; gap: 12px; margin-top: 20px; grid-template-columns: 1fr; }
     @media (min-width: 600px) { .grid { grid-template-columns: 1fr 1fr; } }
-
     .product-card { border: 1px solid #eee; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: #fff; }
-    .product-card input { width: 70px; margin: 0; text-align: center; border: 2px solid #007bff; font-weight: bold; border-radius: 5px; }
+    .product-card input { width: 70px; margin: 0; text-align: center; border: 2px solid #007bff; font-weight: bold; border-radius: 5px; padding: 8px; font-size: 16px; }
 
-    /* REVIEW SECTION */
-    .customer-info { background: #f0f7ff; padding: 15px; border-left: 5px solid #007bff; margin-bottom: 20px; border-radius: 4px; font-size: 0.9em; }
-    .review-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.9em; }
-    .review-table th { text-align: left; border-bottom: 2px solid #333; padding: 10px 0; }
-    .review-table td { padding: 10px 0; border-bottom: 1px solid #eee; }
-    
-    .total-area { border-top: 2px solid #333; padding-top: 15px; margin-top: 15px; max-width: 280px; margin-left: auto; }
-    .total-row { display: flex; justify-content: space-between; padding: 5px 0; }
-    .grand-total { font-weight: bold; font-size: 1.2em; color: #000; border-top: 1px solid #ddd; margin-top: 8px; padding-top: 8px; }
-    .discount-text { color: #28a745; font-weight: 600; }
+    /* STICKY LIVE TOTAL BAR */
+    .live-total-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-top: 2px solid #007bff;
+      padding: 15px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+      z-index: 10000;
+    }
+    .live-info div { font-size: 0.85em; color: #666; }
+    .live-info strong { font-size: 1.2em; color: #1a1a1a; display: block; }
+    .discount-alert { color: #28a745; font-weight: bold; font-size: 0.8em; }
+
+    /* SEARCH & AUTOCOMPLETE */
+    .autocomplete-wrapper { position: relative; max-width: 500px; margin: 0 auto; }
+    .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 9999; border-radius: 0 0 8px 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); max-height: 250px; overflow-y: auto; display: none; top: 100%; left: 0; }
+    .dropdown div { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; }
 
     /* BUTTONS */
     .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-    button { flex: 1; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 15px; transition: 0.2s; }
+    button { padding: 15px 25px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 15px; }
     .primary { background: #007bff; color: white; }
     .success { background: #28a745; color: white; }
     .secondary { background: #e4e6eb; color: #333; }
-    button:hover { opacity: 0.9; }
   </style>
 </head>
 <body>
@@ -68,20 +63,27 @@
   <img src="logo.png" alt="SBC Logo">
   <div class="header-info">
     <h1>Suburban Brewing Company</h1>
-    <p>Honey Brook, PA • Remy Davis: (908) 642-1019</p>
+    <p>Honey Brook, PA • Wholesale Portal</p>
   </div>
 </header>
 
 <main id="form-container"></main>
 
+<div id="live-bar" class="live-total-bar" style="display:none;">
+  <div class="live-info">
+    <div id="case-count">0 Cases Selected</div>
+    <strong id="live-subtotal">$0.00</strong>
+    <span id="discount-hint" class="discount-alert"></span>
+  </div>
+  <button class="primary" onclick="toReview()">Review Order</button>
+</div>
+
 <script>
-  /******** CONFIG ********/
   const API_URL = "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec"; 
   const PRODUCT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&single=true&output=csv";
   const TAX_RATE = 0.06;
 
   let products = [];
-  let customerResults = [];
   let state = { step: 1, customer: null, cart: [] };
 
   async function loadProducts() {
@@ -102,113 +104,113 @@
 
   function render() {
     const el = document.getElementById("form-container");
+    const bar = document.getElementById("live-bar");
     el.innerHTML = "";
+    bar.style.display = "none";
 
     if (state.step === 1) {
-      el.innerHTML = `
-        <div class="card" style="text-align:center;">
-          <h2>Select Customer</h2>
-          <div class="autocomplete-wrapper">
-            <input id="c-search" type="text" placeholder="Start typing business name..." autocomplete="off">
-            <div id="c-results" class="dropdown"></div>
-          </div>
-        </div>`;
+      el.innerHTML = `<div class="card" style="text-align:center;"><h2>Select Customer</h2><div class="autocomplete-wrapper"><input id="c-search" type="text" placeholder="Search customer..." autocomplete="off"><div id="c-results" class="dropdown"></div></div></div>`;
       document.getElementById("c-search").addEventListener("input", handleSearch);
     } 
     
     else if (state.step === 2) {
+      bar.style.display = "flex";
       el.innerHTML = `
         <div class="card">
-          <h2>Order Items: ${state.customer.name}</h2>
+          <h2>Order for: ${state.customer.name}</h2>
           <div class="grid">${products.map((p, i) => `
             <div class="product-card">
-              <div><strong>${p.name}</strong><br><small>$${p.price.toFixed(2)} | Avail: ${p.stock}</small></div>
-              <input type="number" id="qty-${i}" min="0" max="${p.stock}" placeholder="0">
+              <div><strong>${p.name}</strong><br><small>$${p.price.toFixed(2)}</small></div>
+              <input type="number" id="qty-${i}" min="0" value="0" oninput="updateLiveTotal()">
             </div>`).join("")}
           </div>
-          <div class="btn-group">
-            <button class="secondary" onclick="state.step=1;render()">Back</button>
-            <button class="primary" onclick="toReview()">Review Order</button>
-          </div>
+          <div class="btn-group"><button class="secondary" onclick="state.step=1;render()">Back</button></div>
         </div>`;
     }
 
     else if (state.step === 3) {
-      const sub = state.cart.reduce((s, i) => s + (i.price * i.qty), 0);
-      const totalQty = state.cart.reduce((s, i) => s + i.qty, 0);
-      const disc = totalQty >= 10 ? sub * 0.10 : 0;
-      const isRest = (state.customer.businessType || "").toLowerCase().includes("restaurant");
-      const tax = isRest ? (sub - disc) * TAX_RATE : 0;
-      const total = sub - disc + tax;
-
-      el.innerHTML = `
-        <div class="card">
-          <h2>Order Review</h2>
-          <div class="customer-info">
-            <strong>${state.customer.name}</strong><br>
-            ${state.customer.address}, ${state.customer.city}<br>
-            <small>Type: ${state.customer.businessType}</small>
-          </div>
-          <table class="review-table">
-            <thead><tr><th>Product</th><th>Qty</th><th>Total</th></tr></thead>
-            <tbody>${state.cart.map(i => `
-              <tr><td>${i.name}</td><td>${i.qty}</td><td>$${(i.qty * i.price).toFixed(2)}</td></tr>
-            `).join("")}</tbody>
-          </table>
-          <div class="total-area">
-            <div class="total-row"><span>Subtotal:</span><span>$${sub.toFixed(2)}</span></div>
-            ${disc > 0 ? `<div class="total-row discount-text"><span>Bulk Discount:</span><span>-$${disc.toFixed(2)}</span></div>` : ""}
-            ${tax > 0 ? `<div class="total-row"><span>Tax (6%):</span><span>$${tax.toFixed(2)}</span></div>` : ""}
-            <div class="total-row grand-total"><span>Total:</span><span>$${total.toFixed(2)}</span></div>
-          </div>
-          <div class="btn-group">
-            <button class="secondary" onclick="state.step=2;render()">Edit Items</button>
-            <button class="success" onclick="submitOrder()">Submit to !Main</button>
-          </div>
-        </div>`;
+      renderReview(el);
     }
   }
 
-  async function handleSearch(e) {
-    const q = e.target.value;
-    const box = document.getElementById("c-results");
-    if (q.length < 2) { box.style.display="none"; return; }
-    try {
-      const res = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
-      const data = await res.json();
-      customerResults = data.results || [];
-      if (!customerResults.length) { box.style.display="none"; return; }
-      box.style.display = "block";
-      box.innerHTML = customerResults.map((c, i) => `<div data-i="${i}">${c.name} (${c.city})</div>`).join("");
-      box.onclick = (ev) => {
-        const div = ev.target.closest('div[data-i]');
-        if (div) { state.customer = customerResults[div.dataset.i]; state.step = 2; render(); }
-      };
-    } catch(e) { console.error("Search error", e); }
+  function updateLiveTotal() {
+    let sub = 0;
+    let qty = 0;
+    products.forEach((p, i) => {
+      const val = parseInt(document.getElementById(`qty-${i}`).value) || 0;
+      sub += (val * p.price);
+      qty += val;
+    });
+
+    document.getElementById("case-count").innerText = `${qty} Cases Selected`;
+    document.getElementById("live-subtotal").innerText = `$${sub.toFixed(2)}`;
+    
+    const hint = document.getElementById("discount-hint");
+    if (qty > 0 && qty < 10) {
+      hint.innerText = `Add ${10 - qty} more for 10% off!`;
+    } else if (qty >= 10) {
+      hint.innerText = "10% Bulk Discount Applied!";
+    } else {
+      hint.innerText = "";
+    }
   }
 
+  function renderReview(el) {
+    const sub = state.cart.reduce((s, i) => s + (i.price * i.qty), 0);
+    const totalQty = state.cart.reduce((s, i) => s + i.qty, 0);
+    const disc = totalQty >= 10 ? sub * 0.10 : 0;
+    const isRest = (state.customer.businessType || "").toLowerCase().includes("restaurant");
+    const tax = isRest ? (sub - disc) * TAX_RATE : 0;
+    
+    el.innerHTML = `
+      <div class="card">
+        <h2>Order Review</h2>
+        <div style="font-size:0.9em; margin-bottom:20px;"><strong>${state.customer.name}</strong><br>${state.customer.address}</div>
+        <table style="width:100%; border-collapse:collapse; font-size:0.9em;">
+          ${state.cart.map(i => `<tr style="border-bottom:1px solid #eee;"><td style="padding:8px 0;">${i.name} (x${i.qty})</td><td style="text-align:right;">$${(i.qty*i.price).toFixed(2)}</td></tr>`).join("")}
+        </table>
+        <div style="margin-top:15px; text-align:right; font-size:1.1em;">
+          <div>Subtotal: $${sub.toFixed(2)}</div>
+          ${disc > 0 ? `<div style="color:green;">Discount: -$${disc.toFixed(2)}</div>` : ""}
+          ${tax > 0 ? `<div>Tax: $${tax.toFixed(2)}</div>` : ""}
+          <strong style="font-size:1.3em; display:block; margin-top:10px;">Total: $${(sub - disc + tax).toFixed(2)}</strong>
+        </div>
+        <div class="btn-group">
+          <button class="secondary" onclick="state.step=2;render()">Edit</button>
+          <button class="success" onclick="submitOrder()">Submit to !Main</button>
+        </div>
+      </div>`;
+  }
+
+  // --- Utility Functions (Search & Submit) ---
+  async function handleSearch(e) {
+    const q = e.target.value;
+    if (q.length < 2) return;
+    const res = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
+    const data = await res.json();
+    const box = document.getElementById("c-results");
+    box.style.display = "block";
+    box.innerHTML = data.results.map((c, i) => `<div onclick="selectCustomer(${JSON.stringify(c).replace(/"/g, '&quot;')})">${c.name} (${c.city})</div>`).join("");
+  }
+
+  window.selectCustomer = (c) => {
+    state.customer = c;
+    state.step = 2;
+    render();
+  };
+
   function toReview() {
-    state.cart = products.map((p, i) => ({
-      ...p, qty: parseInt(document.getElementById(`qty-${i}`).value) || 0
-    })).filter(i => i.qty > 0);
-    if (!state.cart.length) return alert("Select at least one item.");
+    state.cart = products.map((p, i) => ({ ...p, qty: parseInt(document.getElementById(`qty-${i}`).value) || 0 })).filter(i => i.qty > 0);
+    if (!state.cart.length) return alert("Select items first.");
     state.step = 3; render();
   }
 
   async function submitOrder() {
     const btn = document.querySelector(".success");
-    btn.disabled = true; btn.innerText = "Submitting...";
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify({ customer: state.customer, items: state.cart })
-      });
-      const d = await res.json();
-      if (d.success) {
-        alert("Order submitted successfully!");
-        state = { step: 1, customer: null, cart: [] }; render();
-      }
-    } catch(e) { alert("Error submitting"); btn.disabled = false; }
+    btn.disabled = true; btn.innerText = "Sending...";
+    await fetch(API_URL, { method: "POST", body: JSON.stringify({ customer: state.customer, items: state.cart }) });
+    alert("Order Submitted!");
+    state = { step: 1, customer: null, cart: [] }; render();
   }
 
   loadProducts();
