@@ -2,9 +2,6 @@
 const API_URL =
   "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec";
 
-const PRODUCT_CSV_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&single=true&output=csv";
-
 /**************** STATE ****************/
 let products = [];
 let state = {
@@ -13,38 +10,17 @@ let state = {
   cart: []
 };
 
-/**************** CSV ****************/
-function parseCSV(text) {
-  const lines = text.trim().split("\n");
-  const headers = lines.shift().split(",");
-  return lines.map(line => {
-    const values = line.split(",");
-    let obj = {};
-    headers.forEach((h, i) => {
-      obj[h.trim()] = (values[i] || "").trim();
-    });
-    return obj;
-  });
-}
-
-/**************** LOAD PRODUCTS ****************/
+/**************** LOAD PRODUCTS (FROM SHEET) ****************/
 async function loadProducts() {
-  const res = await fetch(PRODUCT_CSV_URL);
-  const text = await res.text();
-
-  products = parseCSV(text).map(p => ({
-    name: p["Product Name"],
-    price: Number(p["Price"]),
-    stock: Number(p["Qty In Stock"] || 0)
-  }));
-
+  const res = await fetch(`${API_URL}?products=1`);
+  products = await res.json();
   render();
 }
 
 /**************** CUSTOMER SEARCH ****************/
-async function searchCustomers(query) {
-  if (query.length < 2) return [];
-  const res = await fetch(`${API_URL}?q=${encodeURIComponent(query)}`);
+async function searchCustomers(q) {
+  if (q.length < 2) return [];
+  const res = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
   const data = await res.json();
   return data.results || [];
 }
@@ -54,27 +30,24 @@ function render() {
   const el = document.getElementById("form-container");
   el.innerHTML = "";
 
-  /******** STEP 1 — CUSTOMER ********/
   if (state.step === 1) {
     el.innerHTML = `
       <div class="card">
         <h2>Select Customer</h2>
         <div class="autocomplete-wrapper">
-          <input id="customer-input" placeholder="Start typing customer name..." autocomplete="off">
+          <input id="customer-input" placeholder="Start typing customer name" autocomplete="off">
           <div id="autocomplete-results"></div>
         </div>
       </div>
     `;
 
     const input = document.getElementById("customer-input");
-    const resultsBox = document.getElementById("autocomplete-results");
+    const results = document.getElementById("autocomplete-results");
 
-    input.addEventListener("input", async e => {
-      const val = e.target.value;
-      resultsBox.innerHTML = "";
-
-      const results = await searchCustomers(val);
-      results.forEach(c => {
+    input.addEventListener("input", async () => {
+      results.innerHTML = "";
+      const matches = await searchCustomers(input.value);
+      matches.forEach(c => {
         const div = document.createElement("div");
         div.className = "autocomplete-item";
         div.textContent = c.name;
@@ -83,12 +56,11 @@ function render() {
           state.step = 2;
           render();
         };
-        resultsBox.appendChild(div);
+        results.appendChild(div);
       });
     });
   }
 
-  /******** STEP 2 — PRODUCTS (GRID LOCKED) ********/
   if (state.step === 2) {
     el.innerHTML = `
       <div class="card">
@@ -104,52 +76,27 @@ function render() {
       const div = document.createElement("div");
       div.className = "product-card";
 
-      const lowStock =
-        p.stock > 0 && p.stock <= 10
-          ? `<div style="color:red;font-size:12px;">Low stock (${p.stock})</div>`
-          : "";
-
-      const disabled = p.stock === 0 ? "disabled" : "";
+      const low = p.stock > 0 && p.stock <= 10
+        ? `<div style="color:red;font-size:12px;">Low stock (${p.stock})</div>`
+        : "";
 
       div.innerHTML = `
         <strong>${p.name}</strong>
         <div>$${p.price.toFixed(2)}</div>
-        ${lowStock}
-        <input
-          type="number"
-          min="0"
-          max="${p.stock}"
-          id="q-${i}"
-          ${disabled}
-        >
+        ${low}
+        <input type="number" min="0" max="${p.stock}" id="q-${i}">
       `;
-
       grid.appendChild(div);
     });
   }
 
-  /******** STEP 3 — REVIEW ********/
   if (state.step === 3) {
-    let subtotal = 0;
-
     el.innerHTML = `
       <div class="card">
         <h2>Review Order</h2>
-
-        <p>
-          <strong>${state.customer.name}</strong><br>
-          ${state.customer.address}<br>
-          ${state.customer.city}, ${state.customer.state} ${state.customer.zip}
-        </p>
-
         <table class="review-table">
-          <tr>
-            <th>Product</th>
-            <th>Qty</th>
-            <th>Total</th>
-          </tr>
+          <tr><th>Product</th><th>Qty</th><th>Total</th></tr>
         </table>
-
         <button onclick="state.step=2;render()">Back</button>
         <button class="primary" onclick="submit()">Submit</button>
       </div>
@@ -157,15 +104,12 @@ function render() {
 
     const table = el.querySelector(".review-table");
 
-    state.cart.forEach(item => {
-      const line = item.qty * item.price;
-      subtotal += line;
-
+    state.cart.forEach(i => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${item.name}</td>
-        <td>${item.qty}</td>
-        <td>$${line.toFixed(2)}</td>
+        <td>${i.name}</td>
+        <td>${i.qty}</td>
+        <td>$${(i.qty * i.price).toFixed(2)}</td>
       `;
       table.appendChild(tr);
     });
@@ -176,31 +120,20 @@ function render() {
 function review() {
   state.cart = [];
 
-  for (let i = 0; i < products.length; i++) {
-    const input = document.getElementById(`q-${i}`);
-    const qty = Number(input.value || 0);
-    const product = products[i];
+  products.forEach((p, i) => {
+    const qty = Number(document.getElementById(`q-${i}`).value || 0);
 
-    if (qty > product.stock) {
-      alert(`You cannot order more than ${product.stock} of ${product.name}.`);
-      input.value = product.stock;
+    if (qty > p.stock) {
+      alert(`Only ${p.stock} available for ${p.name}`);
       return;
     }
 
     if (qty > 0) {
-      state.cart.push({
-        name: product.name,
-        price: product.price,
-        qty: qty
-      });
+      state.cart.push({ name: p.name, price: p.price, qty });
     }
-  }
+  });
 
-  if (!state.cart.length) {
-    alert("Please add at least one product.");
-    return;
-  }
-
+  if (!state.cart.length) return alert("Add at least one product");
   state.step = 3;
   render();
 }
@@ -215,7 +148,7 @@ async function submit() {
     })
   });
 
-  alert("Order submitted successfully.");
+  alert("Order submitted");
   location.reload();
 }
 
