@@ -3,65 +3,73 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>SBC Wholesale Order</title>
+  <title>Suburban Brewing Company — Order System</title>
   <style>
-    body { font-family: -apple-system, sans-serif; background: #f4f4f9; margin: 0; padding: 10px; color: #333; }
-    .site-header { background: #1a1a1a; color: white; padding: 20px; text-align: center; }
-    .site-header img { max-width: 100px; }
-    .card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; margin: 15px auto; padding: 20px; position: relative; }
-    
-    /* Input Styling */
-    input[type="text"] { width: 100%; padding: 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-    
-    /* THE DROPDOWN FIX */
-    .autocomplete-wrapper { position: relative; width: 100%; }
-    .dropdown { 
-      position: absolute; 
-      top: 100%; 
-      left: 0; 
-      right: 0; 
-      background: white; 
-      border: 1px solid #ddd; 
-      z-index: 9999 !important; /* Forces it to the front */
-      border-radius: 0 0 8px 8px; 
-      box-shadow: 0 8px 16px rgba(0,0,0,0.2); 
-      max-height: 250px; 
-      overflow-y: auto; 
-      display: none; 
-    }
+    /* BASE STYLES */
+    body { font-family: -apple-system, system-ui, sans-serif; background: #f4f4f9; margin: 0; padding: 0; color: #333; }
+    .site-header { background: #1a1a1a; color: white; padding: 25px; text-align: center; border-bottom: 4px solid #007bff; }
+    .site-header img { max-width: 130px; margin-bottom: 10px; }
+    .site-header h1 { margin: 0; font-size: 1.4em; }
+    .site-header p { margin: 4px 0; font-size: 0.85em; opacity: 0.8; }
+
+    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; margin: 20px auto; position: relative; }
+    h2 { margin-top: 0; font-size: 1.2em; color: #007bff; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+
+    /* SEARCH & AUTOCOMPLETE */
+    input[type="text"], input[type="number"] { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; -webkit-appearance: none; }
+    .autocomplete-wrapper { position: relative; }
+    .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 9999; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); max-height: 250px; overflow-y: auto; display: none; top: 100%; left: 0; }
     .dropdown div { padding: 14px; border-bottom: 1px solid #eee; cursor: pointer; background: white; }
     .dropdown div:hover { background: #f0f7ff; }
 
-    /* Review Table & Totals */
+    /* PRODUCT GRID */
+    .grid { display: grid; gap: 12px; margin-top: 20px; }
+    .product-card { border: 1px solid #eee; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; background: #fff; }
+    .product-card input { width: 80px; margin: 0; text-align: center; border: 2px solid #007bff; font-weight: bold; }
+
+    /* REVIEW PAGE STYLES */
+    .customer-info { background: #f0f7ff; padding: 15px; border-left: 5px solid #007bff; margin-bottom: 20px; border-radius: 4px; }
     .review-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-    .review-table td, .review-table th { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
-    .total-row { display: flex; justify-content: space-between; padding: 8px 0; font-weight: bold; }
-    .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-    button { flex: 1; padding: 16px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .review-table th { text-align: left; border-bottom: 2px solid #333; padding: 10px 0; font-size: 0.85em; }
+    .review-table td { padding: 12px 0; border-bottom: 1px solid #eee; }
+    .total-area { border-top: 2px solid #333; padding-top: 15px; margin-top: 10px; }
+    .total-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 1em; }
+    .grand-total { font-weight: bold; font-size: 1.3em; color: #000; border-top: 2px solid #ddd; margin-top: 10px; padding-top: 10px; }
+    .discount-text { color: #28a745; font-weight: 500; }
+
+    /* BUTTONS */
+    .btn-group { display: flex; gap: 10px; margin-top: 25px; }
+    button { flex: 1; padding: 16px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
     .primary { background: #007bff; color: white; }
-    .success { background: #28a745; color: white; }
+    .success { background: #28a745; color: white; width: 100%; }
     .secondary { background: #6c757d; color: white; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
   </style>
 </head>
 <body>
 
 <header class="site-header">
   <img src="logo.png" alt="SBC Logo">
-  <h1>Suburban Brewing Company</h1>
+  <div class="header-info">
+    <h1>Suburban Brewing Company</h1>
+    <p>3041 Horseshoe Pike, Honey Brook, PA 19344</p>
+    <p>Remy Davis • (908) 642-1019</p>
+  </div>
 </header>
 
 <main id="form-container"></main>
 
 <script>
-  /******** CONFIG - PLEASE CHECK THESE URLS ********/
-  const API_URL = "PASTE_YOUR_GOOGLE_SCRIPT_EXEC_URL_HERE"; 
-  const PRODUCT_CSV_URL = "PASTE_YOUR_PUBLISHED_CSV_URL_HERE";
-  const TAX_RATE = 0.06;
+  /******** CONFIG ********/
+  const API_URL = "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec"; 
+  const PRODUCT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&single=true&output=csv";
+  const TAX_RATE = 0.06; // 6% Restaurant Tax
 
   let products = [];
   let customerResults = [];
   let state = { step: 1, customer: null, cart: [] };
 
+  /******** LOAD DATA ********/
   async function loadProducts() {
     try {
       const res = await fetch(`${PRODUCT_CSV_URL}&t=${Date.now()}`);
@@ -78,10 +86,12 @@
     } catch(e) { console.error("CSV Load Fail", e); }
   }
 
+  /******** RENDER ENGINE ********/
   function render() {
     const el = document.getElementById("form-container");
     el.innerHTML = "";
 
+    // STEP 1: SEARCH CUSTOMER
     if (state.step === 1) {
       el.innerHTML = `
         <div class="card">
@@ -95,6 +105,114 @@
       document.getElementById("c-search").addEventListener("input", handleSearch);
     } 
     
+    // STEP 2: PRODUCT SELECTION
     else if (state.step === 2) {
-      // (Your Step 2 Product Grid logic here)
-      el.innerHTML = `<div class="card"><h2>Products</h2><button onclick="state.step=
+      el.innerHTML = `
+        <div class="card">
+          <h2>Items for ${state.customer.name}</h2>
+          <div class="grid">${products.map((p, i) => `
+            <div class="product-card">
+              <div><strong>${p.name}</strong><br><small>$${p.price.toFixed(2)} | Stock: ${p.stock}</small></div>
+              <input type="number" id="qty-${i}" min="0" max="${p.stock}" placeholder="0" pattern="[0-9]*">
+            </div>`).join("")}
+          </div>
+          <div class="btn-group">
+            <button class="secondary" onclick="state.step=1;render()">Back</button>
+            <button class="primary" onclick="toReview()">Review Order</button>
+          </div>
+        </div>`;
+    }
+
+    // STEP 3: REVIEW PAGE
+    else if (state.step === 3) {
+      const subtotal = state.cart.reduce((s, i) => s + (i.price * i.qty), 0);
+      const totalCases = state.cart.reduce((s, i) => s + i.qty, 0);
+      const discount = totalCases >= 10 ? subtotal * 0.10 : 0;
+      const isRestaurant = (state.customer.businessType || "").toLowerCase().includes("restaurant");
+      const tax = isRestaurant ? (subtotal - discount) * TAX_RATE : 0;
+      const total = subtotal - discount + tax;
+
+      el.innerHTML = `
+        <div class="card">
+          <h2>Order Review</h2>
+          <div class="customer-info">
+            <strong>${state.customer.name}</strong><br>
+            ${state.customer.address}<br>
+            ${state.customer.city}, ${state.customer.state}<br>
+            <small>Type: ${state.customer.businessType}</small>
+          </div>
+          <table class="review-table">
+            <thead><tr><th>Product</th><th>Qty</th><th>Total</th></tr></thead>
+            <tbody>${state.cart.map(i => `
+              <tr><td>${i.name}</td><td>${i.qty}</td><td>$${(i.qty * i.price).toFixed(2)}</td></tr>
+            `).join("")}</tbody>
+          </table>
+          <div class="total-area">
+            <div class="total-row"><span>Subtotal:</span><span>$${subtotal.toFixed(2)}</span></div>
+            ${discount > 0 ? `<div class="total-row discount-text"><span>Bulk Discount (10%):</span><span>-$${discount.toFixed(2)}</span></div>` : ""}
+            ${tax > 0 ? `<div class="total-row"><span>Tax (6%):</span><span>$${tax.toFixed(2)}</span></div>` : ""}
+            <div class="total-row grand-total"><span>Order Total:</span><span>$${total.toFixed(2)}</span></div>
+          </div>
+          <div class="btn-group">
+            <button class="secondary" onclick="state.step=2;render()">Edit Items</button>
+            <button class="success" onclick="submitOrder()">Submit Order</button>
+          </div>
+        </div>`;
+    }
+  }
+
+  /******** LOGIC FUNCTIONS ********/
+  async function handleSearch(e) {
+    const q = e.target.value;
+    const box = document.getElementById("c-results");
+    if (q.length < 2) { box.style.display="none"; return; }
+    
+    try {
+      const res = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
+      const data = await res.json();
+      customerResults = data.results || [];
+      
+      if (!customerResults.length) { box.style.display="none"; return; }
+      box.style.display = "block";
+      box.innerHTML = customerResults.map((c, i) => `<div data-i="${i}">${c.name} (${c.city})</div>`).join("");
+      
+      box.onclick = (ev) => {
+        const div = ev.target.closest('div[data-i]');
+        if (div) {
+          state.customer = customerResults[div.dataset.i];
+          state.step = 2; render();
+        }
+      };
+    } catch(e) { console.error("Search error", e); }
+  }
+
+  function toReview() {
+    state.cart = products.map((p, i) => ({
+      ...p,
+      qty: parseInt(document.getElementById(`qty-${i}`).value) || 0
+    })).filter(i => i.qty > 0);
+    
+    if (!state.cart.length) return alert("Select items first.");
+    state.step = 3; render();
+  }
+
+  async function submitOrder() {
+    const btn = document.querySelector(".success");
+    btn.disabled = true; btn.innerText = "Submitting...";
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ customer: state.customer, items: state.cart })
+      });
+      const d = await res.json();
+      if (d.success) {
+        alert("Order submitted to !Main!");
+        state = { step: 1, customer: null, cart: [] }; render();
+      }
+    } catch(e) { alert("Error submitting"); btn.disabled = false; }
+  }
+
+  loadProducts();
+</script>
+</body>
+</html>
