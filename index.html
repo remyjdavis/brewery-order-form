@@ -3,27 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>SBC Wholesale Portal</title>
+  <title>SBC Wholesale Order Portal</title>
   <style>
+    /* RESET & BASE */
     body { font-family: -apple-system, system-ui, sans-serif; background: #f4f4f9; margin: 0; padding: 0; color: #333; padding-bottom: 110px; }
     
-    /* HEADER STYLES */
-    .site-header { background: #1a1a1a; color: white; padding: 12px 5%; display: flex; align-items: center; justify-content: flex-start; gap: 20px; border-bottom: 3px solid #007bff; }
+    /* PROFESSIONAL LEFT-ALIGNED HEADER */
+    .site-header { 
+      background: #1a1a1a; 
+      color: white; 
+      padding: 12px 5%; 
+      display: flex; 
+      align-items: center; 
+      justify-content: flex-start; 
+      gap: 20px;
+      border-bottom: 3px solid #007bff; 
+    }
     .site-header img { max-width: 65px; height: auto; }
     .header-info { text-align: left; }
-    .site-header h1 { margin: 0; font-size: 1.2em; color: #fff; }
+    .site-header h1 { margin: 0; font-size: 1.2em; color: #fff; letter-spacing: 0.5px; }
     .header-info p { margin: 1px 0; font-size: 0.8em; opacity: 0.8; line-height: 1.3; }
 
+    /* CARD CONTAINER */
     .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 92%; max-width: 850px; margin: 20px auto; position: relative; }
     h2 { margin-top: 0; font-size: 1.2em; color: #007bff; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 15px; }
 
-    /* GRID */
+    /* AGREEMENT BOX */
+    .agreement-text { height: 200px; overflow-y: scroll; border: 1px solid #ddd; padding: 15px; background: #fdfdfd; font-size: 0.9em; line-height: 1.5; margin-bottom: 15px; border-radius: 6px; }
+
+    /* SEARCH & DROPDOWN */
+    .autocomplete-wrapper { position: relative; }
+    input[type="text"], input[type="number"] { width: 100%; padding: 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+    .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 9999; display: none; top: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-radius: 0 0 8px 8px; }
+    .dropdown div { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 0.9em; }
+    .dropdown div:hover { background: #f0f7ff; }
+
+    /* PRODUCT GRID */
     .grid { display: grid; gap: 12px; margin-top: 20px; grid-template-columns: 1fr; }
     @media (min-width: 600px) { .grid { grid-template-columns: 1fr 1fr; } }
     .product-card { border: 1px solid #eee; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: #fff; }
-    .product-card input { width: 70px; border: 2px solid #007bff; font-weight: bold; border-radius: 5px; padding: 8px; font-size: 16px; text-align: center; }
+    .product-card input { width: 70px; border: 2px solid #007bff; font-weight: bold; text-align: center; }
 
-    /* STICKY LIVE BAR */
+    /* STICKY LIVE TOTAL BAR */
     .live-total-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 2px solid #007bff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 15px rgba(0,0,0,0.1); z-index: 10000; }
     .live-info strong { font-size: 1.3em; color: #1a1a1a; display: block; }
     .discount-msg { font-size: 0.85em; color: #28a745; font-weight: bold; display: block; }
@@ -31,15 +52,11 @@
 
     /* BUTTONS */
     .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-    button { padding: 15px 25px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 15px; }
+    button { padding: 15px 25px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 15px; transition: 0.2s; }
     .primary { background: #007bff; color: white; }
     .success { background: #28a745; color: white; }
     .secondary { background: #e4e6eb; color: #333; }
-    
-    .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 9999; display: none; top: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .dropdown div { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; }
-    input[type="text"] { width: 100%; padding: 14px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
-    .agreement-text { height: 200px; overflow-y: scroll; border: 1px solid #ddd; padding: 15px; background: #fdfdfd; font-size: 0.9em; margin-bottom: 15px; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
   </style>
 </head>
 <body>
@@ -58,7 +75,7 @@
 
 <div id="live-bar" class="live-total-bar" style="display:none;">
   <div class="live-info">
-    <div id="case-count">0 Items</div>
+    <div id="case-count">0 Items Selected</div>
     <strong id="live-subtotal">$0.00</strong>
     <span id="live-disc-hint" class="discount-msg"></span>
     <span id="live-keg-hint" class="deposit-msg"></span>
@@ -67,9 +84,11 @@
 </div>
 
 <script>
+  /******** CONFIGURATION ********/
   const API_URL = "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec"; 
   const PRODUCT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&single=true&output=csv";
   const KEG_DEPOSIT_FEE = 30.00;
+  const SALES_TAX_RATE = 0.06;
 
   let products = [];
   let state = { step: 0, customer: null, cart: [] };
@@ -91,7 +110,18 @@
         };
       }).filter(p => p.name);
       render();
-    } catch(e) { console.error(e); }
+    } catch(e) { console.error("CSV Load Error", e); }
+  }
+
+  // KEYWORD CLASSIFIER LOGIC
+  function getBusinessType(customer) {
+    if (customer.businessType) return customer.businessType.toLowerCase();
+    const restKW = ['grill', 'tavern', 'pub', 'restaurant', 'inn', 'house', 'kitchen', 'bar', 'bistro', 'steak', 'pizza', 'cafe'];
+    const storeKW = ['beer', 'beverage', 'distributor', 'bottle', 'six pack', 'deli', 'market', 'grocery'];
+    const fullName = (customer.name + " " + (customer.address || "")).toLowerCase();
+    if (restKW.some(word => fullName.includes(word))) return 'restaurant';
+    if (storeKW.some(word => fullName.includes(word))) return 'beer store';
+    return 'unknown';
   }
 
   function render() {
@@ -100,22 +130,64 @@
     el.innerHTML = "";
     bar.style.display = "none";
 
+    // STEP 0: USER AGREEMENT
     if (state.step === 0) {
-      el.innerHTML = `<div class="card"><h2>Wholesale Agreement</h2><div class="agreement-text"><h3>Terms & Conditions</h3><p>By proceeding, you agree to Suburban Brewing Co. wholesale terms. Kegs include a $30.00 untaxed deposit. 10+ cases qualify for a 10% discount.</p></div><div style="display:flex; gap:10px;"><input type="checkbox" id="agree-check" onchange="document.getElementById('start-btn').disabled = !this.checked"><label for="agree-check">I agree to the wholesale terms.</label></div><button id="start-btn" class="primary" style="margin-top:20px; width:100%;" disabled onclick="state.step=1;render();">Proceed</button></div>`;
+      el.innerHTML = `
+        <div class="card">
+          <h2>Wholesale User Agreement</h2>
+          <div class="agreement-text">
+            <h3>Suburban Brewing Company Wholesale Terms</h3>
+            <p><strong>1. Authorization:</strong> You represent that you are an authorized buyer for a licensed establishment.</p>
+            <p><strong>2. Compliance:</strong> All orders follow PA LCB regulations. Active licensure is required.</p>
+            <p><strong>3. Kegs:</strong> A $30.00 untaxed deposit applies to all keg units.</p>
+            <p><strong>4. Bulk Discount:</strong> 10% discount applies to 10+ cases (kegs may differ).</p>
+            <p><strong>5. Payment:</strong> Due upon delivery via Check or Fintech.</p>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <input type="checkbox" id="agree-check" onchange="document.getElementById('start-btn').disabled = !this.checked">
+            <label for="agree-check">I agree to the Wholesale Terms & Conditions.</label>
+          </div>
+          <button id="start-btn" class="primary" style="margin-top:20px; width:100%;" disabled onclick="state.step=1;render();">Proceed to Order</button>
+        </div>`;
     } 
+    
+    // STEP 1: CUSTOMER SEARCH
     else if (state.step === 1) {
-      el.innerHTML = `<div class="card"><h2>Select Customer</h2><input id="c-search" type="text" placeholder="Search..."><div id="c-results" class="dropdown"></div></div>`;
+      el.innerHTML = `
+        <div class="card">
+          <h2>Select Customer</h2>
+          <div class="autocomplete-wrapper">
+            <input id="c-search" type="text" placeholder="Start typing business name..." autocomplete="off">
+            <div id="c-results" class="dropdown"></div>
+          </div>
+        </div>`;
       document.getElementById("c-search").addEventListener("input", handleSearch);
     } 
+
+    // STEP 2: PRODUCT SELECTION
     else if (state.step === 2) {
       bar.style.display = "flex";
-      el.innerHTML = `<div class="card"><h2>Order: ${state.customer.name}</h2><div class="grid">${products.map((p, i) => `<div class="product-card"><div><strong>${p.name}</strong><br><small>$${p.price.toFixed(2)}</small></div><input type="number" id="qty-${i}" min="0" value="${getQty(p.name)}" oninput="updateLiveTotal()"></div>`).join("")}</div><button class="secondary" style="margin-top:20px;" onclick="state.step=1;render()">Back</button></div>`;
+      el.innerHTML = `
+        <div class="card">
+          <h2>Order for: ${state.customer.name}</h2>
+          <div class="grid">${products.map((p, i) => `
+            <div class="product-card">
+              <div><strong>${p.name}</strong><br><small>$${p.price.toFixed(2)}</small></div>
+              <input type="number" id="qty-${i}" min="0" value="${getSavedQty(p.name)}" oninput="updateLiveTotal()">
+            </div>`).join("")}
+          </div>
+          <button class="secondary" style="margin-top:20px;" onclick="state.step=1;render()">Back</button>
+        </div>`;
       updateLiveTotal();
     }
-    else if (state.step === 3) { renderReview(el); }
+    
+    // STEP 3: FINAL REVIEW
+    else if (state.step === 3) {
+      renderReview(el);
+    }
   }
 
-  function getQty(name) {
+  function getSavedQty(name) {
     const item = state.cart.find(i => i.name === name);
     return item ? item.qty : 0;
   }
@@ -124,25 +196,24 @@
     let sub = 0; let qty = 0; let kegs = 0;
     products.forEach((p, i) => {
       const val = parseInt(document.getElementById(`qty-${i}`).value) || 0;
-      sub += (val * p.price); qty += val;
+      sub += (val * p.price);
+      qty += val;
       if (p.isKeg) kegs += val;
     });
 
     const disc = qty >= 10 ? sub * 0.10 : 0;
     const kegTotal = kegs * KEG_DEPOSIT_FEE;
-    const liveTotal = sub - disc + kegTotal;
+    const total = sub - disc + kegTotal;
 
     document.getElementById("case-count").innerText = `${qty} Items Selected`;
-    document.getElementById("live-subtotal").innerText = `$${liveTotal.toFixed(2)}`;
+    document.getElementById("live-subtotal").innerText = `$${total.toFixed(2)}`;
     
-    // Discount Message
     const dHint = document.getElementById("live-disc-hint");
     if (qty > 0 && qty < 10) dHint.innerText = `Add ${10 - qty} more for 10% off!`;
-    else if (qty >= 10) dHint.innerText = `10% Discount Applied (-$${disc.toFixed(2)})`;
+    else if (qty >= 10) dHint.innerText = `10% Discount Applied!`;
     else dHint.innerText = "";
 
-    // Keg Message
-    document.getElementById("live-keg-hint").innerText = kegs > 0 ? `+$${kegTotal.toFixed(2)} Keg Deposits` : "";
+    document.getElementById("live-keg-hint").innerText = kegs > 0 ? `Includes $${kegTotal.toFixed(2)} in Deposits` : "";
   }
 
   function toReview() {
@@ -150,7 +221,7 @@
       ...p, 
       qty: parseInt(document.getElementById(`qty-${i}`).value) || 0 
     })).filter(i => i.qty > 0);
-    if (!state.cart.length) return alert("Select items first.");
+    if (!state.cart.length) return alert("Select at least one item.");
     state.step = 3; render();
   }
 
@@ -159,51 +230,62 @@
     const totalQty = state.cart.reduce((s, i) => s + i.qty, 0);
     const kegCount = state.cart.reduce((s, i) => s + (i.isKeg ? i.qty : 0), 0);
     const disc = totalQty >= 10 ? sub * 0.10 : 0;
-    const isRest = (state.customer.businessType || "").toLowerCase().includes("restaurant");
-    const tax = isRest ? (sub - disc) * 0.06 : 0;
+    
+    const bType = getBusinessType(state.customer);
+    const isTaxable = bType === 'restaurant';
+    const tax = isTaxable ? (sub - disc) * SALES_TAX_RATE : 0;
     const kegDepositTotal = kegCount * KEG_DEPOSIT_FEE;
     const grandTotal = sub - disc + tax + kegDepositTotal;
 
     el.innerHTML = `
       <div class="card">
-        <h2>Review Order</h2>
-        <div style="margin-bottom:20px; border-left:4px solid #007bff; padding-left:15px;">
+        <h2>Order Review</h2>
+        <div style="margin-bottom:20px; border-left:4px solid #007bff; padding-left:15px; font-size:0.95em;">
           <strong>${state.customer.name}</strong><br>${state.customer.address}
+          <br><small style="color:#666;">Tax Profile: ${bType.toUpperCase()}</small>
         </div>
         <table style="width:100%; border-collapse:collapse; font-size:0.9em; margin-bottom:20px;">
           <tr style="border-bottom:2px solid #333;"><th style="text-align:left; padding:8px 0;">Item</th><th style="text-align:right;">Total</th></tr>
-          ${state.cart.map(i => `<tr style="border-bottom:1px solid #eee;"><td style="padding:10px 0;">${i.name} (x${i.qty}) ${i.isKeg ? '<br><small style="color:#dc3545;">+$30 Deposit</small>' : ''}</td><td style="text-align:right;">$${(i.qty*i.price).toFixed(2)}</td></tr>`).join("")}
+          ${state.cart.map(i => `
+            <tr style="border-bottom:1px solid #eee;">
+              <td style="padding:10px 0;">${i.name} (x${i.qty}) ${i.isKeg ? '<br><small style="color:#dc3545;">+$30 Deposit</small>' : ''}</td>
+              <td style="text-align:right;">$${(i.qty*i.price).toFixed(2)}</td>
+            </tr>`).join("")}
         </table>
         <div style="text-align:right;">
-          <div>Subtotal: $${sub.toFixed(2)}</div>
-          ${disc > 0 ? `<div style="color:green;">10% Bulk Discount: -$${disc.toFixed(2)}</div>` : ""}
-          ${tax > 0 ? `<div>Sales Tax (6%): $${tax.toFixed(2)}</div>` : ""}
-          ${kegCount > 0 ? `<div style="font-weight:bold; color:#dc3545; margin-top:5px;">Untaxed Keg Deposits: $${kegDepositTotal.toFixed(2)}</div>` : ""}
-          <strong style="font-size:1.4em; border-top:2px solid #333; display:inline-block; margin-top:10px; padding-top:10px;">Total Due: $${grandTotal.toFixed(2)}</strong>
+          <div style="margin-bottom:5px;">Subtotal: $${sub.toFixed(2)}</div>
+          ${disc > 0 ? `<div style="color:green; margin-bottom:5px;">Bulk Discount (10%): -$${disc.toFixed(2)}</div>` : ""}
+          ${isTaxable ? `<div style="margin-bottom:5px;">Sales Tax (6%): $${tax.toFixed(2)}</div>` : `<div style="color:#666; font-size:0.8em; margin-bottom:5px;">Tax Exempt (Beer Store)</div>`}
+          ${kegCount > 0 ? `<div style="font-weight:bold; color:#dc3545;">Keg Deposits: $${kegDepositTotal.toFixed(2)}</div>` : ""}
+          <strong style="font-size:1.4em; border-top:2px solid #333; display:inline-block; margin-top:10px; padding-top:10px;">Total: $${grandTotal.toFixed(2)}</strong>
         </div>
         <div class="btn-group">
           <button class="secondary" onclick="state.step=2;render()">← Edit Items</button>
-          <button class="success" onclick="submitOrder()">Confirm & Submit Order</button>
+          <button class="success" onclick="submitOrder()">Submit to !Main Screen</button>
         </div>
       </div>`;
   }
 
   async function handleSearch(e) {
     const q = e.target.value; if (q.length < 2) return;
-    const res = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
-    const data = await res.json();
-    const box = document.getElementById("c-results");
-    box.style.display = "block";
-    box.innerHTML = data.results.map((c, i) => `<div onclick="selectCustomer(${JSON.stringify(c).replace(/"/g, '&quot;')})">${c.name} (${c.city})</div>`).join("");
+    try {
+      const res = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
+      const data = await res.json();
+      const box = document.getElementById("c-results");
+      box.style.display = "block";
+      box.innerHTML = data.results.map((c, i) => `<div onclick="selectCustomer(${JSON.stringify(c).replace(/"/g, '&quot;')})">${c.name} (${c.city})</div>`).join("");
+    } catch(e) { console.error("Search Error", e); }
   }
 
   window.selectCustomer = (c) => { state.customer = c; state.step = 2; render(); };
 
   async function submitOrder() {
-    const btn = document.querySelector(".success"); btn.disabled = true; btn.innerText = "Sending...";
-    await fetch(API_URL, { method: "POST", body: JSON.stringify({ customer: state.customer, items: state.cart }) });
-    alert("Order Submitted Successfully!");
-    state = { step: 0, customer: null, cart: [] }; render();
+    const btn = document.querySelector(".success"); btn.disabled = true; btn.innerText = "Processing...";
+    try {
+      await fetch(API_URL, { method: "POST", body: JSON.stringify({ customer: state.customer, items: state.cart }) });
+      alert("Success! Order sent to !Main Screen.");
+      state = { step: 0, customer: null, cart: [] }; render();
+    } catch(e) { alert("Submission error. Check connection."); btn.disabled = false; }
   }
 
   loadProducts();
