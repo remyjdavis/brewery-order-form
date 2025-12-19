@@ -3,30 +3,30 @@
 <head>
   <meta charset="UTF-8">
 
-  <!-- Forces desktop layout in Safari -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <!-- LOCK SCALE / STOP MOBILE MODE -->
+  <meta name="viewport"
+        content="width=device-width,
+                 initial-scale=1,
+                 maximum-scale=1,
+                 user-scalable=no">
 
-  <title>Suburban Brewing Order Form</title>
+  <title>Suburban Brewing Company – Wholesale Order</title>
+
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-  <header class="site-header">
-    <img src="logo.png" class="logo">
-    <div class="header-text">
-      <h1>Suburban Brewing Company</h1>
-      <p>
-        3041 Horseshoe Pike Suite 120 & 130 · Honey Brook, PA 19344<br>
-        Sales Rep: Remy Davis · (908) 642-1019 · remyjdavis90@gmail.com
-      </p>
-    </div>
-  </header>
 
-  <!-- FULL WIDTH ROOT -->
-  <main id="app">
-    <div id="form-container"></div>
-  </main>
+<header class="site-header">
+  <img src="logo.png" alt="Suburban Brewing Company">
+  <div class="header-info">
+    <strong>Suburban Brewing Company</strong><br>
+    3041 Horseshoe Pike Suite 120 & 130, Honey Brook, PA 19344<br>
+    Remy Davis – (908) 642-1019 – remyjdavis90@gmail.com
+  </div>
+</header>
 
-  <script src="order-form.js"></script>
+<div id="form-container"></div>
+
+<script src="order-form.js"></script>
 </body>
 </html>
