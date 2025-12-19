@@ -1,71 +1,77 @@
 * {
   box-sizing: border-box;
+  font-family: Arial, sans-serif;
 }
 
 body {
-  font-family: Arial, sans-serif;
   margin: 0;
-  background: #f5f5f5;
+  background: #f4f4f4;
 }
 
-/* HEADER */
 .header {
   display: flex;
   align-items: center;
-  gap: 20px;
-  padding: 15px 25px;
+  padding: 10px 20px;
   background: #111;
-  color: #fff;
+  color: white;
 }
 
 .logo {
-  height: 60px;
+  height: 50px;
+  margin-right: 20px;
 }
 
 .header-info h1 {
+  font-size: 20px;
   margin: 0;
-  font-size: 22px;
 }
 
 .header-info p {
-  margin: 4px 0 0;
-  font-size: 13px;
+  font-size: 12px;
+  margin: 3px 0 0;
 }
 
-/* CARD */
-.card {
-  background: #fff;
+.container {
   padding: 20px;
-  max-width: 1200px;
-  margin: 20px auto;
+}
+
+.card {
+  background: white;
+  padding: 20px;
   border-radius: 6px;
 }
 
-/* SEARCH */
-#cust {
+.customer-search {
+  position: relative;
+  width: 100%;
+}
+
+.customer-search input {
   width: 100%;
   padding: 12px;
-  font-size: 16px;
+  font-size: 18px;
 }
 
-#results {
+#autocomplete-results {
+  position: absolute;
+  width: 100%;
+  background: white;
   border: 1px solid #ccc;
-  border-top: none;
+  z-index: 999;
 }
 
-.result-item {
+.autocomplete-item {
   padding: 10px;
   cursor: pointer;
 }
 
-.result-item:hover {
+.autocomplete-item:hover {
   background: #eee;
 }
 
-/* GRID — THIS IS THE FIX */
-.grid {
+.product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 15px;
 }
 
@@ -73,16 +79,17 @@ body {
   border: 1px solid #ddd;
   padding: 12px;
   border-radius: 6px;
-  background: #fafafa;
+}
+
+.product-card.low-stock {
+  border-color: red;
 }
 
 .product-card input {
   width: 100%;
   margin-top: 8px;
-  padding: 6px;
 }
 
-/* REVIEW TABLE */
 .review-table {
   width: 100%;
   border-collapse: collapse;
@@ -90,22 +97,27 @@ body {
 
 .review-table th,
 .review-table td {
-  border: 1px solid #ccc;
+  border-bottom: 1px solid #ddd;
   padding: 8px;
 }
 
-/* AGREEMENT */
-.agreement-box {
-  border: 1px solid #ccc;
-  background: #f9f9f9;
-  padding: 15px;
+.actions {
   margin-top: 20px;
+  display: flex;
+  gap: 10px;
 }
 
-/* MOBILE */
-@media (max-width: 768px) {
-  .header {
-    flex-direction: column;
-    text-align: center;
+button {
+  padding: 12px 16px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-area, .print-area * {
+    visibility: visible;
   }
 }
