@@ -14,34 +14,38 @@
     .header-brand { display: flex; align-items: center; gap: 20px; }
     .site-header img { height: 80px; width: auto; border-radius: 4px; background: #fff; padding: 3px; }
     .header-text h1 { margin: 0; font-size: 1.4em; letter-spacing: 1px; text-transform: uppercase; }
-    .header-text p { margin: 2px 0; font-size: 0.85em; opacity: 0.8; font-weight: 300; }
 
+    /* ENHANCED USER AGREEMENT SCREEN */
+    .agreement-card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 30px rgba(0,0,0,0.15); width: 92%; max-width: 800px; margin: 40px auto; text-align: center; }
+    .agreement-title { font-size: 2.2em; color: #1a1a1a; margin-bottom: 25px; border-bottom: 4px solid #007bff; display: inline-block; padding-bottom: 10px; }
+    .agreement-box { text-align: left; background: #fdfdfd; border: 2px solid #eee; padding: 30px; border-radius: 10px; font-size: 1.25em; line-height: 1.8; color: #333; margin-bottom: 30px; }
+
+    /* INVOICE & GRID */
     .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 92%; max-width: 1000px; margin: 20px auto; }
-    .agreement-box { height:180px; overflow-y:scroll; border:1px solid #eee; padding:20px; font-size:0.95em; line-height:1.6; margin-bottom:20px; background:#fafafa; border-radius:8px; }
-    
     .invoice-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-    .invoice-table th { text-align: left; border-bottom: 2px solid #007bff; padding: 10px; font-size: 0.9em; }
+    .invoice-table th { text-align: left; border-bottom: 2px solid #007bff; padding: 10px; }
     .invoice-table td { padding: 12px 10px; border-bottom: 1px solid #eee; }
-    
-    .summary-area { border-top: 2px solid #eee; padding-top: 15px; }
-    .summary-row { display: flex; justify-content: flex-end; padding: 5px 0; }
-    .summary-label { width: 220px; text-align: right; color: #666; padding-right: 15px; }
-    .summary-val { width: 110px; text-align: right; font-weight: bold; }
-    .grand-total { border-top: 2px solid #007bff; margin-top: 10px; padding-top: 10px; font-size: 1.8em; color: #1a1a1a; }
+    .summary-row { display: flex; justify-content: flex-end; padding: 5px 0; font-size: 1.1em; }
+    .summary-label { width: 250px; text-align: right; color: #666; padding-right: 20px; }
+    .summary-val { width: 120px; text-align: right; font-weight: bold; }
+    .grand-total { border-top: 3px solid #1a1a1a; margin-top: 15px; padding-top: 15px; font-size: 2em; color: #1a1a1a; }
 
-    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
-    .product-card { border: 1px solid #eef; padding: 15px; border-radius: 10px; background: #fff; text-align: center; position: relative; }
-    .qty-input { width: 80%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; text-align: center; font-weight: bold; font-size: 1.1em; }
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+    .product-card { border: 1px solid #eee; padding: 20px; border-radius: 12px; background: #fff; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+    .qty-input { width: 85%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; text-align: center; font-weight: bold; font-size: 1.2em; }
+    .override-input { width: 85px; padding: 8px; border: 2px solid #ffc107; background: #fffde7; text-align: right; font-weight: bold; border-radius: 6px; margin-top: 10px; }
 
-    .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 3px solid #007bff; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; z-index: 1000; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); }
+    /* LIVE BAR */
+    .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 4px solid #007bff; padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; z-index: 1000; box-shadow: 0 -8px 25px rgba(0,0,0,0.15); }
+    #savings-label { color: #28a745; font-size: 1.1em; font-weight: 800; display: block; margin-bottom: 4px; text-transform: uppercase; }
+
+    button { padding: 18px 32px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 1.1em; }
+    .primary { background: #007bff; color: white; width: 100%; }
+    .success { background: #28a745; color: white; width: 100%; font-size: 1.3em; }
+    .secondary { background: #eee; color: #444; width: 100%; margin-top: 12px; }
     
-    button { padding: 16px 28px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
-    .success { background: #28a745; color: white; width: 100%; font-size: 1.2em; }
-    .secondary { background: #eee; color: #444; width: 100%; margin-top: 10px; }
-    
-    .override-input { width: 85px; padding: 8px; border: 1px solid #ffc107; background: #fffde7; text-align: right; font-weight: bold; border-radius: 4px; margin-top: 5px; }
-    .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 5000; display: none; }
-    .dropdown-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; }
+    .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 5000; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .dropdown-item { padding: 18px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 1.1em; }
   </style>
 </head>
 <body>
@@ -61,10 +65,10 @@
 
 <div id="live-bar" class="live-bar" style="display:none;">
   <div>
-    <small id="savings-label" style="color:#28a745; font-weight:bold; display:block;"></small>
-    <strong id="live-total" style="font-size: 1.6em;">$0.00</strong>
+    <small id="savings-label"></small>
+    <strong id="live-total" style="font-size: 2em;">$0.00</strong>
   </div>
-  <button style="background:#007bff; color:white;" onclick="state.step=3;render()">Review Order &rarr;</button>
+  <button style="background:#007bff; color:white; padding: 20px 40px;" onclick="state.step=3;render()">Review Order &rarr;</button>
 </div>
 
 <script>
@@ -95,23 +99,26 @@
     app.innerHTML = ""; bar.style.display = "none";
 
     if (state.step === 0) {
-      app.innerHTML = `<div class="card">
-        <h2>Wholesale Agreement</h2>
+      app.innerHTML = `<div class="agreement-card">
+        <h2 class="agreement-title">Wholesale Agreement</h2>
         <div class="agreement-box">
-          <p><strong>Terms & Conditions:</strong><br>
+          <strong>Terms & Conditions:</strong><br><br>
           1. Authorized purchasing only.<br>
-          2. Prices confidential.<br>
+          2. Wholesale prices confidential.<br>
           3. $30.00 Keg deposit applies.<br>
-          4. Inspect goods upon delivery.</p>
+          4. Inspect goods upon delivery.
         </div>
-        <label><input type="checkbox" id="agree-check" onchange="document.getElementById('start-btn').disabled = !this.checked"> I accept terms</label>
-        <button id="start-btn" class="success" style="margin-top:20px; background:#007bff;" disabled onclick="state.step=1;render()">Continue</button>
+        <label style="font-size: 1.3em; cursor:pointer; display:block; margin-bottom:25px;">
+          <input type="checkbox" id="agree-check" style="width:25px; height:25px;" onchange="document.getElementById('start-btn').disabled = !this.checked"> 
+          <strong>I accept the Wholesale Terms</strong>
+        </label>
+        <button id="start-btn" class="primary" style="font-size:1.4em; padding:25px;" disabled onclick="state.step=1;render()">Access Account Search</button>
       </div>`;
     } 
     else if (state.step === 1) {
       app.innerHTML = `<div class="card" style="position:relative;">
         <h2>Find Account</h2>
-        <input type="text" id="cust-input" placeholder="Search customer name..." style="width:100%; padding:15px; border-radius:8px; border:2px solid #ddd;">
+        <input type="text" id="cust-input" placeholder="Search customer name..." style="width:100%; padding:20px; border-radius:10px; border:2px solid #ddd; font-size:1.2em;">
         <div id="results" class="dropdown"></div>
       </div>`;
       document.getElementById("cust-input").oninput = (e) => doSearch(e.target.value);
@@ -119,16 +126,16 @@
     else if (state.step === 2) {
       bar.style.display = "flex";
       app.innerHTML = `<div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h3 style="margin:0;">Customer: ${state.customer.name}</h3>
-            <button style="background:none; color:#007bff; text-decoration:underline; padding:0; font-size:0.8em;" onclick="toggleOverride()">Rep Override</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
+            <h3 style="margin:0; font-size:1.5em;">Account: ${state.customer.name}</h3>
+            <button style="background:#f8f9fa; color:#007bff; border:1px solid #ddd; padding:10px 20px; font-size:0.9em;" onclick="toggleOverride()">Rep Override</button>
         </div>
         <div class="product-grid">${products.map((p, i) => `
           <div class="product-card">
-            <span style="font-weight:bold; display:block; height:40px;">${p.name}</span>
-            <span style="color:#007bff; font-weight:600; display:block; margin-bottom:5px;">$${p.price.toFixed(2)}</span>
+            <span style="font-weight:700; display:block; height:45px; font-size:1.1em;">${p.name}</span>
+            <span style="color:#007bff; font-weight:800; display:block; margin:10px 0; font-size:1.2em;">$${p.price.toFixed(2)}</span>
             <input type="number" class="qty-input" min="0" placeholder="0" value="${getQty(p.name) || ''}" oninput="updateCart(${i}, this.value)">
-            ${state.overrideMode ? `<br><input type="number" step="0.01" class="override-input" value="${p.price}" oninput="updateOverridePrice('${p.name}', this.value)" placeholder="Special Price">` : ''}
+            ${state.overrideMode ? `<br><input type="number" step="0.01" class="override-input" value="${p.price}" oninput="updateOverridePrice('${p.name}', this.value)" placeholder="Price">` : ''}
           </div>`).join("")}
         </div>
       </div>`;
@@ -147,38 +154,38 @@
       const grandTotal = subtotal + tax + kegDeposit;
 
       app.innerHTML = `<div class="card">
-        <div style="display:flex; justify-content:space-between; border-bottom: 2px solid #eee; padding-bottom: 15px;">
+        <div style="display:flex; justify-content:space-between; border-bottom: 3px solid #eee; padding-bottom: 20px;">
             <div>
-                <h2 style="margin:0;">Order Review</h2>
-                <p style="margin:5px 0;"><strong>${state.customer.name}</strong><br>${state.customer.address || "PA, United States"}</p>
+                <h2 style="margin:0; font-size:1.8em;">Order Invoice</h2>
+                <p style="margin:8px 0; font-size:1.1em;"><strong>${state.customer.name}</strong><br>${state.customer.address || "PA, United States"}</p>
             </div>
-            <div style="text-align:right; color:#666;">Date: ${new Date().toLocaleDateString()}</div>
+            <div style="text-align:right; color:#666; font-size:1.1em;">Date: ${new Date().toLocaleDateString()}</div>
         </div>
         
         <table class="invoice-table">
             <thead>
-                <tr><th>Product</th><th style="text-align:center;">Qty</th><th style="text-align:right;">Line Total</th></tr>
+                <tr><th style="font-size:1.1em;">Product</th><th style="text-align:center;">Qty</th><th style="text-align:right;">Total</th></tr>
             </thead>
             <tbody>
                 ${items.map(item => `
                 <tr>
-                    <td>${item.name}</td>
-                    <td style="text-align:center;">${item.qty}</td>
-                    <td style="text-align:right;">$${(item.price * item.qty).toFixed(2)}</td>
+                    <td style="font-size:1.1em; font-weight:500;">${item.name}</td>
+                    <td style="text-align:center; font-weight:bold;">${item.qty}</td>
+                    <td style="text-align:right; font-weight:bold;">$${(item.price * item.qty).toFixed(2)}</td>
                 </tr>`).join("")}
             </tbody>
         </table>
 
         <div class="summary-area">
             <div class="summary-row"><div class="summary-label">Subtotal:</div><div class="summary-val">$${subtotal.toFixed(2)}</div></div>
-            ${discount > 0 ? `<div class="summary-row" style="color:#28a745;"><div class="summary-label">Bulk/Special Discount:</div><div class="summary-val">-$${discount.toFixed(2)}</div></div>` : ''}
+            ${discount > 0 ? `<div class="summary-row" style="color:#28a745; font-weight:800;"><div class="summary-label">Bulk/Special Discount:</div><div class="summary-val">-$${discount.toFixed(2)}</div></div>` : ''}
             ${tax > 0 ? `<div class="summary-row"><div class="summary-label">Restaurant Tax (6%):</div><div class="summary-val">$${tax.toFixed(2)}</div></div>` : ''}
             ${kegDeposit > 0 ? `<div class="summary-row"><div class="summary-label">Keg Deposit ($30/ea):</div><div class="summary-val">$${kegDeposit.toFixed(2)}</div></div>` : ''}
-            <div class="summary-row grand-total"><div class="summary-label">Total Due:</div><div class="summary-val">$${grandTotal.toFixed(2)}</div></div>
+            <div class="summary-row grand-total"><div class="summary-label">Total Amount Due:</div><div class="summary-val">$${grandTotal.toFixed(2)}</div></div>
         </div>
 
-        <button class="success" style="margin-top:30px;" onclick="submitOrder()">Submit Final Order</button>
-        <button class="secondary" onclick="state.step=2;render()">← Back to Items</button>
+        <button class="success" style="margin-top:40px; padding:25px;" onclick="submitOrder()">Submit Order</button>
+        <button class="secondary" onclick="state.step=2;render()">← Edit Order</button>
       </div>`;
     }
   }
@@ -194,29 +201,20 @@
     const p = products[idx];
     const q = Math.max(0, parseInt(qty) || 0);
     let item = state.cart.find(i => i.name === p.name);
-    if (item) {
-        item.qty = q;
-    } else {
-        state.cart.push({...p, qty: q});
-    }
+    if (item) item.qty = q; else state.cart.push({...p, qty: q});
     updateLiveDisplay();
   }
 
   function updateOverridePrice(name, val) {
-    let itemInCart = state.cart.find(i => i.name === name);
-    let p = products.find(prod => prod.name === name);
     const newPrice = parseFloat(val) || 0;
-
-    // Update the base price for this session
+    // Update global product price
+    let p = products.find(prod => prod.name === name);
     p.price = newPrice;
     
-    // Also update if it's already in the cart
-    if (itemInCart) {
-        itemInCart.price = newPrice;
-    } else {
-        // If not in cart, add it with qty 0 just to track the price
-        state.cart.push({...p, qty: 0});
-    }
+    // Update cart item price
+    let itemInCart = state.cart.find(i => i.name === name);
+    if (itemInCart) itemInCart.price = newPrice;
+    
     updateLiveDisplay();
   }
 
@@ -225,23 +223,24 @@
     const discount = calculateDiscount();
     document.getElementById("live-total").innerText = "$" + subtotal.toFixed(2);
     
-    // This fixed the "Live Discount" visibility
     const label = document.getElementById("savings-label");
     if (discount > 0) {
         label.innerText = `Bulk Discount Applied: -$${discount.toFixed(2)}`;
-        label.style.display = "block";
     } else {
-        label.style.display = "none";
+        label.innerText = "";
     }
   }
 
   function calculateSubtotal() { return state.cart.reduce((s, i) => s + (i.price * i.qty), 0); }
+  
   function calculateDiscount() { 
-    return state.cart.reduce((s, i) => {
-        const original = products.find(p => p.name === i.name).originalPrice;
-        return s + ((original - i.price) * i.qty);
+    return state.cart.reduce((totalDisc, item) => {
+        const prod = products.find(p => p.name === item.name);
+        const discPerUnit = prod.originalPrice - item.price;
+        return totalDisc + (discPerUnit * item.qty);
     }, 0);
   }
+
   function getQty(name) { let i = state.cart.find(c => c.name === name); return i ? i.qty : 0; }
 
   async function doSearch(val) {
@@ -259,7 +258,7 @@
     const btn = document.querySelector(".success");
     btn.innerText = "Processing..."; btn.disabled = true;
     await fetch(API_URL, { method: "POST", body: JSON.stringify({ customer: state.customer, items: state.cart.filter(i => i.qty > 0) }) });
-    alert("Order Submitted!"); location.reload();
+    alert("Order Submitted Successfully!"); location.reload();
   }
 
   init();
