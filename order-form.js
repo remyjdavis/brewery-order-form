@@ -27,21 +27,16 @@ async function loadProducts() {
   const csv = await res.text();
   const rows = parseCSV(csv);
 
-  // ROW 0 = headers (ignored)
-  // Column A = Product Name
-  // Column C = Price
-  // Column D = Qty In Stock
-  // Column E = Category (if exists)
-
   products = rows.slice(1).map(r => ({
-    name: r[0] || "",                 // COLUMN A
-    price: Number(r[2] || 0),         // COLUMN C
-    stock: Number(r[3] || 0),         // COLUMN D
-    category: r[4] || ""
+    name: r[0] || "",                 // Column A — Product Name
+    price: Number(r[1] || 0),         // Column B — Price
+    stock: Number(r[2] || 0)          // Column C — Qty In Stock
   }));
 
-  console.log("PRODUCTS LOADED (FIXED):", products);
+  console.log("PRODUCTS LOADED (FINAL):", products);
   render();
+}
+
 }
 
 /**************** CUSTOMER SEARCH ****************/
