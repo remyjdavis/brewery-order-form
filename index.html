@@ -46,11 +46,17 @@
         .review-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         .review-table th { text-align: left; padding: 12px; border-bottom: 2px solid #333; font-size: 0.85em; text-transform: uppercase; color: #666; }
         .review-table td { padding: 12px; border-bottom: 1px solid #eee; font-size: 1em; }
+
+        @media print {
+            .live-bar, .btn-success { display: none !important; }
+            body { background: white; padding: 0; }
+            .card { border: none; box-shadow: none; padding: 0; }
+        }
     </style>
 </head>
 <body>
 
-<header class="site-header">
+<header class="site-header" id="main-header">
     <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" alt="SBC Logo">
     <div class="header-text">
         <h1>Suburban Brewing Co.</h1>
@@ -117,20 +123,24 @@
     function render() {
         const app = document.getElementById("app");
         const bar = document.getElementById("live-bar");
+        const header = document.getElementById("main-header");
+        
         app.innerHTML = "";
         bar.style.display = (state.step === 2) ? "flex" : "none";
+        // Hide global header in Step 3 because we will inject it directly into the "card" for better print formatting
+        header.style.display = (state.step === 3) ? "none" : "flex";
 
         if (state.step === 0) {
             app.innerHTML = `
                 <div class="card">
                     <h2 style="margin-top:0; text-align:center;">Wholesale Terms of Sale</h2>
                     <div class="legal-scroll">
-                        <p><strong>1. QUALITY CONTROL:</strong> All Suburban Brewing Co. products are unpasteurized and must be maintained at a constant refrigeration temperature of 38°F. Suburban Brewing Co. is not liable for product spoilage due to temperature abuse at the retail level.</p>
-                        <p><strong>2. LICENSURE:</strong> Purchaser warrants that they hold a valid retail liquor license. Any change in licensure status must be reported to Suburban Brewing Co. immediately.</p>
-                        <p><strong>3. PAYMENTS:</strong> Payment is Net-on-Delivery. Fintech accounts are drafted automatically. Non-fintech accounts must provide a business check at the time of delivery.</p>
-                        <p><strong>4. COOPERAGE:</strong> All kegs remain the property of Suburban Brewing Co. A $30.00 deposit is required for each unit. Lost or damaged kegs will be billed at $120.00 per unit.</p>
+                        <p><strong>1. QUALITY CONTROL:</strong> All Suburban Brewing Co. products are unpasteurized and must be maintained at a constant refrigeration temperature of 38°F.</p>
+                        <p><strong>2. LICENSURE:</strong> Purchaser warrants that they hold a valid retail liquor license.</p>
+                        <p><strong>3. PAYMENTS:</strong> Payment is Net-on-Delivery. Fintech accounts are drafted automatically.</p>
+                        <p><strong>4. COOPERAGE:</strong> All kegs remain the property of Suburban Brewing Co. A $30.00 deposit is required for each unit.</p>
                         <p><strong>5. TAXATION & DISCOUNTS:</strong> A 6% PA Sales Tax is applied only to restaurant accounts. A 10% volume discount is applied to orders of 10 units or more.</p>
-                        <p><strong>6. ACCEPTANCE:</strong> By proceeding with this order, the purchaser agrees to all terms and conditions stated above.</p>
+                        <p><strong>6. ACCEPTANCE:</strong> By proceeding, the purchaser agrees to all terms and conditions.</p>
                     </div>
                     <label style="display:block; margin-bottom:20px; cursor:pointer; text-align:center;">
                         <input type="checkbox" id="agree"> I agree to the Suburban Brewing Co. Wholesale Terms.
@@ -163,9 +173,18 @@
             const items = state.cart.filter(i => i.qty > 0);
             app.innerHTML = `
                 <div class="card">
-                    <div style="color:var(--sbc-blue); font-weight:bold; margin-bottom:10px; text-transform:uppercase;">Suburban Brewing Co.</div>
+                    <div style="display:flex; align-items:center; gap:20px; border-bottom:4px solid var(--sbc-dark); padding-bottom:20px; margin-bottom:30px;">
+                        <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" style="height:80px;">
+                        <div>
+                            <strong style="font-size:1.4em;">Suburban Brewing Co.</strong><br>
+                            3041 Horseshoe Pike, Honey Brook, PA 19344<br>
+                            <strong>Sales Rep: Remy Davis</strong> | (908) 642-1019
+                        </div>
+                    </div>
+
                     <div style="display:flex; justify-content:space-between; align-items:start;">
                         <div>
+                            <div style="color:var(--sbc-blue); font-weight:bold; text-transform:uppercase; font-size:0.8em; margin-bottom:5px;">BILL TO</div>
                             <div style="font-weight:900; font-size:1.6em; margin-bottom:5px;">${state.customer.name}</div>
                             <div style="font-size:1.1em; line-height:1.4;">
                                 ${state.customer.address}<br>
@@ -212,6 +231,7 @@
                         <strong style="font-size:1.8em; display:block; margin-top:10px;">Order Total: $${t.final.toFixed(2)}</strong>
                     </div>
                     <button class="btn btn-success" onclick="submitOrder()">Submit Final Order</button>
+                    <button class="btn" style="background:#6c757d; color:white; margin-top:10px; width:100%;" onclick="window.print()">Print Order Summary</button>
                 </div>`;
         }
     }
