@@ -14,30 +14,38 @@ let state = {
   taxRate: 0
 };
 
-/******** CSV ********/
+/******** CSV PARSER ********/
 function parseCSV(text) {
   const lines = text.trim().split("\n");
-  const headers = lines.shift().split(",");
+  const headers = lines.shift().split(",").map(h => h.trim());
+
   return lines.map(line => {
     const values = line.split(",");
     let obj = {};
-    headers.forEach((h, i) => obj[h.trim()] = (values[i] || "").trim());
+    headers.forEach((h, i) => {
+      obj[h] = (values[i] || "").trim();
+    });
     return obj;
   });
 }
 
-/******** LOAD PRODUCTS ********/
+/******** LOAD PRODUCTS — FIXED HEADERS ********/
 async function loadProducts() {
-  const text = await (await fetch(PRODUCT_CSV_URL)).text();
-  products = parseCSV(text).map(p => ({
-    name: p["Product Name"],
-    price: Number(p["Price"]),
-    stock: Number(p["Qty in stock"]),
+  const response = await fetch(PRODUCT_CSV_URL);
+  const text = await response.text();
+
+  const rows = parseCSV(text);
+
+  products = rows.map(row => ({
+    name: row["Product Name"],                 // ✅ Column A
+    price: Number(row["Price"]) || 0,          // ✅ Price
+    stock: Number(row["Qty In Stock"]) || 0    // ✅ FIXED HEADER
   }));
+
   render();
 }
 
-/******** AUTOCOMPLETE (LOCKED) ********/
+/******** AUTOCOMPLETE — UNCHANGED ********/
 async function fetchCustomers(q) {
   if (q.length < 2) return [];
   const r = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
@@ -77,7 +85,7 @@ function render() {
   const el = document.getElementById("form-container");
   el.innerHTML = "";
 
-  /* STEP 1 */
+  /* STEP 1 — CUSTOMER */
   if (state.step === 1) {
     el.innerHTML = `
       <div class="card">
@@ -91,29 +99,36 @@ function render() {
     bindAutocomplete();
   }
 
-  /* STEP 2 */
+  /* STEP 2 — PRODUCTS (GRID LOCKED) */
   if (state.step === 2) {
     let html = `<div class="card"><h2>Select Products</h2><div class="grid">`;
+
     products.forEach((p, i) => {
       html += `
         <div class="product-card">
           <strong>${p.name}</strong>
           $${p.price.toFixed(2)}<br>
-          In Stock: ${p.stock}<br>
-          <input type="number" min="0" max="${p.stock}" id="q-${i}">
+          In Stock: ${p.stock}
+          <input type="number"
+                 min="0"
+                 max="${p.stock}"
+                 id="q-${i}">
         </div>`;
     });
+
     html += `</div>
       <button class="primary" onclick="review()">Review Order</button>
     </div>`;
+
     el.innerHTML = html;
   }
 
-  /* STEP 3 */
+  /* STEP 3 — REVIEW */
   if (state.step === 3) {
     let subtotal = 0, cases = 0, keg = 0;
 
-    let html = `<div class="card">
+    let html = `
+      <div class="card">
       <h2>Review Order</h2>
       <p><strong>${state.customer.name}</strong><br>
       ${state.customer.address}<br>
@@ -127,14 +142,21 @@ function render() {
       subtotal += line;
       if (/case/i.test(i.name)) cases += i.qty;
       if (/keg/i.test(i.name)) keg += i.qty * 30;
-      html += `<tr><td>${i.name}</td><td>${i.qty}</td><td>$${line.toFixed(2)}</td></tr>`;
+
+      html += `
+        <tr>
+          <td>${i.name}</td>
+          <td>${i.qty}</td>
+          <td>$${line.toFixed(2)}</td>
+        </tr>`;
     });
 
     const discount = cases >= 10 ? subtotal * 0.10 : 0;
     const tax = state.customer.businessType === "Restaurant" ? subtotal * 0.06 : 0;
     const total = subtotal - discount + tax + keg;
 
-    html += `</table>
+    html += `
+      </table>
       <p>Subtotal: $${subtotal.toFixed(2)}</p>
       <p>Discount: -$${discount.toFixed(2)}</p>
       <p>Tax: $${tax.toFixed(2)}</p>
@@ -142,14 +164,14 @@ function render() {
       <h3>Total: $${total.toFixed(2)}</h3>
 
       <button onclick="state.step=2;render()">Back</button>
-      <button class="primary" onclick="alert('Next: Print / Email')">Submit</button>
-    </div>`;
+      <button class="primary">Submit</button>
+      </div>`;
 
     el.innerHTML = html;
   }
 }
 
-/******** ACTIONS ********/
+/******** REVIEW ********/
 function review() {
   state.cart = products.map((p, i) => {
     const qty = Number(document.getElementById(`q-${i}`).value || 0);
