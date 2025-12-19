@@ -62,7 +62,7 @@ main {
 }
 
 /* ===============================
-   AUTOCOMPLETE (LOCKED + CLICKABLE)
+   AUTOCOMPLETE
    =============================== */
 
 .autocomplete-wrapper {
@@ -89,20 +89,19 @@ main {
 .autocomplete-item {
   padding: 10px;
   cursor: pointer;
-  border-bottom: 1px solid #eee;
 }
 
 .autocomplete-item:hover {
-  background: #f0f0f0;
+  background: #eee;
 }
 
 /* ===============================
-   PRODUCT GRID — DESKTOP ONLY
+   PRODUCT GRID — PERMANENT
    =============================== */
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* FIXED 4 */
+  grid-template-columns: repeat(4, 1fr);
   gap: 15px;
   margin-top: 20px;
 }
@@ -110,13 +109,8 @@ main {
 .product-card {
   border: 1px solid #ddd;
   padding: 12px;
-  border-radius: 4px;
   background: #fafafa;
-}
-
-.product-card strong {
-  display: block;
-  margin-bottom: 6px;
+  border-radius: 4px;
 }
 
 /* ===============================
@@ -126,8 +120,8 @@ main {
 button {
   padding: 12px 22px;
   font-size: 16px;
-  cursor: pointer;
   margin-top: 20px;
+  cursor: pointer;
 }
 
 button.primary {
@@ -155,7 +149,3 @@ button.primary {
 .review-table th {
   background: #eee;
 }
-
-/* ===============================
-   NO MOBILE. NO MEDIA QUERIES.
-   =============================== */
