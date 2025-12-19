@@ -1,6 +1,79 @@
+/* ===============================
+   HARD DESKTOP RESET
+   =============================== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  min-width: 1280px;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f4f4f4;
+}
+
+/* ===============================
+   HEADER (LOCKED)
+   =============================== */
+
+.site-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 12px 30px;
+  background: #111;
+  color: #fff;
+}
+
+.site-header img {
+  height: 60px;
+}
+
+.header-info h1 {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.header-info p {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* ===============================
+   MAIN
+   =============================== */
+
+main {
+  width: 1200px;
+  margin: 25px auto;
+}
+
+/* ===============================
+   CARD
+   =============================== */
+
+.card {
+  background: #fff;
+  padding: 25px;
+  border-radius: 6px;
+}
+
+/* ===============================
+   AUTOCOMPLETE (LOCKED + CLICKABLE)
+   =============================== */
+
 .autocomplete-wrapper {
   position: relative;
   width: 100%;
+}
+
+#customer-input {
+  width: 100%;
+  font-size: 16px;
+  padding: 10px;
 }
 
 #autocomplete-results {
@@ -14,16 +87,75 @@
 }
 
 .autocomplete-item {
-  display: block;
-  width: 100%;
-  text-align: left;
   padding: 10px;
-  background: white;
-  border: none;
-  border-bottom: 1px solid #eee;
   cursor: pointer;
+  border-bottom: 1px solid #eee;
 }
 
 .autocomplete-item:hover {
-  background: #f2f2f2;
+  background: #f0f0f0;
 }
+
+/* ===============================
+   PRODUCT GRID — DESKTOP ONLY
+   =============================== */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* FIXED 4 */
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.product-card {
+  border: 1px solid #ddd;
+  padding: 12px;
+  border-radius: 4px;
+  background: #fafafa;
+}
+
+.product-card strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+/* ===============================
+   BUTTONS
+   =============================== */
+
+button {
+  padding: 12px 22px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+button.primary {
+  background: #111;
+  color: #fff;
+  border: none;
+}
+
+/* ===============================
+   REVIEW TABLE
+   =============================== */
+
+.review-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.review-table th,
+.review-table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+}
+
+.review-table th {
+  background: #eee;
+}
+
+/* ===============================
+   NO MOBILE. NO MEDIA QUERIES.
+   =============================== */
