@@ -1,198 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SBC Wholesale Portal</title>
-  <style>
-    body { font-family: -apple-system, system-ui, sans-serif; background: #f4f4f9; margin: 0; padding-bottom: 110px; color: #333; }
-    .site-header { background: #1a1a1a; color: white; padding: 15px 5%; border-bottom: 3px solid #007bff; }
-    .header-content { display: flex; align-items: center; gap: 20px; max-width: 1000px; margin: 0 auto; }
-    .header-brand img { height: 60px; background: white; border-radius: 4px; padding: 4px; }
-    .header-contact { font-size: 0.75em; line-height: 1.4; opacity: 0.9; }
-    .header-contact strong { font-size: 1.1em; color: #007bff; display: block; margin-bottom: 2px; }
-    .card { background: white; padding: 18px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); width: 92%; max-width: 1000px; margin: 12px auto; }
-    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
-    .product-card { border: 1px solid #eee; padding: 10px; border-radius: 10px; background: #fff; text-align: center; }
-    .qty-input { width: 70%; padding: 6px; border: 1.5px solid #007bff; border-radius: 6px; text-align: center; font-weight: bold; font-size: 0.9em; }
-    .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; color: white; border-top: 3px solid #007bff; padding: 12px 5%; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
-    button { padding: 8px 16px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; font-size: 0.8em; }
-    button:disabled { background: #ccc !important; cursor: not-allowed; }
-    .primary { background: #007bff; color: white; width: 100%; height: 38px; }
-    .success { background: #28a745; color: white; width: 100%; height: 42px; font-size: 0.9em; }
-    .secondary { background: #eee; color: #444; width: 100%; margin-top: 8px; }
-    .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 5000; display: none; max-height: 250px; overflow-y: auto; }
-    .dropdown-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 0.9em; }
-    .order-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.85em; }
-    .order-table th { text-align: left; background: #f8f9fa; padding: 10px; border-bottom: 2px solid #dee2e6; color: #666; text-transform: uppercase; }
-    .order-table td { padding: 12px 10px; border-bottom: 1px solid #eee; }
-    .text-right { text-align: right; }
-    .summary-row { display: flex; justify-content: flex-end; padding: 3px 0; font-size: 0.9em; }
-    .summary-label { width: 220px; text-align: right; color: #666; padding-right: 15px; }
-    .summary-val { width: 100px; text-align: right; font-weight: bold; }
-    .grand-total { border-top: 2px solid #1a1a1a; margin-top: 8px; padding-top: 8px; font-size: 1.4em; color: #1a1a1a; }
-    @media print {
-        body * { visibility: hidden; }
-        #receipt-printable, #receipt-printable * { visibility: visible; }
-        #receipt-printable { position: absolute; left: 0; top: 0; width: 100%; }
-        #post-order-actions, .site-header, .live-bar, #notes-area { display: none !important; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SBC Wholesale Portal</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f9; margin: 0; color: #333; }
+        .site-header { background: #1a1a1a; color: white; padding: 20px; text-align: center; border-bottom: 3px solid #007bff; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 800px; margin: 20px auto; width: 90%; }
+        .legal-box { font-size: 0.8em; height: 300px; overflow-y: scroll; border: 1px solid #ddd; padding: 15px; background: #fafafa; margin: 15px 0; line-height: 1.6; }
+        .dropdown { position: absolute; background: white; border: 1px solid #ddd; width: 100%; z-index: 100; max-height: 200px; overflow-y: auto; display: none; }
+        .dropdown-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .dropdown-item:hover { background: #f0f7ff; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+        .product-card { border: 1px solid #eee; padding: 10px; text-align: center; border-radius: 5px; }
+        .qty-input { width: 60px; padding: 5px; text-align: center; border: 1px solid #007bff; border-radius: 4px; }
+        .btn { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+    </style>
 </head>
 <body>
 
 <header class="site-header">
-  <div class="header-content">
-    <div class="header-brand"><img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" alt="SBC"></div>
-    <div class="header-contact">
-      <strong>Suburban Brewing Co.</strong>
-      3041 Horseshoe Pike, Suite 120 & 130, Honey Brook, PA 19344<br>
-      Remy Davis | (908) 642-1019 | remyjdavis90@gmail.com
-    </div>
-  </div>
+    <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" height="50">
+    <h2>Suburban Brewing Co. Wholesale</h2>
 </header>
 
 <main id="app"></main>
 
-<div id="live-bar" class="live-bar" style="display:none;">
-  <div style="line-height:1.2;">
-    <small id="savings-label" style="color: #2ecc71; font-weight:700; font-size:0.65em; text-transform:uppercase; display:block;"></small>
-    <small id="tax-label" style="color: #aaa; font-size:0.65em; display:block;"></small>
-    <strong id="live-total" style="font-size:1.4em;">$0.00</strong>
-  </div>
-  <button style="background:#007bff; color:white;" onclick="state.step=3;render()">Review Order &rarr;</button>
-</div>
-
 <script>
-  // YOUR API URL
-  const API_URL = "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec";
-  const PRODUCT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&single=true&output=csv";
-  
-  let products = [];
-  let state = { step: 0, customer: null, cart: [], notes: "" };
+    const API_URL = "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec";
+    let products = [];
+    let state = { step: 0, customer: null, cart: [], notes: "" };
 
-  async function init() {
-    try {
-      const res = await fetch(`${PRODUCT_CSV_URL}&t=${Date.now()}`);
-      const text = await res.text();
-      const rows = text.split("\n").slice(1);
-      products = rows.map(r => {
-        const c = r.split(",");
-        return { name: c[0].trim(), price: parseFloat(c[1]) || 0 };
-      }).filter(p => p.name);
-      render();
-    } catch(e) { console.error(e); }
-  }
-
-  function checkIsRestaurant(name) {
-    if (!name) return false;
-    const keywords = ["restaurant", "pub", "grill", "cafe", "bistro", "tavern", "kitchen", "inn", "bar"];
-    return keywords.some(word => name.toLowerCase().includes(word));
-  }
-
-  function render() {
-    const app = document.getElementById("app");
-    const bar = document.getElementById("live-bar");
-    app.innerHTML = ""; bar.style.display = "none";
-
-    if (state.step === 0) {
-      app.innerHTML = `<div class="card">
-        <h2 style="font-size:1.1em; border-bottom:2px solid #007bff; padding-bottom:8px;">Wholesale Purchase & Distribution Agreement</h2>
-        <div style="font-size:0.75em; max-height: 350px; overflow-y: auto; border: 1px solid #eee; padding: 15px; margin: 15px 0; background: #fafafa; line-height: 1.7; color: #444;">
-            <p><strong>1. SCOPE:</strong> This Agreement governs the distribution of malt beverages by Suburban Brewing Co. ("Seller") to the Retail Licensee ("Purchaser").</p>
-            <p><strong>2. COMPLIANCE:</strong> Purchaser warrants they hold a valid PA Liquor License and will comply with all PLCB regulations. Seller is required to collect appropriate taxes based on entity status.</p>
-            <p><strong>3. PRICING:</strong> Prices are subject to market change. A 6% Sales Tax applies to restaurant entities unless a Tax Exempt certificate is provided.</p>
-            <p><strong>4. DELIVERY:</strong> Risk of loss passes at delivery. Inspection must occur upon arrival; breakage claims must be filed immediately.</p>
-            <p><strong>5. COOPERAGE:</strong> Kegs remain Seller property. A $30 deposit per unit applies. Purchaser is liable for replacement cost ($120) of lost/damaged units.</p>
-            <p><strong>6. PAYMENT:</strong> Due Net-on-Delivery. Fintech accounts draft automatically; others require business checks at drop-off. Defaults may lead to "No-Service" status.</p>
-            <p><strong>7. QUALITY:</strong> Product must be kept at 38°F. Seller is not liable for spoilage due to improper storage or maintenance.</p>
-            <p><strong>8. LIABILITY:</strong> Seller's liability is limited to the purchase price of the specific goods in question.</p>
-        </div>
-        <label style="display:flex; align-items:center; gap:10px; margin-bottom:20px; font-size:0.9em;">
-            <input type="checkbox" id="agree-cb" onchange="document.getElementById('proceed-btn').disabled = !this.checked"> 
-            <strong>I acknowledge I am an authorized agent and agree to the terms.</strong>
-        </label>
-        <button id="proceed-btn" class="primary" disabled onclick="state.step=1;render()">Agree & Proceed</button>
-      </div>`;
+    async function init() {
+        const csv = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&output=csv";
+        const res = await fetch(csv);
+        const text = await res.text();
+        products = text.split("\n").slice(1).map(r => {
+            const c = r.split(",");
+            return { name: c[0], price: parseFloat(c[1]) };
+        });
+        render();
     }
-    else if (state.step === 1) {
-      app.innerHTML = `<div class="card">
-        <h2 style="font-size:1em;">Account Selection</h2>
-        <input type="text" id="cust-input" placeholder="Search for account (starts in Column B)..." style="width:100%; padding:10px; border-radius:6px; border:2px solid #ddd; box-sizing:border-box;">
-        <div id="results" class="dropdown"></div>
-      </div>`;
-      document.getElementById("cust-input").oninput = (e) => doSearch(e.target.value);
-    } 
-    else if (state.step === 2) {
-      bar.style.display = "flex";
-      app.innerHTML = `<div class="card">
-        <h3 style="margin:0 0 12px 0; color:#007bff;">${state.customer.name}</h3>
-        <div class="product-grid">${products.map((p, i) => `
-          <div class="product-card">
-            <span style="font-weight:700; display:block; height:30px; font-size:0.8em;">${p.name}</span>
-            <span style="color:#007bff; font-weight:800; display:block; margin:5px 0;">$${p.price.toFixed(2)}</span>
-            <input type="number" class="qty-input" min="0" value="${getQty(p.name) || ''}" oninput="updateCart(${i}, this.value)">
-          </div>`).join("")}
-        </div>
-      </div>`;
-      updateLiveDisplay();
-    }
-    else if (state.step === 3) {
-      const items = state.cart.filter(i => i.qty > 0);
-      const sub = items.reduce((s, i) => s + (i.price * i.qty), 0);
-      const taxRate = checkIsRestaurant(state.customer.name) ? 0.06 : 0;
-      const tax = sub * taxRate;
-      
-      app.innerHTML = `<div class="card" id="receipt-printable">
-        <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
-          <div style="font-size:0.8em;">
-            <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" style="height:40px;"><br>
-            <strong>Suburban Brewing Co.</strong>
-          </div>
-          <div style="text-align:right; font-size:0.85em;">DATE: ${new Date().toLocaleDateString()}</div>
-        </div>
-        <div style="margin-bottom:15px; border-top:2px solid #007bff; padding-top:10px;">
-          <div style="font-weight:900; font-size:1.1em;">${state.customer.name}</div>
-          <div>${state.customer.address}</div>
-          <div>${state.customer.city}, ${state.customer.state} ${state.customer.zip}</div>
-        </div>
-        <table class="order-table">
-          <thead><tr><th>Item</th><th class="text-right">Price</th><th class="text-right">Qty</th><th class="text-right">Total</th></tr></thead>
-          <tbody>${items.map(item => `<tr><td>${item.name}</td><td class="text-right">$${item.price.toFixed(2)}</td><td class="text-right">${item.qty}</td><td class="text-right">$${(item.price*item.qty).toFixed(2)}</td></tr>`).join("")}</tbody>
-        </table>
-        <div class="summary-row grand-total"><div class="summary-label">Total Due:</div><div class="summary-val">$${(sub + tax).toFixed(2)}</div></div>
-        <button class="success" style="margin-top:20px;" onclick="submitOrder()">Submit Final Order</button>
-      </div>`;
-    }
-  }
 
-  async function doSearch(val) {
-    const box = document.getElementById("results");
-    if (val.length < 2) { box.style.display="none"; return; }
-    const res = await fetch(`${API_URL}?q=${encodeURIComponent(val)}`);
-    const data = await res.json();
-    box.style.display = "block";
-    box.innerHTML = data.results.map(c => `<div class="dropdown-item" onmousedown='setCustomer(${JSON.stringify(c)})'>${c.name}</div>`).join("");
-  }
+    function render() {
+        const app = document.getElementById("app");
+        if (state.step === 0) {
+            app.innerHTML = `<div class="card">
+                <h3>Wholesale Terms & Conditions</h3>
+                <div class="legal-box">
+                    <p><strong>1. PROVISIONS:</strong> This agreement is between Suburban Brewing Co. and the Licensee. All malt beverages are unpasteurized and must be refrigerated at 38°F.</p>
+                    <p><strong>2. LICENSING:</strong> Purchaser warrants they hold a valid PA Liquor License. Any changes in licensure must be reported immediately.</p>
+                    <p><strong>3. PAYMENTS:</strong> Payment is Net-on-Delivery. Fintech accounts draft automatically. Non-Fintech accounts must pay via business check at time of delivery.</p>
+                    <p><strong>4. COOPERAGE:</strong> Kegs are property of SBC. $30 deposit per unit. Loss of keg results in $120 replacement fee.</p>
+                    <p><strong>5. TAXES:</strong> 6% Sales tax applies to all retail/restaurant sales unless exempt certificate is on file.</p>
+                    <p><strong>6. DELIVERY:</strong> Minimum delivery requirements may apply based on zone.</p>
+                </div>
+                <label><input type="checkbox" id="agree"> I agree to the Wholesale Terms</label>
+                <button class="btn btn-primary" onclick="if(document.getElementById('agree').checked){state.step=1;render()}">Continue</button>
+            </div>`;
+        } else if (state.step === 1) {
+            app.innerHTML = `<div class="card" style="position:relative;">
+                <h3>Search Account</h3>
+                <input type="text" id="search" placeholder="Enter Business Name..." style="width:100%; padding:10px; box-sizing:border-box;">
+                <div id="results" class="dropdown"></div>
+            </div>`;
+            document.getElementById("search").oninput = (e) => doSearch(e.target.value);
+        } else if (state.step === 2) {
+            app.innerHTML = `<div class="card">
+                <h3>Select Products for ${state.customer.name}</h3>
+                <div class="product-grid">${products.map((p, i) => `
+                    <div class="product-card">
+                        <strong>${p.name}</strong><br>$${p.price.toFixed(2)}<br>
+                        <input type="number" class="qty-input" min="0" onchange="updateCart('${p.name}', ${p.price}, this.value)">
+                    </div>
+                `).join("")}</div>
+                <button class="btn btn-primary" onclick="state.step=3;render()">Review Order</button>
+            </div>`;
+        } else if (state.step === 3) {
+            const total = state.cart.reduce((s, i) => s + (i.price * i.qty), 0);
+            app.innerHTML = `<div class="card">
+                <div style="float:right">${new Date().toLocaleDateString()}</div>
+                <strong>Suburban Brewing Co.</strong><br>
+                3041 Horseshoe Pike, Honey Brook, PA<br><br>
+                <strong>SHIP TO:</strong><br>
+                ${state.customer.name}<br>
+                ${state.customer.address}<br>
+                ${state.customer.city}, ${state.customer.state} ${state.customer.zip}<br><br>
+                <hr>
+                <table style="width:100%">${state.cart.map(i => `<tr><td>${i.name}</td><td>x${i.qty}</td><td style="text-align:right">$${(i.price*i.qty).toFixed(2)}</td></tr>`).join("")}</table>
+                <h3 style="text-align:right">Total: $${total.toFixed(2)}</h3>
+                <textarea id="notes" placeholder="Delivery notes..." style="width:100%; height:60px;"></textarea>
+                <button class="btn btn-success" onclick="submitOrder()">Submit Final Order</button>
+            </div>`;
+        }
+    }
 
-  function setCustomer(c) { state.customer = c; state.step = 2; render(); }
-  function updateCart(idx, qty) {
-    const p = products[idx], q = parseInt(qty) || 0;
-    let item = state.cart.find(i => i.name === p.name);
-    if (item) item.qty = q; else state.cart.push({...p, qty: q});
-    updateLiveDisplay();
-  }
-  function updateLiveDisplay() {
-    const sub = state.cart.reduce((s, i) => s + (i.price * i.qty), 0);
-    document.getElementById("live-total").innerText = "$" + sub.toFixed(2);
-  }
-  function getQty(name) { let i = state.cart.find(c => c.name === name); return i ? i.qty : 0; }
-  async function submitOrder() {
-    const payload = { customer: state.customer, items: state.cart.filter(i => i.qty > 0) };
-    await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
-    alert("Order Submitted!"); location.reload();
-  }
-  init();
+    async function doSearch(val) {
+        if (val.length < 2) return;
+        const res = await fetch(`${API_URL}?q=${encodeURIComponent(val)}`);
+        const data = await res.json();
+        const box = document.getElementById("results");
+        box.style.display = "block";
+        box.innerHTML = data.results.map(c => `<div class="dropdown-item" onclick='selectCust(${JSON.stringify(c)})'>${c.name}</div>`).join("");
+    }
+
+    window.selectCust = (c) => { state.customer = c; state.step = 2; render(); };
+    window.updateCart = (n, p, q) => {
+        const idx = state.cart.findIndex(i => i.name === n);
+        if (idx > -1) state.cart[idx].qty = parseInt(q);
+        else state.cart.push({ name: n, price: p, qty: parseInt(q) });
+    };
+
+    async function submitOrder() {
+        state.notes = document.getElementById("notes").value;
+        await fetch(API_URL, { method: "POST", body: JSON.stringify(state) });
+        alert("Order Received!");
+        location.reload();
+    }
+
+    init();
 </script>
 </body>
 </html>
