@@ -7,13 +7,15 @@ const PRODUCT_CSV_URL =
 
 /**************** STATE ****************/
 let products = [];
+let autocompleteResults = [];
+
 let state = {
   step: 1,
   customer: null,
   cart: []
 };
 
-/**************** CSV PARSER ****************/
+/**************** CSV ****************/
 function parseCSV(text) {
   const lines = text.trim().split("\n");
   const headers = lines.shift().split(",").map(h => h.trim());
@@ -31,9 +33,7 @@ async function loadProducts() {
   const res = await fetch(PRODUCT_CSV_URL);
   const text = await res.text();
 
-  const raw = parseCSV(text);
-
-  products = raw.map(p => ({
+  products = parseCSV(text).map(p => ({
     name: p["Product Name"],
     price: Number(p["Price"]),
     stock: Number(p["Qty In Stock"]),
@@ -43,7 +43,7 @@ async function loadProducts() {
   render();
 }
 
-/**************** CUSTOMER SEARCH (LOCKED) ****************/
+/**************** CUSTOMER SEARCH ****************/
 async function searchCustomers(q) {
   if (q.length < 2) return [];
   const r = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
@@ -51,24 +51,56 @@ async function searchCustomers(q) {
   return d.results || [];
 }
 
+/**************** AUTOCOMPLETE ****************/
+async function autocomplete(val) {
+  const box = document.getElementById("autocomplete-results");
+  box.innerHTML = "";
+
+  autocompleteResults = await searchCustomers(val);
+
+  autocompleteResults.forEach((c, i) => {
+    const div = document.createElement("div");
+    div.className = "autocomplete-item";
+    div.textContent = c.name;
+    div.dataset.index = i;
+
+    div.addEventListener("click", () => {
+      selectCustomer(i);
+    });
+
+    box.appendChild(div);
+  });
+}
+
+function selectCustomer(index) {
+  state.customer = autocompleteResults[index];
+  autocompleteResults = [];
+  render();
+}
+
 /**************** RENDER ****************/
 function render() {
   const el = document.getElementById("form-container");
   el.innerHTML = "";
 
-  /* STEP 1 — CUSTOMER */
+  /* STEP 1 */
   if (state.step === 1) {
     el.innerHTML = `
       <div class="card">
         <h2>Select Customer</h2>
         <div class="autocomplete-wrapper">
-          <input id="customer-input" placeholder="Search customer..." oninput="autocomplete(this.value)">
+          <input
+            id="customer-input"
+            placeholder="Search customer..."
+            oninput="autocomplete(this.value)"
+          >
           <div id="autocomplete-results"></div>
         </div>
       </div>`;
+    return;
   }
 
-  /* STEP 2 — PRODUCTS */
+  /* STEP 2 */
   if (state.step === 2) {
     el.innerHTML = `
       <div class="card">
@@ -88,7 +120,6 @@ function render() {
             min="0"
             max="${p.stock}"
             id="q-${i}"
-            placeholder="Qty"
             oninput="enforceStock(${i})"
           >
         </div>`;
@@ -98,9 +129,10 @@ function render() {
         </div>
         <button class="primary" onclick="review()">Review Order</button>
       </div>`;
+    return;
   }
 
-  /* STEP 3 — REVIEW */
+  /* STEP 3 */
   if (state.step === 3) {
     let subtotal = 0, cases = 0, keg = 0;
 
@@ -137,13 +169,12 @@ function render() {
         </tr>`;
     });
 
-    const discount = cases >= 10 ? subtotal * 0.10 : 0;
+    const discount = cases >= 10 ? subtotal * 0.1 : 0;
     const tax = state.customer.businessType === "Restaurant" ? subtotal * 0.06 : 0;
     const total = subtotal - discount + tax + keg;
 
     el.innerHTML += `
         </table>
-
         <p>Subtotal: $${subtotal.toFixed(2)}</p>
         <p>Discount: -$${discount.toFixed(2)}</p>
         <p>Tax: $${tax.toFixed(2)}</p>
@@ -156,24 +187,7 @@ function render() {
   }
 }
 
-/**************** ACTIONS ****************/
-async function autocomplete(val) {
-  const results = await searchCustomers(val);
-  const box = document.getElementById("autocomplete-results");
-
-  box.innerHTML = results.map(c =>
-    `<div class="autocomplete-item" onclick='selectCustomer(${JSON.stringify(c)})'>
-      ${c.name}
-    </div>`
-  ).join("");
-}
-
-function selectCustomer(c) {
-  state.customer = c;
-  state.step = 2;
-  render();
-}
-
+/**************** HELPERS ****************/
 function enforceStock(i) {
   const input = document.getElementById(`q-${i}`);
   if (Number(input.value) > products[i].stock) {
