@@ -39,7 +39,7 @@ async function loadProducts() {
   render();
 }
 
-/**************** AUTOCOMPLETE (SAFE) ****************/
+/**************** AUTOCOMPLETE ****************/
 let searchTimer = null;
 
 function handleCustomerInput(val) {
@@ -54,7 +54,7 @@ function handleCustomerInput(val) {
     const data = await res.json();
     autocompleteResults = data.results || [];
     drawAutocomplete();
-  }, 300);
+  }, 250);
 }
 
 function drawAutocomplete() {
@@ -70,11 +70,9 @@ function drawAutocomplete() {
   });
 }
 
-/* CLICK HANDLER — EVENT DELEGATION (SAFARI SAFE) */
 document.addEventListener("click", function (e) {
   if (e.target.classList.contains("autocomplete-item")) {
-    const idx = e.target.dataset.index;
-    state.customer = autocompleteResults[idx];
+    state.customer = autocompleteResults[e.target.dataset.index];
     state.step = 2;
     render();
   }
@@ -90,23 +88,25 @@ function render() {
     el.innerHTML = `
       <div class="card">
         <h2>Select Customer</h2>
-        <input
-          class="customer-search"
+        <input class="customer-search"
           placeholder="Search customer..."
-          oninput="handleCustomerInput(this.value)"
-        >
+          oninput="handleCustomerInput(this.value)">
         <div id="results" class="autocomplete-results"></div>
       </div>
     `;
   }
 
-  /* STEP 2 — GRID (UNTOUCHED) */
+  /* STEP 2 */
   if (state.step === 2) {
     el.innerHTML = `
       <div class="card">
         <h2>Select Products</h2>
         <div class="product-grid" id="product-grid"></div>
-        <button onclick="review()">Review Order</button>
+
+        <div class="button-row">
+          <button class="secondary" onclick="state.step=1;render()">Back</button>
+          <button class="primary" onclick="review()">Review Order</button>
+        </div>
       </div>
     `;
 
@@ -115,30 +115,38 @@ function render() {
     products.forEach((p, i) => {
       const card = document.createElement("div");
       card.className = "product-card";
-
       card.innerHTML = `
         <strong>${p.name}</strong><br>
         $${p.price.toFixed(2)}
         ${p.inventory < 10 ? `<div class="low-stock">Low Stock</div>` : ""}
         <input type="number" min="0" id="q-${i}" placeholder="Qty">
       `;
-
       grid.appendChild(card);
     });
   }
 
-  /* STEP 3 */
+  /* STEP 3 — REVIEW */
   if (state.step === 3) {
     let subtotal = 0, keg = 0;
 
     el.innerHTML = `
       <div class="card">
-        <h2>Review Order</h2>
-        <p><strong>${state.customer.name}</strong><br>
-        ${state.customer.address}, ${state.customer.city}, ${state.customer.state} ${state.customer.zip}</p>
+        <div class="review-header">
+          <div>
+            <strong>${state.customer.name}</strong><br>
+            <div class="review-address">
+              ${state.customer.address}<br>
+              ${state.customer.city}, ${state.customer.state} ${state.customer.zip}
+            </div>
+          </div>
+        </div>
 
         <table class="review-table">
-          <tr><th>Product</th><th>Qty</th><th>Total</th></tr>
+          <tr>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Line Total</th>
+          </tr>
     `;
 
     state.cart.forEach(i => {
@@ -155,17 +163,23 @@ function render() {
       `;
     });
 
-    const tax = state.customer.businessType === "Restaurant" ? subtotal * 0.06 : 0;
+    const tax =
+      state.customer.businessType === "Restaurant" ? subtotal * 0.06 : 0;
 
     el.innerHTML += `
         </table>
-        <p>Subtotal: $${subtotal.toFixed(2)}</p>
-        <p>Tax: $${tax.toFixed(2)}</p>
-        <p>Keg Deposit: $${keg.toFixed(2)}</p>
-        <h3>Total: $${(subtotal + tax + keg).toFixed(2)}</h3>
 
-        <button onclick="state.step=2;render()">Back</button>
-        <button onclick="submitOrder()">Submit</button>
+        <div class="review-totals">
+          <div><span>Subtotal</span><span>$${subtotal.toFixed(2)}</span></div>
+          <div><span>Tax</span><span>$${tax.toFixed(2)}</span></div>
+          <div><span>Keg Deposit</span><span>$${keg.toFixed(2)}</span></div>
+          <div class="grand"><span>Total</span><span>$${(subtotal + tax + keg).toFixed(2)}</span></div>
+        </div>
+
+        <div class="button-row">
+          <button class="secondary" onclick="state.step=2;render()">Back</button>
+          <button class="primary" onclick="submitOrder()">Submit</button>
+        </div>
       </div>
     `;
   }
