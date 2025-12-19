@@ -1,201 +1,258 @@
-/* ===============================
-   GLOBAL RESET
-================================ */
-* {
-  box-sizing: border-box;
+/**************** CONFIG ****************/
+const API_URL =
+  "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec";
+
+const PRODUCT_CSV_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&single=true&output=csv";
+
+/**************** STATE ****************/
+let products = [];
+let state = {
+  step: 1,
+  customer: null,
+  cart: [],
+  taxRate: 0
+};
+
+/**************** CSV ****************/
+function parseCSV(text) {
+  const lines = text.trim().split("\n");
+  const headers = lines.shift().split(",");
+  return lines.map(line => {
+    const values = line.split(",");
+    let obj = {};
+    headers.forEach((h, i) => {
+      obj[h.trim()] = (values[i] || "").trim();
+    });
+    return obj;
+  });
 }
 
-body {
-  margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-  background: #f4f6f8;
-  color: #222;
+/**************** LOAD PRODUCTS ****************/
+async function loadProducts() {
+  const text = await (await fetch(PRODUCT_CSV_URL)).text();
+  products = parseCSV(text).map(p => ({
+    name: p["Product Name"],
+    price: Number(p["Price"])
+  }));
+  render();
 }
 
-/* ===============================
-   HEADER
-================================ */
-header {
-  width: 100%;
-  background: #111;
-  color: #fff;
-  padding: 12px 20px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
+/**************** CUSTOMER SEARCH ****************/
+async function searchCustomers(query) {
+  if (query.length < 2) return [];
+  const res = await fetch(`${API_URL}?q=${encodeURIComponent(query)}`);
+  const data = await res.json();
+  return data.results || [];
 }
 
-header img {
-  height: 42px;
-}
+/**************** RENDER ****************/
+function render() {
+  const el = document.getElementById("form-container");
+  el.innerHTML = "";
 
-header .header-info {
-  font-size: 14px;
-  line-height: 1.3;
-}
-
-/* ===============================
-   CONTAINERS
-================================ */
-#form-container {
-  width: 100%;
-  padding: 20px;
-}
-
-.card {
-  background: #fff;
-  border-radius: 8px;
-  padding: 20px;
-  max-width: 1400px;     /* 🔥 DESKTOP WIDTH */
-  margin: 0 auto 30px;
-  box-shadow: 0 2px 10px rgba(0,0,0,.08);
-}
-
-/* ===============================
-   AUTOCOMPLETE
-================================ */
-.autocomplete-wrapper {
-  position: relative;
-  width: 100%;
-}
-
-.search-input {
-  width: 100%;
-  padding: 14px;
-  font-size: 18px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-.results {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: #fff;
-  border: 1px solid #ccc;
-  border-top: none;
-  max-height: 280px;
-  overflow-y: auto;
-  z-index: 50;
-}
-
-.result-item {
-  padding: 12px;
-  cursor: pointer;
-}
-
-.result-item:hover {
-  background: #f0f0f0;
-}
-
-/* ===============================
-   PRODUCT GRID (DESKTOP FIRST)
-================================ */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 🔥 DESKTOP GRID */
-  gap: 18px;
-  margin-top: 20px;
-}
-
-.product-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 16px;
-  background: #fafafa;
-}
-
-.product-card strong {
-  display: block;
-  margin-bottom: 6px;
-}
-
-.product-card input {
-  margin-top: 10px;
-  width: 100%;
-  padding: 8px;
-  font-size: 16px;
-}
-
-/* ===============================
-   REVIEW TABLE (DESKTOP)
-================================ */
-.review-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-.review-table th,
-.review-table td {
-  border: 1px solid #ccc;
-  padding: 10px;
-  text-align: left;
-}
-
-.review-table th {
-  background: #eee;
-}
-
-/* ===============================
-   BUTTONS
-================================ */
-button {
-  background: #0b5ed7;
-  color: #fff;
-  border: none;
-  padding: 14px 22px;
-  border-radius: 6px;
-  font-size: 16px;
-  cursor: pointer;
-  margin-top: 20px;
-}
-
-button:hover {
-  background: #094bb5;
-}
-
-/* ===============================
-   MOBILE OVERRIDES ONLY
-================================ */
-@media (max-width: 900px) {
-
-  header {
-    flex-direction: column;
-    align-items: flex-start;
+  /******** STEP 1 — CUSTOMER ********/
+  if (state.step === 1) {
+    el.innerHTML = `
+      <div class="card">
+        <h2>Select Customer</h2>
+        <input
+          id="customer-search"
+          placeholder="Start typing store name..."
+          oninput="handleAutocomplete(this.value)"
+        >
+        <div id="autocomplete-results"></div>
+      </div>
+    `;
   }
 
-  .grid {
-    grid-template-columns: repeat(2, 1fr); /* tablets */
+  /******** STEP 2 — PRODUCTS ********/
+  if (state.step === 2) {
+    el.innerHTML = `
+      <div class="card">
+        <h2>Select Products</h2>
+        <div class="grid">
+          ${products.map((p, i) => `
+            <div class="product-card">
+              <div class="product-name">${p.name}</div>
+              <div class="product-price">$${p.price.toFixed(2)}</div>
+              <input type="number" min="0" id="q-${i}" placeholder="Qty">
+            </div>
+          `).join("")}
+        </div>
+        <button onclick="reviewOrder()">Review Order</button>
+      </div>
+    `;
+  }
+
+  /******** STEP 3 — REVIEW ********/
+  if (state.step === 3) {
+    let subtotal = 0;
+    let kegDeposit = 0;
+    let caseCount = 0;
+
+    el.innerHTML = `
+      <div class="card wide">
+        <h2>Review Order</h2>
+
+        <div class="customer-block">
+          <strong>${state.customer.name}</strong><br>
+          ${state.customer.address}<br>
+          ${state.customer.city}, ${state.customer.state} ${state.customer.zip}
+        </div>
+
+        <hr>
+
+        <table class="review-table">
+          <tr>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Total</th>
+          </tr>
+    `;
+
+    state.cart.forEach((item, idx) => {
+      const line = item.qty * item.price;
+      subtotal += line;
+
+      if (/keg/i.test(item.name)) kegDeposit += item.qty * 30;
+      if (/case/i.test(item.name)) caseCount += item.qty;
+
+      el.innerHTML += `
+        <tr>
+          <td>${item.name}</td>
+          <td>
+            <input
+              type="number"
+              value="${item.qty}"
+              onchange="updateQty(${idx}, this.value)"
+            >
+          </td>
+          <td>$${item.price.toFixed(2)}</td>
+          <td>$${line.toFixed(2)}</td>
+        </tr>
+      `;
+    });
+
+    const discount = caseCount >= 10 ? subtotal * 0.10 : 0;
+    const tax = state.customer.businessType === "Restaurant"
+      ? subtotal * 0.06
+      : 0;
+
+    const total = subtotal - discount + tax + kegDeposit;
+
+    el.innerHTML += `
+        </table>
+
+        <div class="totals">
+          <div>Subtotal: $${subtotal.toFixed(2)}</div>
+          <div>Discount: -$${discount.toFixed(2)}</div>
+          <div>Tax: $${tax.toFixed(2)}</div>
+          <div>Keg Deposit: $${kegDeposit.toFixed(2)}</div>
+          <h3>Total: $${total.toFixed(2)}</h3>
+        </div>
+
+        <div class="actions">
+          <button onclick="goBack()">Back</button>
+          <button onclick="submitOrder()">Submit Order</button>
+        </div>
+      </div>
+    `;
+  }
+
+  /******** STEP 4 — DONE ********/
+  if (state.step === 4) {
+    el.innerHTML = `
+      <div class="card">
+        <h2>Order Submitted</h2>
+        <p>Thank you! Your order has been submitted.</p>
+      </div>
+    `;
   }
 }
 
-@media (max-width: 500px) {
+/**************** ACTIONS ****************/
+async function handleAutocomplete(value) {
+  const results = await searchCustomers(value);
+  const box = document.getElementById("autocomplete-results");
 
-  .grid {
-    grid-template-columns: 1fr; /* phones */
-  }
+  box.innerHTML = results.map((c, i) => `
+    <div class="result" onclick="selectCustomer(${i})">
+      ${c.name}
+    </div>
+  `).join("");
 
-  .review-table,
-  .review-table thead,
-  .review-table tbody,
-  .review-table th,
-  .review-table td,
-  .review-table tr {
-    display: block;
-  }
-
-  .review-table tr {
-    margin-bottom: 15px;
-  }
-
-  .review-table td {
-    border: none;
-    padding: 6px 0;
-  }
-
-  .review-table th {
-    display: none;
-  }
+  box.dataset.results = JSON.stringify(results);
 }
+
+function selectCustomer(index) {
+  const box = document.getElementById("autocomplete-results");
+  const results = JSON.parse(box.dataset.results);
+  state.customer = results[index];
+  state.step = 2;
+  render();
+}
+
+function reviewOrder() {
+  state.cart = products
+    .map((p, i) => ({
+      ...p,
+      qty: Number(document.getElementById(`q-${i}`).value || 0)
+    }))
+    .filter(i => i.qty > 0);
+
+  if (!state.cart.length) {
+    alert("Please select at least one product.");
+    return;
+  }
+
+  state.step = 3;
+  render();
+}
+
+function updateQty(i, val) {
+  state.cart[i].qty = Number(val);
+  render();
+}
+
+function goBack() {
+  state.step = 2;
+  render();
+}
+
+function submitOrder() {
+  const printChoice = confirm(
+    "Click OK to PRINT your order.\nClick Cancel to EMAIL it."
+  );
+
+  if (printChoice) {
+    window.print();
+    sendOrder("");
+    return;
+  }
+
+  let email = state.customer.email || prompt("Enter your email:");
+  if (!email) return;
+
+  sendOrder(email);
+}
+
+async function sendOrder(email) {
+  await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      customer: state.customer,
+      items: state.cart,
+      email: email
+    })
+  });
+
+  state.step = 4;
+  render();
+}
+
+/**************** INIT ****************/
+loadProducts();
+render();
