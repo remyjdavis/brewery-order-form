@@ -8,7 +8,6 @@
         :root { --sbc-blue: #007bff; --sbc-dark: #1a1a1a; --bg: #f4f7f9; }
         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: var(--bg); margin: 0; padding-bottom: 120px; color: #333; }
         
-        /* PROFESSIONAL LEFT-ALIGNED HEADER */
         .site-header { background: #fff; padding: 30px 5%; border-bottom: 5px solid var(--sbc-dark); display: flex; align-items: center; gap: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .site-header img { height: 85px; }
         .header-text { text-align: left; }
@@ -18,10 +17,8 @@
         .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
         .card { background: white; padding: 40px; border-radius: 4px; border: 1px solid #e1e4e8; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         
-        /* AGREEMENT BOX */
         .legal-scroll { height: 350px; overflow-y: scroll; border: 1px solid #eee; padding: 25px; background: #fafafa; font-size: 0.9em; line-height: 1.7; margin: 20px 0; border-radius: 4px; }
         
-        /* LIVE BAR */
         .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--sbc-dark); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; z-index: 9999; border-top: 4px solid var(--sbc-blue); }
         .summary-flex { display: flex; gap: 30px; }
         .summary-item { text-align: left; }
@@ -41,6 +38,11 @@
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-top: 30px; }
         .product-card { border: 1px solid #eee; padding: 20px; text-align: center; }
         .qty-input { width: 60px; padding: 8px; text-align: center; font-weight: bold; border: 1px solid #ccc; }
+
+        /* REVIEW TABLE STYLES */
+        .review-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .review-table th { text-align: left; padding: 12px; border-bottom: 2px solid #333; font-size: 0.85em; text-transform: uppercase; color: #666; }
+        .review-table td { padding: 12px; border-bottom: 1px solid #eee; font-size: 1em; }
     </style>
 </head>
 <body>
@@ -91,22 +93,10 @@
                 if (i.name.toLowerCase().includes("keg")) dep += (i.qty * 30);
             }
         });
-        
         const disc = (totalQty >= 10) ? (sub * 0.10) : 0;
-        
-        // EXHAUSTIVE RESTAURANT KEYWORD LIST
-        const restaurantKeywords = [
-            "restaurant", "cafe", "grill", "pub", "kitchen", "bar", "tavern", 
-            "inn", "bistro", "diner", "steakhouse", "eatery", "pizzeria", 
-            "pizza", "deli", "brewpub", "lounge", "house", "brasserie", 
-            "cantina", "shack", "gastropub", "smokehouse", "bbq", "oyster",
-            "sushi", "trattoria", "noodle", "burger", "wing", "taproom"
-        ];
-        
+        const restaurantKeywords = ["restaurant", "cafe", "grill", "pub", "kitchen", "bar", "tavern", "inn", "bistro", "diner", "steakhouse", "eatery", "pizzeria", "pizza", "deli", "brewpub", "lounge", "house", "brasserie", "cantina", "shack", "gastropub", "smokehouse", "bbq", "oyster", "sushi", "trattoria", "noodle", "burger", "wing", "taproom"];
         const isRestaurant = state.customer && restaurantKeywords.some(kw => state.customer.name.toLowerCase().includes(kw));
-        
         const tax = isRestaurant ? ((sub - disc) * 0.06) : 0;
-        
         return { sub, disc, dep, tax, final: (sub - disc + dep + tax) };
     }
 
@@ -121,12 +111,12 @@
                 <div class="card">
                     <h2 style="margin-top:0; text-align:center;">Wholesale Terms of Sale</h2>
                     <div class="legal-scroll">
-                        <p><strong>1. QUALITY CONTROL:</strong> All Suburban Brewing Co. products are unpasteurized and must be maintained at a constant refrigeration temperature of 38°F. Suburban Brewing Co. is not liable for product spoilage due to temperature abuse at the retail level.</p>
-                        <p><strong>2. LICENSURE:</strong> Purchaser warrants that they hold a valid retail liquor license. Any change in licensure status must be reported to Suburban Brewing Co. immediately.</p>
-                        <p><strong>3. PAYMENTS:</strong> Payment is Net-on-Delivery. Fintech accounts are drafted automatically. Non-fintech accounts must provide a business check at the time of delivery.</p>
-                        <p><strong>4. COOPERAGE:</strong> All kegs remain the property of Suburban Brewing Co. A $30.00 deposit is required for each unit. Lost or damaged kegs will be billed at $120.00 per unit.</p>
+                        <p><strong>1. QUALITY CONTROL:</strong> All Suburban Brewing Co. products are unpasteurized and must be maintained at a constant refrigeration temperature of 38°F.</p>
+                        <p><strong>2. LICENSURE:</strong> Purchaser warrants that they hold a valid retail liquor license.</p>
+                        <p><strong>3. PAYMENTS:</strong> Payment is Net-on-Delivery. Fintech accounts are drafted automatically.</p>
+                        <p><strong>4. COOPERAGE:</strong> All kegs remain the property of Suburban Brewing Co. A $30.00 deposit is required for each unit.</p>
                         <p><strong>5. TAXATION & DISCOUNTS:</strong> A 6% PA Sales Tax is applied only to restaurant accounts. A 10% volume discount is applied to orders of 10 units or more.</p>
-                        <p><strong>6. ACCEPTANCE:</strong> By proceeding with this order, the purchaser agrees to all terms and conditions stated above.</p>
+                        <p><strong>6. ACCEPTANCE:</strong> By proceeding, the purchaser agrees to all terms and conditions stated above.</p>
                     </div>
                     <label style="display:block; margin-bottom:20px; cursor:pointer; text-align:center;">
                         <input type="checkbox" id="agree"> I agree to the Suburban Brewing Co. Wholesale Terms.
@@ -173,16 +163,39 @@
                             <div style="font-weight:bold; font-size:1.2em;">${new Date().toLocaleDateString()}</div>
                         </div>
                     </div>
-                    <hr style="margin:30px 0; border:0; border-top:2px solid #333;">
-                    <table style="width:100%; border-collapse:collapse;">
-                        ${items.map(i => `<tr style="border-bottom:1px solid #eee;"><td style="padding:12px 0;">${i.name}</td><td style="text-align:center;">x${i.qty}</td><td style="text-align:right;">$${(i.price*i.qty).toFixed(2)}</td></tr>`).join("")}
+                    
+                    <table class="review-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th style="text-align:center;">Qty</th>
+                                <th style="text-align:right;">Keg Dep.</th>
+                                <th style="text-align:right;">Price</th>
+                                <th style="text-align:right;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${items.map(i => {
+                                const kDep = i.name.toLowerCase().includes("keg") ? 30 : 0;
+                                const lineTotal = (i.price * i.qty) + (kDep * i.qty);
+                                return `
+                                    <tr>
+                                        <td>${i.name}</td>
+                                        <td style="text-align:center;">${i.qty}</td>
+                                        <td style="text-align:right;">$${(kDep * i.qty).toFixed(2)}</td>
+                                        <td style="text-align:right;">$${i.price.toFixed(2)}</td>
+                                        <td style="text-align:right;">$${lineTotal.toFixed(2)}</td>
+                                    </tr>`;
+                            }).join("")}
+                        </tbody>
                     </table>
+
                     <div style="text-align:right; margin-top:30px; font-size:1.1em; line-height:1.6;">
                         Subtotal: $${t.sub.toFixed(2)}<br>
-                        ${t.disc > 0 ? `<span style="color:#d9534f;">Discount: -$${t.disc.toFixed(2)}</span><br>` : ''}
-                        Keg Deposits ($30/ea): $${t.dep.toFixed(2)}<br>
+                        ${t.disc > 0 ? `<span style="color:#d9534f;">10% Vol. Discount: -$${t.disc.toFixed(2)}</span><br>` : ''}
+                        Total Keg Deposits: $${t.dep.toFixed(2)}<br>
                         PA Sales Tax (6%): $${t.tax.toFixed(2)}<br>
-                        <strong style="font-size:1.8em; display:block; margin-top:10px;">Total Due: $${t.final.toFixed(2)}</strong>
+                        <strong style="font-size:1.8em; display:block; margin-top:10px;">Order Total: $${t.final.toFixed(2)}</strong>
                     </div>
                     <button class="btn btn-success" onclick="submitOrder()">Submit Final Order</button>
                 </div>`;
