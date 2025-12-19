@@ -12,7 +12,6 @@
     .product-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
     .product-row input { width: 65px; padding: 8px; border: 2px solid #007bff; border-radius: 6px; text-align: center; font-weight: bold; }
     
-    /* DROPDOWN FIXES */
     .search-container { position: relative; }
     .dropdown { position: absolute; top: 100%; left: 0; right: 0; border: 1px solid #ddd; border-radius: 0 0 8px 8px; background: white; max-height: 250px; overflow-y: auto; z-index: 5000; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
     .dropdown-item { padding: 14px; border-bottom: 1px solid #eee; cursor: pointer; text-align: left; font-size: 1.1em; }
@@ -26,6 +25,9 @@
     .success { background: #28a745; color: white; }
     .secondary { background: #6c757d; color: white; margin-top: 10px; }
     input[type="text"] { width:100%; padding:14px; border:2px solid #ddd; border-radius:8px; box-sizing:border-box; font-size: 16px; }
+    
+    /* Agreement Text Styling */
+    .agreement-box { height:220px; overflow-y:scroll; border:1px solid #eee; padding:15px; font-size:0.85em; line-height:1.4; margin-bottom:15px; background:#fafafa; border-radius:6px; color:#444; text-align: left; }
   </style>
 </head>
 <body>
@@ -90,17 +92,21 @@
     if (state.step === 0) {
       app.innerHTML = `
         <div class="card">
-          <h2>Wholesale Agreement</h2>
-          <div style="height:140px; overflow-y:scroll; border:1px solid #eee; padding:12px; font-size:0.9em; margin-bottom:15px; background:#fafafa; border-radius:6px;">
-            <p><strong>Authorization:</strong> I am an authorized buyer for this account.</p>
-            <p><strong>Kegs:</strong> Includes a $30.00 untaxed deposit per keg.</p>
-            <p><strong>Invoicing:</strong> A PDF invoice will be generated upon submission.</p>
+          <h2 style="margin-top:0;">Wholesale Agreement</h2>
+          <div class="agreement-box">
+            <p><strong>Suburban Brewing Company - Wholesale Terms and Conditions</strong></p>
+            <p>1. <strong>Agreement:</strong> By proceeding, the buyer confirms they are authorized to place orders on behalf of their organization.</p>
+            <p>2. <strong>Pricing:</strong> Wholesale pricing is strictly confidential. All prices are subject to change without prior notice.</p>
+            <p>3. <strong>Keg Deposits:</strong> A standard $30.00 deposit is required for each keg. This is an untaxed fee that will be added to the invoice and credited back upon return of the empty vessel.</p>
+            <p>4. <strong>Delivery & Acceptance:</strong> Goods must be inspected at the time of delivery. Any discrepancies or damage must be reported immediately to the sales representative.</p>
+            <p>5. <strong>Payment Terms:</strong> Payments are to be made via Check or Fintech as established in your customer profile. Late payments may result in a hold on future orders.</p>
+            <p>6. <strong>Compliance:</strong> The buyer agrees to maintain all necessary liquor licenses required by local and state laws to purchase and resell these products.</p>
           </div>
           <label style="display:flex; align-items:center; gap:10px; cursor:pointer; margin-bottom:20px;">
             <input type="checkbox" id="agree-check" style="width:20px; height:20px;" onchange="document.getElementById('agree-btn').disabled = !this.checked"> 
-            <strong>I agree to the terms</strong>
+            <strong>I agree to the terms and conditions</strong>
           </label>
-          <button id="agree-btn" class="primary" style="width:100%; padding:16px;" disabled onclick="state.step=1;render()">Begin Order</button>
+          <button id="agree-btn" class="primary" style="width:100%; padding:16px;" disabled onclick="state.step=1;render()">Proceed to Customer Search</button>
         </div>`;
     } 
     else if (state.step === 1) {
@@ -108,7 +114,7 @@
         <div class="card" style="overflow:visible;">
           <h2>Select Customer</h2>
           <div class="search-container">
-            <input type="text" id="cust-input" placeholder="Start typing company name..." autocomplete="off">
+            <input type="text" id="cust-input" placeholder="Search customer name..." autocomplete="off">
             <div id="results" class="dropdown"></div>
           </div>
         </div>`;
