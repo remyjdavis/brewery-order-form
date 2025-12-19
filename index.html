@@ -3,51 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>SBC Wholesale Portal</title>
+  <title>SBC Order Portal</title>
   <style>
-    body { font-family: -apple-system, system-ui, sans-serif; background: #f4f4f9; margin: 0; padding: 0; padding-bottom: 110px; }
-    .site-header { background: #1a1a1a; color: white; padding: 12px 5%; display: flex; align-items: center; gap: 20px; border-bottom: 3px solid #007bff; }
-    .site-header img { max-width: 65px; }
-    .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 92%; max-width: 800px; margin: 20px auto; }
-    .grid { display: grid; gap: 10px; grid-template-columns: 1fr; }
-    @media (min-width: 600px) { .grid { grid-template-columns: 1fr 1fr; } }
-    .product-card { border: 1px solid #eee; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
-    .product-card input { width: 60px; border: 2px solid #007bff; text-align: center; border-radius: 4px; padding: 5px; }
-    .live-total-bar { position: fixed; bottom: 0; width: 100%; background: #fff; border-top: 2px solid #007bff; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 10px rgba(0,0,0,0.1); }
-    .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:none; justify-content:center; align-items:center; z-index:100; }
-    .modal-content { background:white; padding:30px; border-radius:12px; text-align:center; width: 90%; max-width: 400px; }
-    button { padding: 12px 20px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; margin: 5px; }
+    body { font-family: sans-serif; background: #f4f4f9; padding-bottom: 100px; }
+    .site-header { background: #1a1a1a; color: white; padding: 15px; display: flex; align-items: center; gap: 20px; border-bottom: 3px solid #007bff; }
+    .card { background: white; padding: 20px; border-radius: 8px; max-width: 600px; margin: 20px auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .product-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
+    .product-row input { width: 50px; text-align: center; }
+    .live-bar { position: fixed; bottom: 0; width: 100%; background: white; border-top: 2px solid #007bff; padding: 15px; display: flex; justify-content: space-around; align-items: center; }
+    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; }
+    .modal-content { background: white; padding: 30px; border-radius: 12px; text-align: center; }
+    button { padding: 12px 24px; border-radius: 5px; border: none; font-weight: bold; cursor: pointer; }
     .primary { background: #007bff; color: white; }
     .success { background: #28a745; color: white; }
-    .secondary { background: #e4e6eb; color: #333; }
-    .dropdown { border: 1px solid #ddd; background: white; max-height: 200px; overflow-y: auto; }
-    .dropdown div { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
   </style>
 </head>
 <body>
 
 <header class="site-header">
-  <img src="logo.png" alt="SBC">
-  <div>
-    <h1 style="margin:0; font-size:1.2em;">Suburban Brewing Company</h1>
-    <p style="margin:0; font-size:0.8em; opacity:0.8;">Sales Rep: Remy Davis</p>
-  </div>
+  <img src="logo.png" style="height: 50px;">
+  <div><strong>Suburban Brewing Co</strong><br><small>Remy Davis</small></div>
 </header>
 
-<main id="app"></main>
+<div id="app"></div>
 
-<div id="live-bar" class="live-total-bar" style="display:none;">
-  <div><strong id="live-subtotal">$0.00</strong></div>
+<div id="live-bar" class="live-bar" style="display:none;">
+  <strong id="live-total">$0.00</strong>
   <button class="primary" onclick="state.step=3;render()">Review Order</button>
 </div>
 
-<div id="success-modal" class="modal-overlay">
+<div id="success-modal" class="modal">
   <div class="modal-content">
-    <h2 style="color:#28a745;">Order Finalized</h2>
-    <p>The PDF has been triggered for download/printing.</p>
-    <input type="email" id="client-email" placeholder="client@email.com" style="width:100%; padding:10px; margin-bottom:10px;">
-    <button class="success" onclick="handleEmail()">Email Copy to Client</button>
-    <button class="secondary" onclick="location.reload()">New Order</button>
+    <h2 style="color:#28a745;">Order Saved!</h2>
+    <p>PDF downloaded. Please drag it into <strong>OneDrive</strong>.</p>
+    <input type="email" id="c-email" placeholder="Email receipt to client?" style="width: 100%; padding: 10px; margin-bottom: 10px;">
+    <button class="success" onclick="handleEmail()">Email Client</button>
+    <button onclick="location.reload()">Start New Order</button>
   </div>
 </div>
 
@@ -61,11 +52,7 @@
   async function init() {
     const res = await fetch(`${PRODUCT_CSV_URL}&t=${Date.now()}`);
     const text = await res.text();
-    const rows = text.split("\n").slice(1);
-    products = rows.map(r => {
-      const cols = r.split(",");
-      return { name: cols[0], price: parseFloat(cols[1]) || 0 };
-    }).filter(p => p.name);
+    products = text.split("\n").slice(1).map(r => ({ name: r.split(",")[0], price: parseFloat(r.split(",")[1]) || 0 }));
     render();
   }
 
@@ -75,15 +62,14 @@
     app.innerHTML = ""; bar.style.display = "none";
 
     if (state.step === 0) {
-      app.innerHTML = `<div class="card"><h2>Agreement</h2><p>Standard Wholesale Terms apply...</p><button class="primary" onclick="state.step=1;render()">I Agree</button></div>`;
+      app.innerHTML = `<div class="card"><h2>Agreement</h2><button class="primary" onclick="state.step=1;render()">I Agree</button></div>`;
     } else if (state.step === 1) {
-      app.innerHTML = `<div class="card"><h2>Search Customer</h2><input type="text" id="search" placeholder="Type name..." oninput="doSearch(this.value)"><div id="results" class="dropdown"></div></div>`;
+      app.innerHTML = `<div class="card"><h2>Search Customer</h2><input type="text" oninput="doSearch(this.value)" placeholder="Company name..."><div id="results"></div></div>`;
     } else if (state.step === 2) {
       bar.style.display = "flex";
-      app.innerHTML = `<div class="card"><h2>Order: ${state.customer.name}</h2><div class="grid">${products.map((p, i) => `<div class="product-card"><span>${p.name}</span><input type="number" min="0" value="0" oninput="updateCart(${i}, this.value)"></div>`).join("")}</div></div>`;
+      app.innerHTML = `<div class="card"><h2>Items</h2>${products.map((p, i) => `<div class="product-row">${p.name} <input type="number" min="0" oninput="updateCart(${i}, this.value)"></div>`).join("")}</div>`;
     } else if (state.step === 3) {
-      const sub = state.cart.reduce((s, i) => s + (i.price * i.qty), 0);
-      app.innerHTML = `<div class="card"><h2>Review</h2><p>Total: $${sub.toFixed(2)}</p><button class="success" onclick="finish()">Confirm & Download PDF</button><button class="secondary" onclick="state.step=2;render()">Back</button></div>`;
+      app.innerHTML = `<div class="card"><h2>Review</h2><button class="success" onclick="finish()">Confirm & Download PDF</button></div>`;
     }
   }
 
@@ -91,30 +77,28 @@
     if (q.length < 2) return;
     const res = await fetch(`${API_URL}?q=${q}`);
     const data = await res.json();
-    document.getElementById("results").innerHTML = data.results.map(c => `<div onclick='selectCustomer(${JSON.stringify(c)})'>${c.name} (${c.paymentMethod})</div>`).join("");
+    document.getElementById("results").innerHTML = data.results.map(c => `<div style="padding:10px; border-bottom:1px solid #eee; cursor:pointer;" onclick='state.customer=${JSON.stringify(c)};state.step=2;render();'>${c.name}</div>`).join("");
   }
-
-  function selectCustomer(c) { state.customer = c; state.step = 2; render(); }
 
   function updateCart(idx, qty) {
     const p = products[idx];
-    const existing = state.cart.find(item => item.name === p.name);
-    if (existing) existing.qty = parseInt(qty);
-    else state.cart.push({ ...p, qty: parseInt(qty) });
-    document.getElementById("live-subtotal").innerText = "$" + state.cart.reduce((s, i) => s + (i.price * i.qty), 0).toFixed(2);
+    const item = state.cart.find(x => x.name === p.name);
+    if (item) item.qty = parseInt(qty); else state.cart.push({...p, qty: parseInt(qty)});
+    const total = state.cart.reduce((s, x) => s + (x.price * x.qty), 0);
+    document.getElementById("live-total").innerText = "$" + total.toFixed(2);
   }
 
   async function finish() {
-    const btn = document.querySelector(".success"); btn.innerText = "Processing...";
-    const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ customer: state.customer, items: state.cart.filter(i => i.qty > 0) }) });
+    document.querySelector(".success").innerText = "Generating...";
+    const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ customer: state.customer, items: state.cart.filter(x => x.qty > 0) }) });
     const data = await res.json();
     state.pdfUrl = data.pdfUrl;
     
-    // DOWNLOAD/PRINT TRIGGER
+    // DOWNLOAD TO LAPTOP
     const link = document.createElement('a');
     link.href = data.pdfUrl;
-    link.target = "_blank"; // This allows printing from new tab
-    link.download = "SBC_Order.pdf";
+    link.target = "_blank";
+    link.download = `SBC_Order.pdf`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -123,10 +107,10 @@
   }
 
   async function handleEmail() {
-    const email = document.getElementById("client-email").value;
-    if (!email) return alert("Enter email");
+    const email = document.getElementById("c-email").value;
+    if(!email) return alert("Missing email");
     await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "emailReceipt", email: email, pdfUrl: state.pdfUrl }) });
-    alert("Email Sent!");
+    alert("Email Sent");
   }
 
   init();
