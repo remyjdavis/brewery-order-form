@@ -17,7 +17,7 @@
     .header-text h1 { margin: 0; font-size: 1.4em; letter-spacing: 1px; text-transform: uppercase; }
     .header-text p { margin: 2px 0; font-size: 0.85em; opacity: 0.8; font-weight: 300; line-height: 1.4; }
 
-    /* CARDS & AGREEMENT */
+    /* CARDS */
     .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 92%; max-width: 1000px; margin: 30px auto; }
     .agreement-box { height:180px; overflow-y:scroll; border:1px solid #eee; padding:15px; font-size:0.9em; background:#fafafa; border-radius:8px; margin-bottom:15px; }
     
@@ -28,26 +28,24 @@
     .product-price { color: #007bff; font-weight: 600; margin-bottom: 10px; display: block; }
     .qty-input { width: 80%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; text-align: center; font-weight: bold; }
 
-    /* REVIEW PAGE SPECIFIC */
+    /* REVIEW PAGE */
     .review-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #eee; }
     .review-qty { background: #007bff; color: white; padding: 4px 10px; border-radius: 4px; font-weight: bold; margin-right: 10px; }
     .review-name { font-size: 1.1em; font-weight: 500; }
-    .review-price { font-weight: bold; font-size: 1.1em; }
-    .discount-line { color: #28a745; font-weight: bold; text-align: right; margin: 10px 0 5px 0; font-size: 1em; }
+    .discount-line { color: #28a745; font-weight: bold; text-align: right; margin: 15px 0 5px 0; font-size: 1.1em; }
     .total-line { font-size: 1.8em; font-weight: 800; color: #1a1a1a; text-align: right; margin: 0; }
 
     /* LIVE BAR */
     .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 3px solid #007bff; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); z-index: 1000; }
     .savings-badge { color: #28a745; font-weight: bold; font-size: 0.8em; display: block; text-transform: uppercase; }
 
-    /* INPUTS & BUTTONS */
-    .override-input { width: 90px; padding: 5px; border: 1px solid #ffc107; background: #fffde7; text-align: right; font-weight: bold; }
+    /* BUTTONS */
     button { padding: 15px 25px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
     .primary { background: #007bff; color: white; width: 100%; }
     .success { background: #28a745; color: white; width: 100%; font-size: 1.2em; }
     .secondary { background: #eee; color: #444; width: 100%; margin-top: 10px; }
 
-    .search-container { position: relative; }
+    .override-input { width: 90px; padding: 5px; border: 1px solid #ffc107; background: #fffde7; text-align: right; font-weight: bold; }
     .dropdown { position: absolute; top: 100%; left: 0; right: 0; border: 1px solid #ddd; background: white; z-index: 5000; display: none; }
     .dropdown-item { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; }
   </style>
@@ -72,7 +70,7 @@
     <small id="savings-label" class="savings-badge"></small>
     <strong id="live-total" style="font-size: 1.6em;">$0.00</strong>
   </div>
-  <button id="review-btn" style="background:#007bff; color:white;" onclick="state.step=3;render()">Review Order &rarr;</button>
+  <button style="background:#007bff; color:white;" onclick="state.step=3;render()">Review Order &rarr;</button>
 </div>
 
 <script>
@@ -118,21 +116,17 @@
       app.innerHTML = `<div class="card">
         <h2>Wholesale Agreement</h2>
         <div class="agreement-box">
-          <p><strong>Terms & Conditions:</strong><br>1. Authorized purchasing only.<br>2. Prices confidential.<br>3. $30.00 Keg deposit applies.<br>4. Inspect goods upon delivery.</p>
+          <p><strong>Terms:</strong> Authorized purchasing only. Prices confidential. $30.00 Keg deposit applies. Inspect goods upon delivery.</p>
         </div>
-        <label style="display:block; margin-bottom:20px;">
-          <input type="checkbox" id="agree-check" onchange="document.getElementById('start-btn').disabled = !this.checked"> I accept terms
-        </label>
-        <button id="start-btn" class="primary" disabled onclick="state.step=1;render()">Continue</button>
+        <label><input type="checkbox" id="agree-check" onchange="document.getElementById('start-btn').disabled = !this.checked"> I accept terms</label>
+        <button id="start-btn" class="primary" style="margin-top:20px;" disabled onclick="state.step=1;render()">Continue</button>
       </div>`;
     } 
     else if (state.step === 1) {
       app.innerHTML = `<div class="card">
-        <h2>Find Account</h2>
-        <div class="search-container">
-          <input type="text" id="cust-input" placeholder="Search customer name..." style="width:100%; padding:15px; border-radius:8px; border:2px solid #ddd;">
-          <div id="results" class="dropdown"></div>
-        </div>
+        <h2>Select Account</h2>
+        <input type="text" id="cust-input" placeholder="Search customer name..." style="width:100%; padding:15px; border-radius:8px; border:2px solid #ddd;">
+        <div id="results" class="dropdown"></div>
       </div>`;
       document.getElementById("cust-input").oninput = (e) => doSearch(e.target.value);
     } 
@@ -154,8 +148,8 @@
       const items = state.cart.filter(i => i.qty > 0);
       const savings = calculateSavings();
       app.innerHTML = `<div class="card">
-        <h2 style="border-bottom: 2px solid #007bff; padding-bottom: 10px;">Order Summary</h2>
-        <p style="font-size: 1.1em;"><strong>Customer:</strong> ${state.customer.name}</p>
+        <h2 style="border-bottom: 2px solid #007bff; padding-bottom: 10px;">Order Review</h2>
+        <p><strong>Customer:</strong> ${state.customer.name}</p>
         <div style="margin: 20px 0;">
           ${items.map(item => `
             <div class="review-item">
@@ -166,19 +160,19 @@
               <div>
                 ${state.overrideMode ? 
                   `<input type="number" class="override-input" value="${item.price}" oninput="updateOverridePrice('${item.name}', this.value)">` : 
-                  `<span class="review-price">$${(item.price * item.qty).toFixed(2)}</span>`}
+                  `<strong>$${(item.price * item.qty).toFixed(2)}</strong>`}
               </div>
             </div>
           `).join("")}
         </div>
-        ${savings > 0 ? `<div class="discount-line">Suburban Discount Applied: -$${savings.toFixed(2)}</div>` : ''}
+        ${savings > 0 ? `<div class="discount-line">Bulk Discount Applied: -$${savings.toFixed(2)}</div>` : ''}
         <div class="total-line">Total: $${calculateTotal().toFixed(2)}</div>
         
-        <button class="success" style="margin-top:30px;" onclick="submitOrder()">Confirm & Place Order</button>
+        <button class="success" style="margin-top:25px;" onclick="submitOrder()">Confirm & Place Order</button>
         <button class="secondary" onclick="state.step=2;render()">← Edit Order</button>
         
         <button style="background:none; color:#ccc; border:none; margin-top:50px; width:100%; font-size:0.7em; text-decoration:underline;" onclick="toggleOverride()">
-          ${state.overrideMode ? "Lock Changes" : "Rep Override"}
+          ${state.overrideMode ? "Lock Pricing" : "Rep Override"}
         </button>
       </div>`;
     }
@@ -195,14 +189,14 @@
   function updateOverridePrice(name, val) {
     let item = state.cart.find(i => i.name === name);
     if (item) item.price = parseFloat(val) || 0;
-    render(); // Re-render to refresh total and discount lines
+    render();
   }
 
   function updateLiveDisplay() {
     const total = calculateTotal();
     const savings = calculateSavings();
     document.getElementById("live-total").innerText = "$" + total.toFixed(2);
-    document.getElementById("savings-label").innerText = savings > 0 ? `Savings Applied: $${savings.toFixed(2)}` : "";
+    document.getElementById("savings-label").innerText = savings > 0 ? `Bulk Discount: -$${savings.toFixed(2)}` : "";
   }
 
   function calculateTotal() { return state.cart.reduce((s, i) => s + (i.price * i.qty), 0); }
