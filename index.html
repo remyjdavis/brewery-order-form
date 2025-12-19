@@ -10,22 +10,17 @@
     .header-brand { display: flex; align-items: center; gap: 12px; }
     .header-brand img { height: 45px; background: white; border-radius: 4px; padding: 2px; }
     .header-text h1 { margin: 0; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.5px; }
-    
     .card { background: white; padding: 18px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); width: 92%; max-width: 1000px; margin: 12px auto; }
     .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
     .product-card { border: 1px solid #eee; padding: 10px; border-radius: 10px; background: #fff; text-align: center; }
     .qty-input { width: 70%; padding: 6px; border: 1.5px solid #007bff; border-radius: 6px; text-align: center; font-weight: bold; font-size: 0.9em; }
-    
     .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; color: white; border-top: 3px solid #007bff; padding: 12px 5%; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
-    
-    button { padding: 8px 16px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; font-size: 0.8em; transition: 0.2s; }
+    button { padding: 8px 16px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; font-size: 0.8em; }
     .primary { background: #007bff; color: white; width: 100%; height: 38px; }
     .success { background: #28a745; color: white; width: 100%; height: 42px; font-size: 0.9em; }
     .secondary { background: #eee; color: #444; width: 100%; margin-top: 8px; }
-    
     .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 5000; display: none; max-height: 250px; overflow-y: auto; }
     .dropdown-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 0.9em; }
-
     .summary-row { display: flex; justify-content: flex-end; padding: 3px 0; font-size: 0.9em; }
     .summary-label { width: 220px; text-align: right; color: #666; padding-right: 15px; }
     .summary-val { width: 100px; text-align: right; font-weight: bold; }
@@ -33,19 +28,16 @@
   </style>
 </head>
 <body>
-
 <header class="site-header">
   <div class="header-brand">
     <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" alt="SBC">
     <div class="header-text">
       <h1>Suburban Brewing Co.</h1>
-      <p style="margin:0; font-size:0.7em; opacity:0.8;">Honey Brook Wholesale</p>
+      <p style="margin:0; font-size:0.7em; opacity:0.8;">Wholesale Portal</p>
     </div>
   </div>
 </header>
-
 <main id="app"></main>
-
 <div id="live-bar" class="live-bar" style="display:none;">
   <div>
     <small id="savings-label" style="color: #2ecc71; font-weight:700; font-size:0.75em; text-transform:uppercase;"></small>
@@ -53,12 +45,9 @@
   </div>
   <button style="background:#007bff; color:white;" onclick="state.step=3;render()">Review Order &rarr;</button>
 </div>
-
 <script>
-  // INSERT YOUR DEPLOYED URL HERE
   const API_URL = "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec";
   const PRODUCT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&single=true&output=csv";
-  
   let products = [];
   let state = { step: 1, customer: null, cart: [] };
 
@@ -111,9 +100,8 @@
       const grandTotal = (subtotal - discount) + kegDeposit;
 
       app.innerHTML = `<div class="card">
-        <h2 style="font-size:1.2em; border-bottom:2px solid #007bff; padding-bottom:8px; margin-bottom:12px;">Order Review</h2>
-        
-        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.8em;">
+        <h2 style="font-size:1.2em; border-bottom:2px solid #007bff; padding-bottom:8px; margin-bottom:12px;">Review Final Order</h2>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.8em; line-height: 1.3;">
             <div>
                 <strong>Suburban Brewing Co.</strong><br>
                 3041 Horseshoe Pike Suite 120 & 130<br>
@@ -123,13 +111,11 @@
                 <strong>Order Date:</strong><br>${new Date().toLocaleDateString()}
             </div>
         </div>
-
-        <div style="margin-bottom: 18px; font-size: 0.9em; line-height: 1.4; border-top: 1px solid #eee; padding-top: 10px;">
+        <div style="margin-bottom: 18px; font-size: 0.9em; line-height: 1.3; border-top: 1px solid #eee; padding-top: 10px;">
             <div style="font-weight: bold; color: #007bff;">${state.customer.name}</div>
             <div>${state.customer.address}</div>
             <div>${state.customer.city}, ${state.customer.state} ${state.customer.zip}</div>
         </div>
-
         <table style="width:100%; border-collapse:collapse; margin-bottom:12px; font-size:0.85em;">
             ${items.map(item => `
             <tr>
@@ -137,16 +123,14 @@
                 <td style="text-align:right; padding:6px 0; border-bottom:1px solid #eee; font-weight:bold;">$${(item.price * item.qty).toFixed(2)}</td>
             </tr>`).join("")}
         </table>
-
         <div class="summary-area">
             <div class="summary-row"><div class="summary-label">Subtotal:</div><div class="summary-val">$${subtotal.toFixed(2)}</div></div>
             ${discount > 0 ? `<div class="summary-row" style="color:#2ecc71;"><div class="summary-label">10% Bulk Discount:</div><div class="summary-val">-$${discount.toFixed(2)}</div></div>` : ''}
             ${kegDeposit > 0 ? `<div class="summary-row"><div class="summary-label">Keg Deposits:</div><div class="summary-val">$${kegDeposit.toFixed(2)}</div></div>` : ''}
             <div class="summary-row grand-total"><div class="summary-label">Total:</div><div class="summary-val">$${grandTotal.toFixed(2)}</div></div>
         </div>
-        
         <button class="success" style="margin-top:15px;" onclick="submitOrder()">Submit Final Order</button>
-        <button class="secondary" onclick="state.step=2;render()">← Back to Items</button>
+        <button class="secondary" onclick="state.step=2;render()">← Back</button>
       </div>`;
     }
   }
@@ -184,11 +168,10 @@
     btn.innerText = "Processing..."; btn.disabled = true;
     try {
       await fetch(API_URL, { method: "POST", body: JSON.stringify({ customer: state.customer, items: state.cart.filter(i => i.qty > 0) }) });
-      alert("Order Submitted!"); 
+      alert("Order Submitted Successfully!"); 
       location.reload();
     } catch(e) { alert("Error submitting order."); btn.disabled = false; btn.innerText = "Submit Final Order"; }
   }
-
   init();
 </script>
 </body>
