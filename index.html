@@ -7,7 +7,7 @@
   <style>
     body { font-family: -apple-system, system-ui, sans-serif; background: #f4f4f9; margin: 0; padding-bottom: 120px; color: #333; }
     
-    /* PROFESSIONAL HEADER */
+    /* HEADER */
     .site-header { 
       background: #1a1a1a; color: white; padding: 20px 5%; display: flex; align-items: center; justify-content: space-between;
       border-bottom: 4px solid #007bff; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
@@ -17,35 +17,39 @@
     .header-text h1 { margin: 0; font-size: 1.4em; letter-spacing: 1px; text-transform: uppercase; }
     .header-text p { margin: 2px 0; font-size: 0.85em; opacity: 0.8; font-weight: 300; line-height: 1.4; }
 
-    /* CONTAINERS & CARDS */
+    /* CARDS & AGREEMENT */
     .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 92%; max-width: 1000px; margin: 30px auto; }
-    .agreement-box { height:220px; overflow-y:scroll; border:1px solid #eee; padding:20px; font-size:0.95em; line-height:1.6; margin-bottom:20px; background:#fafafa; border-radius:8px; text-align: left; color: #444; }
+    .agreement-box { height:180px; overflow-y:scroll; border:1px solid #eee; padding:15px; font-size:0.9em; background:#fafafa; border-radius:8px; margin-bottom:15px; }
     
     /* PRODUCT GRID */
-    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-top: 20px; }
-    .product-card { border: 1px solid #eef; padding: 18px; border-radius: 10px; background: #fff; display: flex; flex-direction: column; }
-    .product-name { font-weight: bold; font-size: 1.1em; display: block; margin-bottom: 5px; color: #1a1a1a; }
-    .product-price { color: #007bff; font-size: 0.95em; font-weight: 600; margin-bottom: 12px; display: block; }
-    .qty-input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; text-align: center; font-weight: bold; font-size: 1.1em; box-sizing: border-box;}
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; margin-top: 20px; }
+    .product-card { border: 1px solid #eef; padding: 15px; border-radius: 10px; background: #fff; text-align: center; }
+    .product-name { font-weight: bold; font-size: 1em; display: block; margin-bottom: 5px; }
+    .product-price { color: #007bff; font-weight: 600; margin-bottom: 10px; display: block; }
+    .qty-input { width: 80%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; text-align: center; font-weight: bold; }
 
-    /* SEARCH & DROPDOWN */
+    /* REVIEW PAGE SPECIFIC */
+    .review-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #eee; }
+    .review-qty { background: #007bff; color: white; padding: 4px 10px; border-radius: 4px; font-weight: bold; margin-right: 10px; }
+    .review-name { font-size: 1.1em; font-weight: 500; }
+    .review-price { font-weight: bold; font-size: 1.1em; }
+    .discount-line { color: #28a745; font-weight: bold; text-align: right; margin: 10px 0 5px 0; font-size: 1em; }
+    .total-line { font-size: 1.8em; font-weight: 800; color: #1a1a1a; text-align: right; margin: 0; }
+
+    /* LIVE BAR */
+    .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 3px solid #007bff; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); z-index: 1000; }
+    .savings-badge { color: #28a745; font-weight: bold; font-size: 0.8em; display: block; text-transform: uppercase; }
+
+    /* INPUTS & BUTTONS */
+    .override-input { width: 90px; padding: 5px; border: 1px solid #ffc107; background: #fffde7; text-align: right; font-weight: bold; }
+    button { padding: 15px 25px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
+    .primary { background: #007bff; color: white; width: 100%; }
+    .success { background: #28a745; color: white; width: 100%; font-size: 1.2em; }
+    .secondary { background: #eee; color: #444; width: 100%; margin-top: 10px; }
+
     .search-container { position: relative; }
-    .dropdown { position: absolute; top: 100%; left: 0; right: 0; border: 1px solid #ddd; border-radius: 0 0 8px 8px; background: white; max-height: 250px; overflow-y: auto; z-index: 5000; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-    .dropdown-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 1.1em; }
-
-    /* LIVE BAR & SAVINGS */
-    .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 3px solid #007bff; padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); z-index: 1000; }
-    .savings-text { color: #28a745; font-weight: bold; font-size: 0.8em; display: block; }
-
-    /* BUTTONS */
-    button { padding: 14px 28px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 1em; }
-    .primary { background: #007bff; color: white; }
-    .success { background: #28a745; color: white; }
-    .secondary { background: #f4f4f9; color: #666; margin-top: 10px; border: 1px solid #ddd; }
-    .primary:disabled { background: #ccc; cursor: not-allowed; }
-    
-    .override-input { width: 85px !important; padding: 5px !important; border: 1px solid #ffc107 !important; background: #fffde7; text-align: right; }
-    input[type="text"], input[type="number"] { width:100%; padding:14px; border:2px solid #ddd; border-radius:8px; box-sizing:border-box; font-size: 16px; }
+    .dropdown { position: absolute; top: 100%; left: 0; right: 0; border: 1px solid #ddd; background: white; z-index: 5000; display: none; }
+    .dropdown-item { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -56,7 +60,7 @@
     <div class="header-text">
       <h1>Suburban Brewing Co.</h1>
       <p>3041 Horseshoe Pike, Honey Brook, PA 19344</p>
-      <p>Wholesale Order Management | Rep: Remy Davis</p>
+      <p>Wholesale Portal | Remy Davis</p>
     </div>
   </div>
 </header>
@@ -65,15 +69,16 @@
 
 <div id="live-bar" class="live-bar" style="display:none;">
   <div>
-    <small id="savings-label" class="savings-text"></small>
+    <small id="savings-label" class="savings-badge"></small>
     <strong id="live-total" style="font-size: 1.6em;">$0.00</strong>
   </div>
-  <button class="primary" onclick="state.step=3;render()">Review Order &rarr;</button>
+  <button id="review-btn" style="background:#007bff; color:white;" onclick="state.step=3;render()">Review Order &rarr;</button>
 </div>
 
 <script>
   const API_URL = "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec";
   const PRODUCT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&single=true&output=csv";
+  const OVERRIDE_PW = "Yankees1";
 
   let products = [];
   let state = { step: 0, customer: null, cart: [], overrideMode: false };
@@ -85,10 +90,23 @@
       const rows = text.split("\n").slice(1);
       products = rows.map(r => {
         const c = r.split(",");
-        return { name: (c[0]||"").trim(), price: parseFloat(c[1]) || 0, originalPrice: parseFloat(c[1]) || 0 };
+        const p = parseFloat(c[1]) || 0;
+        return { name: (c[0]||"").trim(), price: p, originalPrice: p };
       }).filter(p => p.name);
       render();
     } catch(e) { console.error(e); }
+  }
+
+  function toggleOverride() {
+    if (!state.overrideMode) {
+      if (prompt("Enter Sales Rep Code:") === OVERRIDE_PW) {
+        state.overrideMode = true;
+        render();
+      }
+    } else {
+      state.overrideMode = false;
+      render();
+    }
   }
 
   function render() {
@@ -96,45 +114,32 @@
     const bar = document.getElementById("live-bar");
     app.innerHTML = ""; bar.style.display = "none";
 
-    // STEP 0: USER AGREEMENT
     if (state.step === 0) {
       app.innerHTML = `<div class="card">
-        <h2 style="margin-top:0;">Wholesale Agreement</h2>
+        <h2>Wholesale Agreement</h2>
         <div class="agreement-box">
-          <p><strong>Suburban Brewing Company - Official Wholesale Terms</strong></p>
-          <p>1. <strong>Authorized Purchasing:</strong> By accessing this portal, the user confirms they are authorized to place orders on behalf of the licensee.</p>
-          <p>2. <strong>Confidential Pricing:</strong> Wholesale pricing is proprietary and must not be shared with third parties.</p>
-          <p>3. <strong>Keg Deposits:</strong> A standard $30.00 deposit applies to all kegs. This fee is credited back upon return of the vessel.</p>
-          <p>4. <strong>Delivery Inspection:</strong> All goods must be inspected at the time of delivery. Claims for damages or shortages must be noted immediately.</p>
-          <p>5. <strong>Payment Terms:</strong> Payment is expected via established Check or Fintech profiles as per the customer account setup.</p>
-          <p>6. <strong>Compliance:</strong> Licensee must maintain all state-required liquor licenses to remain eligible for wholesale purchases.</p>
+          <p><strong>Terms & Conditions:</strong><br>1. Authorized purchasing only.<br>2. Prices confidential.<br>3. $30.00 Keg deposit applies.<br>4. Inspect goods upon delivery.</p>
         </div>
-        <label style="display:flex; align-items:center; gap:12px; cursor:pointer; margin-bottom:25px; padding: 15px; background: #f0f7ff; border-radius: 8px;">
-          <input type="checkbox" id="agree-check" style="width:20px; height:20px;" onchange="document.getElementById('agree-btn').disabled = !this.checked"> 
-          <span style="font-weight:bold; color:#0056b3;">I agree to the wholesale terms and conditions</span>
+        <label style="display:block; margin-bottom:20px;">
+          <input type="checkbox" id="agree-check" onchange="document.getElementById('start-btn').disabled = !this.checked"> I accept terms
         </label>
-        <button id="agree-btn" class="primary" style="width:100%;" disabled onclick="state.step=1;render()">Proceed to Login</button>
+        <button id="start-btn" class="primary" disabled onclick="state.step=1;render()">Continue</button>
       </div>`;
     } 
-    // STEP 1: ACCOUNT SELECTION
     else if (state.step === 1) {
-      app.innerHTML = `<div class="card" style="overflow:visible;">
-        <h2>Select Your Account</h2>
+      app.innerHTML = `<div class="card">
+        <h2>Find Account</h2>
         <div class="search-container">
-          <input type="text" id="cust-input" placeholder="Start typing account name..." autocomplete="off">
+          <input type="text" id="cust-input" placeholder="Search customer name..." style="width:100%; padding:15px; border-radius:8px; border:2px solid #ddd;">
           <div id="results" class="dropdown"></div>
         </div>
       </div>`;
-      document.getElementById("cust-input").addEventListener("input", (e) => doSearch(e.target.value));
+      document.getElementById("cust-input").oninput = (e) => doSearch(e.target.value);
     } 
-    // STEP 2: PRODUCT GRID
     else if (state.step === 2) {
       bar.style.display = "flex";
       app.innerHTML = `<div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:20px;">
-          <h3 style="margin:0;">Order for: ${state.customer.name}</h3>
-          <button class="secondary" style="padding:6px 12px; margin:0;" onclick="state.step=1;render()">Change Account</button>
-        </div>
+        <h3>Ordering for: ${state.customer.name}</h3>
         <div class="product-grid">${products.map((p, i) => `
           <div class="product-card">
             <span class="product-name">${p.name}</span>
@@ -143,36 +148,38 @@
           </div>`).join("")}
         </div>
       </div>`;
-      updateLiveTotal();
+      updateLiveDisplay();
     } 
-    // STEP 3: REVIEW PAGE
     else if (state.step === 3) {
       const items = state.cart.filter(i => i.qty > 0);
-      const totalSavings = calculateSavings();
+      const savings = calculateSavings();
       app.innerHTML = `<div class="card">
-        <h2 style="margin-top:0;">Order Summary</h2>
-        <p><strong>Account:</strong> ${state.customer.name}</p>
-        <hr>
-        <div id="review-list">
-          ${items.map((item, idx) => `
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid #eee;">
+        <h2 style="border-bottom: 2px solid #007bff; padding-bottom: 10px;">Order Summary</h2>
+        <p style="font-size: 1.1em;"><strong>Customer:</strong> ${state.customer.name}</p>
+        <div style="margin: 20px 0;">
+          ${items.map(item => `
+            <div class="review-item">
               <div>
-                <strong style="font-size:1.1em;">${item.qty}x ${item.name}</strong>
-                ${item.price < item.originalPrice ? `<span class="savings-text">Save $${((item.originalPrice - item.price) * item.qty).toFixed(2)}</span>` : ''}
+                <span class="review-qty">${item.qty}</span>
+                <span class="review-name">${item.name}</span>
               </div>
-              <div style="text-align:right;">
-                ${state.overrideMode ? `<input type="number" class="override-input" step="0.01" value="${item.price}" oninput="updateOverridePrice('${item.name}', this.value)">` : `<span>$${(item.price * item.qty).toFixed(2)}</span>`}
+              <div>
+                ${state.overrideMode ? 
+                  `<input type="number" class="override-input" value="${item.price}" oninput="updateOverridePrice('${item.name}', this.value)">` : 
+                  `<span class="review-price">$${(item.price * item.qty).toFixed(2)}</span>`}
               </div>
             </div>
           `).join("")}
         </div>
-        <div style="text-align:right; margin-top:25px;">
-          ${totalSavings > 0 ? `<p class="savings-text" style="margin:0; font-size:1em;">Total Discount Applied: -$${totalSavings.toFixed(2)}</p>` : ''}
-          <h3 style="color:#007bff; font-size:1.8em; margin:5px 0;">Total Due: $${calculateTotal().toFixed(2)}</h3>
-        </div>
-        <button class="success" style="width:100%; padding:20px; margin-top:20px; font-size:1.1em;" onclick="submitOrder()">Finalize & Submit Order</button>
-        <button class="secondary" style="width:100%" onclick="state.step=2;render()">← Back to Products</button>
-        <button style="background:none; color:#bbb; border:none; margin-top:40px; width:100%; cursor:pointer; font-size:0.7em; text-decoration:underline;" onclick="state.overrideMode=!state.overrideMode;render()">Admin: Rep Override</button>
+        ${savings > 0 ? `<div class="discount-line">Suburban Discount Applied: -$${savings.toFixed(2)}</div>` : ''}
+        <div class="total-line">Total: $${calculateTotal().toFixed(2)}</div>
+        
+        <button class="success" style="margin-top:30px;" onclick="submitOrder()">Confirm & Place Order</button>
+        <button class="secondary" onclick="state.step=2;render()">← Edit Order</button>
+        
+        <button style="background:none; color:#ccc; border:none; margin-top:50px; width:100%; font-size:0.7em; text-decoration:underline;" onclick="toggleOverride()">
+          ${state.overrideMode ? "Lock Changes" : "Rep Override"}
+        </button>
       </div>`;
     }
   }
@@ -180,32 +187,31 @@
   function updateCart(idx, qty) {
     const p = products[idx];
     const q = Math.max(0, parseInt(qty) || 0);
-    const existing = state.cart.find(item => item.name === p.name);
-    if (existing) existing.qty = q;
-    else state.cart.push({ ...p, qty: q });
-    updateLiveTotal();
+    let item = state.cart.find(i => i.name === p.name);
+    if (item) item.qty = q; else state.cart.push({...p, qty: q});
+    updateLiveDisplay();
   }
 
-  function updateOverridePrice(name, newPrice) {
-    const item = state.cart.find(i => i.name === name);
-    if (item) item.price = parseFloat(newPrice) || 0;
-    document.querySelector('h3').innerText = "Total Due: $" + calculateTotal().toFixed(2);
+  function updateOverridePrice(name, val) {
+    let item = state.cart.find(i => i.name === name);
+    if (item) item.price = parseFloat(val) || 0;
+    render(); // Re-render to refresh total and discount lines
   }
 
-  function updateLiveTotal() {
+  function updateLiveDisplay() {
     const total = calculateTotal();
     const savings = calculateSavings();
     document.getElementById("live-total").innerText = "$" + total.toFixed(2);
-    document.getElementById("savings-label").innerText = savings > 0 ? `CURRENT SAVINGS: $${savings.toFixed(2)}` : "";
+    document.getElementById("savings-label").innerText = savings > 0 ? `Savings Applied: $${savings.toFixed(2)}` : "";
   }
 
   function calculateTotal() { return state.cart.reduce((s, i) => s + (i.price * i.qty), 0); }
   function calculateSavings() { return state.cart.reduce((s, i) => s + ((i.originalPrice - i.price) * i.qty), 0); }
-  function getQty(name) { const item = state.cart.find(i => i.name === name); return item ? item.qty : 0; }
+  function getQty(name) { let i = state.cart.find(c => c.name === name); return i ? i.qty : 0; }
 
   async function doSearch(val) {
     const box = document.getElementById("results");
-    if (val.length < 2) { box.style.display = "none"; return; }
+    if (val.length < 2) { box.style.display="none"; return; }
     const res = await fetch(`${API_URL}?q=${encodeURIComponent(val)}`);
     const data = await res.json();
     box.style.display = "block";
@@ -218,9 +224,8 @@
     const btn = document.querySelector(".success");
     btn.innerText = "Processing..."; btn.disabled = true;
     const cart = state.cart.filter(i => i.qty > 0);
-    const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ customer: state.customer, items: cart }) });
-    const data = await res.json();
-    window.open(data.pdfUrl, "_blank");
+    await fetch(API_URL, { method: "POST", body: JSON.stringify({ customer: state.customer, items: cart }) });
+    alert("Order Submitted!");
     location.reload();
   }
 
