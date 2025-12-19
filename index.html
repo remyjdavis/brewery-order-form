@@ -7,7 +7,6 @@
   <style>
     body { font-family: -apple-system, system-ui, sans-serif; background: #f4f4f9; margin: 0; padding-bottom: 120px; color: #333; }
     
-    /* HEADER */
     .site-header { 
       background: #1a1a1a; color: white; padding: 20px 5%; display: flex; align-items: center; justify-content: space-between;
       border-bottom: 4px solid #007bff; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
@@ -15,50 +14,43 @@
     .header-brand { display: flex; align-items: center; gap: 20px; }
     .site-header img { height: 80px; width: auto; border-radius: 4px; background: #fff; padding: 3px; }
     .header-text h1 { margin: 0; font-size: 1.4em; letter-spacing: 1px; text-transform: uppercase; }
-    .header-text p { margin: 2px 0; font-size: 0.85em; opacity: 0.8; font-weight: 300; line-height: 1.4; }
+    .header-text p { margin: 2px 0; font-size: 0.85em; opacity: 0.8; font-weight: 300; }
 
-    /* CARDS */
-    .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 92%; max-width: 1000px; margin: 30px auto; }
-    .agreement-box { height:180px; overflow-y:scroll; border:1px solid #eee; padding:15px; font-size:0.9em; background:#fafafa; border-radius:8px; margin-bottom:15px; }
+    .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 92%; max-width: 1000px; margin: 20px auto; }
     
-    /* PRODUCT GRID */
-    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; margin-top: 20px; }
+    /* TABLE STYLING */
+    .invoice-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    .invoice-table th { text-align: left; border-bottom: 2px solid #eee; padding: 10px; color: #666; font-size: 0.9em; }
+    .invoice-table td { padding: 12px 10px; border-bottom: 1px solid #f9f9f9; }
+    .summary-row { display: flex; justify-content: flex-end; padding: 5px 0; font-size: 1em; }
+    .summary-label { width: 200px; text-align: right; color: #666; padding-right: 20px; }
+    .summary-value { width: 100px; text-align: right; font-weight: bold; }
+    .grand-total { border-top: 2px solid #007bff; margin-top: 10px; padding-top: 10px; font-size: 1.4em; color: #007bff; }
+
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
     .product-card { border: 1px solid #eef; padding: 15px; border-radius: 10px; background: #fff; text-align: center; }
-    .product-name { font-weight: bold; font-size: 1em; display: block; margin-bottom: 5px; }
-    .product-price { color: #007bff; font-weight: 600; margin-bottom: 10px; display: block; }
     .qty-input { width: 80%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; text-align: center; font-weight: bold; }
 
-    /* REVIEW PAGE */
-    .review-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #eee; }
-    .review-qty { background: #007bff; color: white; padding: 4px 10px; border-radius: 4px; font-weight: bold; margin-right: 10px; }
-    .review-name { font-size: 1.1em; font-weight: 500; }
-    .discount-line { color: #28a745; font-weight: bold; text-align: right; margin: 15px 0 5px 0; font-size: 1.1em; }
-    .total-line { font-size: 1.8em; font-weight: 800; color: #1a1a1a; text-align: right; margin: 0; }
-
-    /* LIVE BAR */
-    .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 3px solid #007bff; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); z-index: 1000; }
-    .savings-badge { color: #28a745; font-weight: bold; font-size: 0.8em; display: block; text-transform: uppercase; }
-
-    /* BUTTONS */
-    button { padding: 15px 25px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
-    .primary { background: #007bff; color: white; width: 100%; }
-    .success { background: #28a745; color: white; width: 100%; font-size: 1.2em; }
+    .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 3px solid #007bff; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; z-index: 1000; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); }
+    
+    button { padding: 16px 28px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
+    .success { background: #28a745; color: white; width: 100%; font-size: 1.2em; margin-top: 20px; }
     .secondary { background: #eee; color: #444; width: 100%; margin-top: 10px; }
-
-    .override-input { width: 90px; padding: 5px; border: 1px solid #ffc107; background: #fffde7; text-align: right; font-weight: bold; }
-    .dropdown { position: absolute; top: 100%; left: 0; right: 0; border: 1px solid #ddd; background: white; z-index: 5000; display: none; }
-    .dropdown-item { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; }
+    .override-input { width: 70px; padding: 4px; border: 1px solid #ffc107; background: #fffde7; }
+    
+    .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 5000; display: none; }
+    .dropdown-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; }
   </style>
 </head>
 <body>
 
 <header class="site-header">
   <div class="header-brand">
-    <img src="https://raw.githubusercontent.com/SuburbanBrewingCo/SBC-Wholesale/main/logo.png" alt="SBC Logo" onerror="this.src='https://via.placeholder.com/80?text=SBC'">
+    <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" alt="SBC Logo" onerror="this.src='https://via.placeholder.com/80?text=SBC'">
     <div class="header-text">
       <h1>Suburban Brewing Co.</h1>
       <p>3041 Horseshoe Pike, Honey Brook, PA 19344</p>
-      <p>Wholesale Portal | Remy Davis</p>
+      <p>Wholesale Portal | Rep: Remy Davis</p>
     </div>
   </div>
 </header>
@@ -67,7 +59,7 @@
 
 <div id="live-bar" class="live-bar" style="display:none;">
   <div>
-    <small id="savings-label" class="savings-badge"></small>
+    <small id="savings-label" style="color:#28a745; font-weight:bold;"></small>
     <strong id="live-total" style="font-size: 1.6em;">$0.00</strong>
   </div>
   <button style="background:#007bff; color:white;" onclick="state.step=3;render()">Review Order &rarr;</button>
@@ -95,18 +87,6 @@
     } catch(e) { console.error(e); }
   }
 
-  function toggleOverride() {
-    if (!state.overrideMode) {
-      if (prompt("Enter Sales Rep Code:") === OVERRIDE_PW) {
-        state.overrideMode = true;
-        render();
-      }
-    } else {
-      state.overrideMode = false;
-      render();
-    }
-  }
-
   function render() {
     const app = document.getElementById("app");
     const bar = document.getElementById("live-bar");
@@ -115,17 +95,17 @@
     if (state.step === 0) {
       app.innerHTML = `<div class="card">
         <h2>Wholesale Agreement</h2>
-        <div class="agreement-box">
-          <p><strong>Terms:</strong> Authorized purchasing only. Prices confidential. $30.00 Keg deposit applies. Inspect goods upon delivery.</p>
+        <div style="background:#fafafa; padding:15px; border-radius:8px; height:150px; overflow-y:scroll; margin-bottom:20px; font-size:0.9em;">
+            <p>1. Authorized purchasing only.<br>2. Prices proprietary and confidential.<br>3. $30.00 Keg deposit per vessel.<br>4. Inspect goods upon delivery.</p>
         </div>
-        <label><input type="checkbox" id="agree-check" onchange="document.getElementById('start-btn').disabled = !this.checked"> I accept terms</label>
-        <button id="start-btn" class="primary" style="margin-top:20px;" disabled onclick="state.step=1;render()">Continue</button>
+        <label><input type="checkbox" id="agree-check" onchange="document.getElementById('start-btn').disabled = !this.checked"> I accept the terms</label>
+        <button id="start-btn" class="success" disabled onclick="state.step=1;render()">Continue</button>
       </div>`;
     } 
     else if (state.step === 1) {
-      app.innerHTML = `<div class="card">
+      app.innerHTML = `<div class="card" style="position:relative;">
         <h2>Select Account</h2>
-        <input type="text" id="cust-input" placeholder="Search customer name..." style="width:100%; padding:15px; border-radius:8px; border:2px solid #ddd;">
+        <input type="text" id="cust-input" placeholder="Search account..." style="width:100%; padding:15px; border:2px solid #ddd; border-radius:8px;">
         <div id="results" class="dropdown"></div>
       </div>`;
       document.getElementById("cust-input").oninput = (e) => doSearch(e.target.value);
@@ -133,11 +113,11 @@
     else if (state.step === 2) {
       bar.style.display = "flex";
       app.innerHTML = `<div class="card">
-        <h3>Ordering for: ${state.customer.name}</h3>
+        <h3 style="margin-top:0;">Client: ${state.customer.name}</h3>
         <div class="product-grid">${products.map((p, i) => `
           <div class="product-card">
-            <span class="product-name">${p.name}</span>
-            <span class="product-price">$${p.price.toFixed(2)}</span>
+            <span style="font-weight:bold; display:block;">${p.name}</span>
+            <span style="color:#007bff; display:block; margin:5px 0;">$${p.price.toFixed(2)}</span>
             <input type="number" class="qty-input" min="0" placeholder="0" value="${getQty(p.name) || ''}" oninput="updateCart(${i}, this.value)">
           </div>`).join("")}
         </div>
@@ -146,36 +126,56 @@
     } 
     else if (state.step === 3) {
       const items = state.cart.filter(i => i.qty > 0);
-      const savings = calculateSavings();
+      const subtotal = calculateSubtotal();
+      const discount = calculateDiscount();
+      const kegCount = items.reduce((s, i) => s + (i.name.toLowerCase().includes("keg") ? i.qty : 0), 0);
+      const kegDeposit = kegCount * 30.00;
+      const tax = (state.customer.type === "Restaurant" || state.customer.type === "Retail") ? (subtotal * 0.06) : 0;
+      const grandTotal = subtotal + tax + kegDeposit;
+
       app.innerHTML = `<div class="card">
-        <h2 style="border-bottom: 2px solid #007bff; padding-bottom: 10px;">Order Review</h2>
-        <p><strong>Customer:</strong> ${state.customer.name}</p>
-        <div style="margin: 20px 0;">
-          ${items.map(item => `
-            <div class="review-item">
-              <div>
-                <span class="review-qty">${item.qty}</span>
-                <span class="review-name">${item.name}</span>
-              </div>
-              <div>
-                ${state.overrideMode ? 
-                  `<input type="number" class="override-input" value="${item.price}" oninput="updateOverridePrice('${item.name}', this.value)">` : 
-                  `<strong>$${(item.price * item.qty).toFixed(2)}</strong>`}
-              </div>
+        <div style="display:flex; justify-content:space-between;">
+            <div>
+                <h2 style="margin:0;">Order Review</h2>
+                <p><strong>${state.customer.name}</strong><br>${state.customer.address || "No Address on File"}</p>
             </div>
-          `).join("")}
+            <div style="text-align:right; color:#666;">
+                Date: ${new Date().toLocaleDateString()}
+            </div>
         </div>
-        ${savings > 0 ? `<div class="discount-line">Bulk Discount Applied: -$${savings.toFixed(2)}</div>` : ''}
-        <div class="total-line">Total: $${calculateTotal().toFixed(2)}</div>
         
-        <button class="success" style="margin-top:25px;" onclick="submitOrder()">Confirm & Place Order</button>
-        <button class="secondary" onclick="state.step=2;render()">← Edit Order</button>
-        
-        <button style="background:none; color:#ccc; border:none; margin-top:50px; width:100%; font-size:0.7em; text-decoration:underline;" onclick="toggleOverride()">
-          ${state.overrideMode ? "Lock Pricing" : "Rep Override"}
-        </button>
+        <table class="invoice-table">
+            <thead>
+                <tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th></tr>
+            </thead>
+            <tbody>
+                ${items.map(item => `
+                <tr>
+                    <td>${item.name}${item.name.toLowerCase().includes("keg") ? ' <small style="color:#999;">($30 Deposit applies)</small>' : ''}</td>
+                    <td>${item.qty}</td>
+                    <td>$${item.price.toFixed(2)}</td>
+                    <td>${state.overrideMode ? `<input type="number" class="override-input" value="${item.price}" oninput="updateOverridePrice('${item.name}', this.value)">` : `$${(item.price * item.qty).toFixed(2)}`}</td>
+                </tr>`).join("")}
+            </tbody>
+        </table>
+
+        <div class="summary-container">
+            <div class="summary-row"><div class="summary-label">Subtotal:</div><div class="summary-value">$${subtotal.toFixed(2)}</div></div>
+            ${discount > 0 ? `<div class="summary-row"><div class="summary-label" style="color:#28a745;">Bulk Discount Applied:</div><div class="summary-value" style="color:#28a745;">-$${discount.toFixed(2)}</div></div>` : ''}
+            ${tax > 0 ? `<div class="summary-row"><div class="summary-label">Sales Tax (6%):</div><div class="summary-value">$${tax.toFixed(2)}</div></div>` : ''}
+            ${kegDeposit > 0 ? `<div class="summary-row"><div class="summary-label">Keg Deposits ($30/ea):</div><div class="summary-value">$${kegDeposit.toFixed(2)}</div></div>` : ''}
+            <div class="summary-row grand-total"><div class="summary-label">Total Amount Due:</div><div class="summary-value">$${grandTotal.toFixed(2)}</div></div>
+        </div>
+
+        <button class="success" onclick="submitOrder()">Place Final Order</button>
+        <button class="secondary" onclick="state.step=2;render()">← Edit Items</button>
+        <button style="background:none; color:#ccc; border:none; margin-top:40px; width:100%; font-size:0.7em; text-decoration:underline;" onclick="toggleOverride()">Admin: Rep Override</button>
       </div>`;
     }
+  }
+
+  function toggleOverride() {
+    if (prompt("Enter Sales Rep Code:") === OVERRIDE_PW) { state.overrideMode = !state.overrideMode; render(); }
   }
 
   function updateCart(idx, qty) {
@@ -193,14 +193,14 @@
   }
 
   function updateLiveDisplay() {
-    const total = calculateTotal();
-    const savings = calculateSavings();
+    const total = calculateSubtotal();
+    const discount = calculateDiscount();
     document.getElementById("live-total").innerText = "$" + total.toFixed(2);
-    document.getElementById("savings-label").innerText = savings > 0 ? `Bulk Discount: -$${savings.toFixed(2)}` : "";
+    document.getElementById("savings-label").innerText = discount > 0 ? `Bulk Discount: -$${discount.toFixed(2)}` : "";
   }
 
-  function calculateTotal() { return state.cart.reduce((s, i) => s + (i.price * i.qty), 0); }
-  function calculateSavings() { return state.cart.reduce((s, i) => s + ((i.originalPrice - i.price) * i.qty), 0); }
+  function calculateSubtotal() { return state.cart.reduce((s, i) => s + (i.price * i.qty), 0); }
+  function calculateDiscount() { return state.cart.reduce((s, i) => s + ((i.originalPrice - i.price) * i.qty), 0); }
   function getQty(name) { let i = state.cart.find(c => c.name === name); return i ? i.qty : 0; }
 
   async function doSearch(val) {
@@ -217,10 +217,8 @@
   async function submitOrder() {
     const btn = document.querySelector(".success");
     btn.innerText = "Processing..."; btn.disabled = true;
-    const cart = state.cart.filter(i => i.qty > 0);
-    await fetch(API_URL, { method: "POST", body: JSON.stringify({ customer: state.customer, items: cart }) });
-    alert("Order Submitted!");
-    location.reload();
+    await fetch(API_URL, { method: "POST", body: JSON.stringify({ customer: state.customer, items: state.cart.filter(i => i.qty > 0) }) });
+    alert("Order Submitted!"); location.reload();
   }
 
   init();
