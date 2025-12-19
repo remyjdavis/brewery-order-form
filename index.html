@@ -3,57 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>Suburban Brewing Company — Order System</title>
+  <title>SBC Order System</title>
   <style>
     /* BASE STYLES */
     body { font-family: -apple-system, system-ui, sans-serif; background: #f4f4f9; margin: 0; padding: 0; color: #333; }
     
-    .site-header { background: #1a1a1a; color: white; padding: 30px; text-align: center; border-bottom: 4px solid #007bff; }
-    .site-header img { max-width: 150px; margin-bottom: 12px; }
-    .site-header h1 { margin: 0; font-size: 1.6em; letter-spacing: 1px; }
-    .header-info p { margin: 4px 0; font-size: 0.9em; opacity: 0.8; }
+    /* SMALLER COMPACT HEADER */
+    .site-header { 
+      background: #1a1a1a; 
+      color: white; 
+      padding: 10px 20px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      gap: 20px;
+      border-bottom: 3px solid #007bff; 
+    }
+    .site-header img { max-width: 60px; height: auto; } /* Shrunk from 150px */
+    .header-info { text-align: left; }
+    .site-header h1 { margin: 0; font-size: 1.1em; letter-spacing: 0.5px; }
+    .header-info p { margin: 0; font-size: 0.75em; opacity: 0.7; line-height: 1.2; }
 
-    /* RESPONSIVE CARD CONTAINER */
-    .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); width: 90%; max-width: 850px; margin: 30px auto; position: relative; }
-    h2 { margin-top: 0; font-size: 1.4em; color: #007bff; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
+    /* CARD CONTAINER */
+    .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 92%; max-width: 850px; margin: 20px auto; position: relative; }
+    h2 { margin-top: 0; font-size: 1.2em; color: #007bff; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 15px; }
 
     /* SEARCH & AUTOCOMPLETE */
-    input[type="text"], input[type="number"] { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+    input[type="text"], input[type="number"] { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
     .autocomplete-wrapper { position: relative; max-width: 500px; margin: 0 auto; }
-    .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 9999; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); max-height: 250px; overflow-y: auto; display: none; top: 100%; left: 0; }
-    .dropdown div { padding: 14px; border-bottom: 1px solid #eee; cursor: pointer; background: white; }
+    .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 9999; border-radius: 0 0 8px 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); max-height: 250px; overflow-y: auto; display: none; top: 100%; left: 0; }
+    .dropdown div { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; background: white; font-size: 0.9em; }
     .dropdown div:hover { background: #f0f7ff; }
 
-    /* RESPONSIVE PRODUCT GRID */
-    .grid { display: grid; gap: 15px; margin-top: 25px; grid-template-columns: 1fr; }
-    
-    @media (min-width: 600px) {
-      .grid { grid-template-columns: 1fr 1fr; } /* Two columns on laptops */
-    }
+    /* GRID LOGIC */
+    .grid { display: grid; gap: 12px; margin-top: 20px; grid-template-columns: 1fr; }
+    @media (min-width: 600px) { .grid { grid-template-columns: 1fr 1fr; } }
 
-    .product-card { border: 1px solid #eee; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; background: #fff; transition: border-color 0.2s; }
-    .product-card:hover { border-color: #007bff; }
-    .product-card input { width: 80px; margin: 0; text-align: center; border: 2px solid #007bff; font-weight: bold; border-radius: 6px; }
+    .product-card { border: 1px solid #eee; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: #fff; }
+    .product-card input { width: 70px; margin: 0; text-align: center; border: 2px solid #007bff; font-weight: bold; border-radius: 5px; }
 
-    /* REVIEW PAGE STYLES */
-    .customer-info { background: #f0f7ff; padding: 20px; border-left: 6px solid #007bff; margin-bottom: 25px; border-radius: 4px; }
-    .review-table { width: 100%; border-collapse: collapse; margin: 25px 0; }
-    .review-table th { text-align: left; border-bottom: 2px solid #333; padding: 12px 0; font-size: 0.9em; }
-    .review-table td { padding: 15px 0; border-bottom: 1px solid #eee; }
+    /* REVIEW SECTION */
+    .customer-info { background: #f0f7ff; padding: 15px; border-left: 5px solid #007bff; margin-bottom: 20px; border-radius: 4px; font-size: 0.9em; }
+    .review-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.9em; }
+    .review-table th { text-align: left; border-bottom: 2px solid #333; padding: 10px 0; }
+    .review-table td { padding: 10px 0; border-bottom: 1px solid #eee; }
     
-    .total-area { border-top: 2px solid #333; padding-top: 20px; margin-top: 20px; max-width: 300px; margin-left: auto; }
-    .total-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 1.1em; }
-    .grand-total { font-weight: bold; font-size: 1.4em; color: #000; border-top: 2px solid #ddd; margin-top: 10px; padding-top: 10px; }
+    .total-area { border-top: 2px solid #333; padding-top: 15px; margin-top: 15px; max-width: 280px; margin-left: auto; }
+    .total-row { display: flex; justify-content: space-between; padding: 5px 0; }
+    .grand-total { font-weight: bold; font-size: 1.2em; color: #000; border-top: 1px solid #ddd; margin-top: 8px; padding-top: 8px; }
     .discount-text { color: #28a745; font-weight: 600; }
 
     /* BUTTONS */
-    .btn-group { display: flex; gap: 15px; margin-top: 30px; }
-    button { flex: 1; padding: 18px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; font-size: 16px; transition: all 0.2s; }
+    .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+    button { flex: 1; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 15px; transition: 0.2s; }
     .primary { background: #007bff; color: white; }
     .success { background: #28a745; color: white; }
     .secondary { background: #e4e6eb; color: #333; }
-    button:hover { opacity: 0.9; transform: translateY(-1px); }
-    button:active { transform: translateY(0); }
+    button:hover { opacity: 0.9; }
   </style>
 </head>
 <body>
@@ -62,8 +68,7 @@
   <img src="logo.png" alt="SBC Logo">
   <div class="header-info">
     <h1>Suburban Brewing Company</h1>
-    <p>3041 Horseshoe Pike, Honey Brook, PA 19344</p>
-    <p>Sales Rep: Remy Davis • (908) 642-1019</p>
+    <p>Honey Brook, PA • Remy Davis: (908) 642-1019</p>
   </div>
 </header>
 
@@ -104,7 +109,7 @@
         <div class="card" style="text-align:center;">
           <h2>Select Customer</h2>
           <div class="autocomplete-wrapper">
-            <input id="c-search" type="text" placeholder="Search by business name..." autocomplete="off">
+            <input id="c-search" type="text" placeholder="Start typing business name..." autocomplete="off">
             <div id="c-results" class="dropdown"></div>
           </div>
         </div>`;
@@ -114,7 +119,7 @@
     else if (state.step === 2) {
       el.innerHTML = `
         <div class="card">
-          <h2>Order for: ${state.customer.name}</h2>
+          <h2>Order Items: ${state.customer.name}</h2>
           <div class="grid">${products.map((p, i) => `
             <div class="product-card">
               <div><strong>${p.name}</strong><br><small>$${p.price.toFixed(2)} | Avail: ${p.stock}</small></div>
@@ -138,22 +143,22 @@
 
       el.innerHTML = `
         <div class="card">
-          <h2>Final Order Review</h2>
+          <h2>Order Review</h2>
           <div class="customer-info">
-            <h3 style="margin-top:0;">${state.customer.name}</h3>
-            <p>${state.customer.address}<br>${state.customer.city}, ${state.customer.state}</p>
-            <small>Business Type: ${state.customer.businessType}</small>
+            <strong>${state.customer.name}</strong><br>
+            ${state.customer.address}, ${state.customer.city}<br>
+            <small>Type: ${state.customer.businessType}</small>
           </div>
           <table class="review-table">
-            <thead><tr><th>Product Name</th><th>Quantity</th><th>Line Total</th></tr></thead>
+            <thead><tr><th>Product</th><th>Qty</th><th>Total</th></tr></thead>
             <tbody>${state.cart.map(i => `
               <tr><td>${i.name}</td><td>${i.qty}</td><td>$${(i.qty * i.price).toFixed(2)}</td></tr>
             `).join("")}</tbody>
           </table>
           <div class="total-area">
             <div class="total-row"><span>Subtotal:</span><span>$${sub.toFixed(2)}</span></div>
-            ${disc > 0 ? `<div class="total-row discount-text"><span>Bulk Discount (10%):</span><span>-$${disc.toFixed(2)}</span></div>` : ""}
-            ${tax > 0 ? `<div class="total-row"><span>Sales Tax (6%):</span><span>$${tax.toFixed(2)}</span></div>` : ""}
+            ${disc > 0 ? `<div class="total-row discount-text"><span>Bulk Discount:</span><span>-$${disc.toFixed(2)}</span></div>` : ""}
+            ${tax > 0 ? `<div class="total-row"><span>Tax (6%):</span><span>$${tax.toFixed(2)}</span></div>` : ""}
             <div class="total-row grand-total"><span>Total:</span><span>$${total.toFixed(2)}</span></div>
           </div>
           <div class="btn-group">
@@ -186,7 +191,7 @@
     state.cart = products.map((p, i) => ({
       ...p, qty: parseInt(document.getElementById(`qty-${i}`).value) || 0
     })).filter(i => i.qty > 0);
-    if (!state.cart.length) return alert("Please select at least one item.");
+    if (!state.cart.length) return alert("Select at least one item.");
     state.step = 3; render();
   }
 
@@ -200,7 +205,7 @@
       });
       const d = await res.json();
       if (d.success) {
-        alert("Success! Order recorded.");
+        alert("Order submitted successfully!");
         state = { step: 1, customer: null, cart: [] }; render();
       }
     } catch(e) { alert("Error submitting"); btn.disabled = false; }
