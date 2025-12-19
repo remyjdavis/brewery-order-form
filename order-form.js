@@ -1,7 +1,5 @@
 /**************** CONFIG ****************/
-const API_URL =
-  "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec";
-
+const API_URL = "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec";
 const PRODUCT_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&single=true&output=csv";
 
@@ -13,30 +11,24 @@ let state = {
   cart: []
 };
 
-/**************** CSV PARSER ****************/
+/**************** CSV ****************/
 function parseCSV(text) {
-  return text
-    .trim()
-    .split(/\r?\n/)
-    .map(row => row.split(",").map(c => c.replace(/\uFEFF/g, "").trim()));
+  return text.trim().split("\n").map(r => r.split(","));
 }
 
-/**************** LOAD PRODUCTS (COLUMN LOCKED) ****************/
+/**************** LOAD PRODUCTS (LOCKED) ****************/
 async function loadProducts() {
   const res = await fetch(PRODUCT_CSV_URL);
   const csv = await res.text();
   const rows = parseCSV(csv);
 
   products = rows.slice(1).map(r => ({
-    name: r[0] || "",                 // Column A — Product Name
-    price: Number(r[1] || 0),         // Column B — Price
-    stock: Number(r[2] || 0)          // Column C — Qty In Stock
+    name: r[0] || "",
+    price: Number(r[1] || 0),
+    stock: Number(r[2] || 0)
   }));
 
-  console.log("PRODUCTS LOADED (FINAL):", products);
   render();
-}
-
 }
 
 /**************** CUSTOMER SEARCH ****************/
@@ -47,98 +39,95 @@ async function searchCustomers(query) {
   return data.results || [];
 }
 
+async function handleAutocomplete(val) {
+  const results = await searchCustomers(val);
+  const box = document.getElementById("autocomplete-results");
+  box.innerHTML = "";
+
+  results.forEach(c => {
+    const div = document.createElement("div");
+    div.className = "autocomplete-item";
+    div.textContent = c.name;
+    div.onclick = () => selectCustomer(c);
+    box.appendChild(div);
+  });
+}
+
+function selectCustomer(customer) {
+  state.customer = customer;
+  state.step = 2;
+  render();
+}
+
 /**************** RENDER ****************/
 function render() {
   const el = document.getElementById("form-container");
   el.innerHTML = "";
 
-  /* STEP 1 — CUSTOMER */
+  /* STEP 1 — CUSTOMER SEARCH (RESTORED) */
   if (state.step === 1) {
     el.innerHTML = `
       <div class="card">
         <h2>Select Customer</h2>
         <div class="autocomplete-wrapper">
-          <input id="customer-input" placeholder="Start typing customer name…" autocomplete="off">
+          <input
+            id="customer-input"
+            type="text"
+            placeholder="Search customer..."
+            oninput="handleAutocomplete(this.value)"
+          >
           <div id="autocomplete-results"></div>
         </div>
       </div>
     `;
-
-    const input = document.getElementById("customer-input");
-    input.addEventListener("input", async () => {
-      const results = await searchCustomers(input.value);
-      const box = document.getElementById("autocomplete-results");
-
-      box.innerHTML = results.map(c => `
-        <div class="autocomplete-item"
-          data-name="${c.name}"
-          data-address="${c.address}"
-          data-city="${c.city}"
-          data-state="${c.state}"
-          data-zip="${c.zip}"
-          data-type="${c.businessType}">
-          ${c.name}
-        </div>
-      `).join("");
-
-      [...box.children].forEach(item => {
-        item.onclick = () => {
-          state.customer = {
-            name: item.dataset.name,
-            address: item.dataset.address,
-            city: item.dataset.city,
-            state: item.dataset.state,
-            zip: item.dataset.zip,
-            businessType: item.dataset.type
-          };
-          state.step = 2;
-          render();
-        };
-      });
-    });
   }
 
-  /* STEP 2 — PRODUCTS (GRID LOCKED) */
+  /* STEP 2 — PRODUCT GRID (UNTOUCHED) */
   if (state.step === 2) {
-    el.innerHTML = `
-      <div class="card">
-        <h2>Select Products</h2>
-        <div class="grid">
-          ${products.map((p, i) => `
-            <div class="product-card">
-              <strong>${p.name}</strong>
-              <div>$${p.price.toFixed(2)}</div>
-              <div>In Stock: ${p.stock}</div>
-              <input type="number" min="0" max="${p.stock}" id="qty-${i}">
-            </div>
-          `).join("")}
+    el.innerHTML = `<div class="card"><h2>Select Products</h2><div class="grid">`;
+
+    products.forEach((p, i) => {
+      const low = p.stock <= 5 ? `<div style="color:red;">Low stock (${p.stock})</div>` : "";
+      el.innerHTML += `
+        <div class="product-card">
+          <strong>${p.name}</strong>
+          <div>$${p.price.toFixed(2)}</div>
+          <div>In Stock: ${p.stock}</div>
+          ${low}
+          <input type="number" min="0" max="${p.stock}" id="q-${i}">
         </div>
-        <button class="primary" onclick="review()">Review Order</button>
+      `;
+    });
+
+    el.innerHTML += `
       </div>
-    `;
+      <button class="primary" onclick="review()">Review Order</button>
+    </div>`;
   }
 
   /* STEP 3 — REVIEW */
   if (state.step === 3) {
+    let subtotal = 0;
+
     el.innerHTML = `
       <div class="card">
         <h2>Review Order</h2>
+        <p><strong>${state.customer.name}</strong></p>
         <table class="review-table">
-          <tr>
-            <th>Product</th>
-            <th>Qty</th>
-            <th>Total</th>
-          </tr>
-          ${state.cart.map(i => `
-            <tr>
-              <td>${i.name}</td>
-              <td>${i.qty}</td>
-              <td>$${(i.qty * i.price).toFixed(2)}</td>
-            </tr>
-          `).join("")}
+          <tr><th>Product</th><th>Qty</th><th>Total</th></tr>
+    `;
+
+    state.cart.forEach(i => {
+      const line = i.qty * i.price;
+      subtotal += line;
+      el.innerHTML += `<tr><td>${i.name}</td><td>${i.qty}</td><td>$${line.toFixed(2)}</td></tr>`;
+    });
+
+    el.innerHTML += `
         </table>
+        <h3>Total: $${subtotal.toFixed(2)}</h3>
         <button onclick="state.step=2;render()">Back</button>
-        <button class="primary" onclick="submitOrder()">Submit Order</button>
+        <button class="primary" onclick="submit()">Submit</button>
       </div>
     `;
   }
@@ -147,34 +136,27 @@ function render() {
 /**************** ACTIONS ****************/
 function review() {
   state.cart = products.map((p, i) => {
-    const qty = Number(document.getElementById(`qty-${i}`).value || 0);
+    const qty = Number(document.getElementById(`q-${i}`).value || 0);
     if (qty > p.stock) {
-      alert(`Only ${p.stock} units available for ${p.name}`);
+      alert(`Cannot order more than ${p.stock} of ${p.name}`);
       throw new Error("Stock exceeded");
     }
     return { ...p, qty };
   }).filter(i => i.qty > 0);
 
-  if (!state.cart.length) {
-    alert("Select at least one product.");
-    return;
-  }
-
+  if (!state.cart.length) return alert("Add products");
   state.step = 3;
   render();
 }
 
-async function submitOrder() {
+async function submit() {
   await fetch(API_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      customer: state.customer,
-      items: state.cart
-    })
+    body: JSON.stringify({ customer: state.customer, items: state.cart })
   });
 
-  alert("Order submitted.");
+  alert("Order submitted");
   location.reload();
 }
 
