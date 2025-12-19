@@ -3,94 +3,78 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>Suburban Brewing Company — Wholesale Order</title>
+  <title>Suburban Brewing Company — Order Review</title>
   <style>
-    /* RESET & BASE STYLES */
-    body { font-family: -apple-system, system-ui, sans-serif; background: #f4f4f9; margin: 0; padding: 0; color: #333; line-height: 1.5; }
+    body { font-family: -apple-system, sans-serif; background: #f4f4f9; margin: 0; padding: 10px; color: #333; }
     
-    /* HEADER SECTION */
-    .site-header { background: #1a1a1a; color: white; padding: 25px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; }
-    .site-header img { max-width: 140px; margin-bottom: 15px; }
-    .header-info h1 { margin: 0; font-size: 1.4em; letter-spacing: 1px; }
-    .header-info p { margin: 4px 0; font-size: 0.85em; opacity: 0.8; }
+    /* SITE HEADER */
+    .site-header { background: #1a1a1a; color: white; padding: 20px; text-align: center; border-radius: 12px 12px 0 0; }
+    .site-header img { max-width: 120px; margin-bottom: 10px; }
+    .site-header h1 { margin: 0; font-size: 1.2em; }
+    .site-header p { margin: 3px 0; font-size: 0.8em; opacity: 0.8; }
 
-    /* LAYOUT CONTAINERS */
-    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; margin: 20px auto; box-sizing: border-box; }
-    h2 { margin-top: 0; font-size: 1.2em; color: #007bff; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+    .card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; margin: 0 auto 20px auto; overflow: hidden; }
+    .content { padding: 20px; }
 
-    /* FORM ELEMENTS */
-    input[type="text"], input[type="number"] { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; -webkit-appearance: none; }
+    /* CUSTOMER INFO SECTION */
+    .customer-info { background: #f0f7ff; padding: 15px; border-left: 5px solid #007bff; margin-bottom: 20px; }
+    .customer-info h3 { margin: 0 0 5px 0; font-size: 1.1em; color: #007bff; }
+    .customer-info p { margin: 2px 0; font-size: 0.9em; line-height: 1.4; }
+
+    /* ORDER TABLE */
+    .review-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    .review-table th { text-align: left; border-bottom: 2px solid #333; padding: 10px 5px; font-size: 0.85em; text-transform: uppercase; }
+    .review-table td { padding: 12px 5px; border-bottom: 1px solid #eee; font-size: 0.95em; }
+    .text-right { text-align: right; }
+
+    /* TOTALS SECTION */
+    .totals-area { margin-top: 10px; border-top: 2px solid #eee; padding-top: 10px; }
+    .total-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 1em; }
+    .discount { color: #28a745; font-weight: 500; }
+    .grand-total { font-weight: bold; font-size: 1.3em; color: #000; border-top: 2px solid #333; margin-top: 10px; padding-top: 10px; }
+
+    /* INPUTS & BUTTONS */
+    input[type="text"], input[type="number"] { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+    .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 1000; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-height: 200px; overflow-y: auto; display: none; }
+    .dropdown div { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; }
     
-    /* AUTOCOMPLETE DROPDOWN */
-    .autocomplete-wrapper { position: relative; }
-    .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 9999; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.15); max-height: 250px; overflow-y: auto; display: none; }
-    .dropdown div { padding: 14px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 0.95em; }
-    .dropdown div:hover { background: #f0f7ff; color: #007bff; }
-
-    /* PRODUCT GRID */
-    .grid { display: grid; gap: 12px; margin-top: 15px; }
-    .product-card { border: 1px solid #eee; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; background: #fff; }
-    .product-card strong { font-size: 1em; display: block; }
-    .product-card small { color: #666; font-size: 0.85em; }
-    .product-card input { width: 75px; margin: 0; text-align: center; border: 2px solid #007bff; font-weight: bold; }
-
-    /* REVIEW STYLES */
-    .address-block { background: #f0f7ff; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 5px solid #007bff; font-size: 0.9em; }
-    .review-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-    .review-table th { text-align: left; border-bottom: 2px solid #333; padding: 8px 0; font-size: 0.85em; }
-    .review-table td { padding: 10px 0; border-bottom: 1px solid #eee; font-size: 0.95em; }
-
-    /* TOTALS BOX */
-    .totals { margin-top: 15px; padding-top: 10px; border-top: 2px solid #eee; }
-    .total-row { display: flex; justify-content: space-between; padding: 4px 0; }
-    .discount-row { color: #28a745; font-weight: 500; }
-    .grand-total { font-weight: bold; font-size: 1.3em; color: #1a1a1a; border-top: 2px solid #333; margin-top: 10px; padding-top: 10px; }
-
-    /* BUTTONS */
-    .btn-group { display: flex; gap: 10px; margin-top: 25px; }
-    button { flex: 1; padding: 16px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; transition: opacity 0.2s; }
-    button:active { opacity: 0.7; }
+    .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+    button { flex: 1; padding: 16px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
     .primary { background: #007bff; color: white; }
     .success { background: #28a745; color: white; width: 100%; }
-    .secondary { background: #e4e6eb; color: #333; }
+    .secondary { background: #6c757d; color: white; }
+
+    .grid { display: grid; gap: 10px; }
+    .product-card { border: 1px solid #eee; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
   </style>
 </head>
 <body>
 
-<header class="site-header">
-  <img src="logo.png" alt="Suburban Brewing Company">
-  <div class="header-info">
-    <h1>Suburban Brewing Company</h1>
-    <p>3041 Horseshoe Pike, Honey Brook, PA 19344</p>
-    <p>Sales Rep: Remy Davis • (908) 642-1019</p>
-  </div>
-</header>
-
-<main id="form-container"></main>
+<div id="form-container"></div>
 
 <script>
-  /******** CONFIGURATION ********/
-  const API_URL = "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec";
-  const PRODUCT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&single=true&output=csv";
-  const TAX_RATE = 0.06; // PA Sales Tax
+  /******** CONFIG ********/
+  const API_URL = "YOUR_SCRIPT_URL_HERE"; 
+  const PRODUCT_CSV_URL = "YOUR_CSV_URL_HERE";
+  const TAX_RATE = 0.06; // 6%
 
-  /******** APP STATE ********/
+  /******** STATE ********/
   let products = [];
   let customerResults = [];
   let state = { step: 1, customer: null, cart: [] };
 
-  /******** LOAD PRODUCTS FROM CSV ********/
+  /******** LOAD PRODUCTS ********/
   async function loadProducts() {
     try {
-      const res = await fetch(`${PRODUCT_CSV_URL}&cachebust=${Date.now()}`);
+      const res = await fetch(`${PRODUCT_CSV_URL}&t=${Date.now()}`);
       const text = await res.text();
       const lines = text.trim().split(/\r?\n/);
       const headers = lines.shift().split(",").map(h => h.trim());
       
       products = lines.map(line => {
-        const values = line.split(",");
+        const v = line.split(",");
         const obj = {};
-        headers.forEach((h, i) => obj[h] = (values[i] || "").trim());
+        headers.forEach((h, i) => obj[h] = (v[i] || "").trim());
         return { 
           name: obj["Product Name"], 
           price: parseFloat(obj["Price"]) || 0, 
@@ -98,7 +82,7 @@
         };
       }).filter(p => p.name);
       render();
-    } catch(e) { console.error("Error loading products:", e); }
+    } catch(e) { console.error("CSV Load Error", e); }
   }
 
   /******** RENDER ENGINE ********/
@@ -106,125 +90,147 @@
     const el = document.getElementById("form-container");
     el.innerHTML = "";
 
-    // STEP 1: CUSTOMER SEARCH
+    // STEP 1: SEARCH
     if (state.step === 1) {
       el.innerHTML = `
         <div class="card">
-          <h2>Select Customer</h2>
-          <div class="autocomplete-wrapper">
-            <input id="c-search" type="text" placeholder="Start typing name..." autocomplete="off">
-            <div id="c-results" class="dropdown"></div>
+          <div class="site-header">
+            <img src="logo.png" alt="SBC">
+            <h1>Suburban Brewing Company</h1>
+          </div>
+          <div class="content">
+            <h2>Select Customer</h2>
+            <div style="position:relative;">
+              <input id="c-search" type="text" placeholder="Start typing name..." autocomplete="off">
+              <div id="c-results" class="dropdown"></div>
+            </div>
           </div>
         </div>`;
       document.getElementById("c-search").addEventListener("input", handleSearch);
     } 
 
-    // STEP 2: PRODUCT SELECTION GRID
+    // STEP 2: PRODUCT GRID
     else if (state.step === 2) {
       el.innerHTML = `
         <div class="card">
-          <h2>Order for ${state.customer.name}</h2>
-          <div class="grid">${products.map((p, i) => `
-            <div class="product-card">
-              <div>
-                <strong>${p.name}</strong>
-                <small>$${p.price.toFixed(2)} | Stock: ${p.stock}</small>
-              </div>
-              <input type="number" id="qty-${i}" min="0" max="${p.stock}" placeholder="0" pattern="[0-9]*">
-            </div>`).join("")}
-          </div>
-          <div class="btn-group">
-            <button class="secondary" onclick="state.step=1;render()">Back</button>
-            <button class="primary" onclick="toReview()">Review Order</button>
+          <div class="content">
+            <h2>Order for ${state.customer.name}</h2>
+            <div class="grid">${products.map((p, i) => `
+              <div class="product-card">
+                <div><strong>${p.name}</strong><br><small>$${p.price.toFixed(2)}</small></div>
+                <input type="number" id="qty-${i}" min="0" max="${p.stock}" placeholder="0">
+              </div>`).join("")}
+            </div>
+            <div class="btn-group">
+              <button class="secondary" onclick="state.step=1;render()">Back</button>
+              <button class="primary" onclick="toReview()">Review Order</button>
+            </div>
           </div>
         </div>`;
     }
 
-    // STEP 3: REVIEW & CALCULATION PAGE
+    // STEP 3: THE REVIEW PAGE
     else if (state.step === 3) {
-      const subtotal = state.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-      const totalQty = state.cart.reduce((sum, item) => sum + item.qty, 0);
+      const sub = state.cart.reduce((s, i) => s + (i.price * i.qty), 0);
+      const totalQty = state.cart.reduce((s, i) => s + i.qty, 0);
       
-      // DISCOUNT LOGIC: 10% OFF IF 10+ TOTAL CASES
-      const discount = totalQty >= 10 ? subtotal * 0.10 : 0;
+      // 10% discount if 10+ cases
+      const disc = totalQty >= 10 ? sub * 0.10 : 0;
       
-      // TAX LOGIC: ONLY IF BUSINESS TYPE CONTAINS "RESTAURANT"
-      const isRestaurant = (state.customer.businessType || "").toLowerCase().includes("restaurant");
-      const tax = isRestaurant ? (subtotal - discount) * TAX_RATE : 0;
-      const finalTotal = subtotal - discount + tax;
+      // 6% tax if Restaurant
+      const isRest = (state.customer.businessType || "").toLowerCase().includes("restaurant");
+      const tax = isRest ? (sub - disc) * TAX_RATE : 0;
+      
+      const grandTotal = sub - disc + tax;
 
       el.innerHTML = `
         <div class="card">
-          <h2>Order Review</h2>
-          <div class="address-block">
-            <strong>${state.customer.name}</strong><br>
-            ${state.customer.address}<br>
-            ${state.customer.city}, ${state.customer.state} ${state.customer.zip}
+          <div class="site-header">
+            <img src="logo.png" alt="SBC">
+            <h1>Suburban Brewing Company</h1>
+            <p>3041 Horseshoe Pike, Honey Brook, PA 19344</p>
+            <p>Remy Davis • (908) 642-1019</p>
           </div>
-          <table class="review-table">
-            <thead><tr><th>Item</th><th>Qty</th><th>Total</th></tr></thead>
-            <tbody>${state.cart.map(i => `
-              <tr><td>${i.name}</td><td>${i.qty}</td><td>$${(i.qty*i.price).toFixed(2)}</td></tr>
-            `).join("")}</tbody>
-          </table>
-          <div class="totals">
-            <div class="total-row"><span>Subtotal:</span><span>$${subtotal.toFixed(2)}</span></div>
-            ${discount > 0 ? `<div class="total-row discount-row"><span>Bulk Discount (10%):</span><span>-$${discount.toFixed(2)}</span></div>` : ""}
-            ${tax > 0 ? `<div class="total-row"><span>Tax (Restaurant):</span><span>$${tax.toFixed(2)}</span></div>` : ""}
-            <div class="total-row grand-total"><span>Total:</span><span>$${finalTotal.toFixed(2)}</span></div>
-          </div>
-          <div class="btn-group">
-            <button class="secondary" onclick="state.step=2;render()">Edit Order</button>
-            <button class="success" onclick="submitOrder()">Confirm & Submit to !Main</button>
+          
+          <div class="content">
+            <div class="customer-info">
+              <h3>Bill To:</h3>
+              <p><strong>${state.customer.name}</strong></p>
+              <p>${state.customer.address}</p>
+              <p>${state.customer.city}, ${state.customer.state} ${state.customer.zip}</p>
+              <p>Type: ${state.customer.businessType}</p>
+            </div>
+
+            <table class="review-table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th class="text-right">Qty</th>
+                  <th class="text-right">Price</th>
+                  <th class="text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${state.cart.map(item => `
+                  <tr>
+                    <td>${item.name}</td>
+                    <td class="text-right">${item.qty}</td>
+                    <td class="text-right">$${item.price.toFixed(2)}</td>
+                    <td class="text-right">$${(item.qty * item.price).toFixed(2)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+
+            <div class="totals-area">
+              <div class="total-row"><span>Subtotal:</span><span>$${sub.toFixed(2)}</span></div>
+              ${disc > 0 ? `<div class="total-row discount"><span>Bulk Discount (10%):</span><span>-$${disc.toFixed(2)}</span></div>` : ""}
+              ${tax > 0 ? `<div class="total-row"><span>Sales Tax (6%):</span><span>$${tax.toFixed(2)}</span></div>` : ""}
+              <div class="total-row grand-total"><span>Total:</span><span>$${grandTotal.toFixed(2)}</span></div>
+            </div>
+
+            <div class="btn-group">
+              <button class="secondary" onclick="state.step=2;render()">Edit Order</button>
+              <button class="success" onclick="submitOrder()">Submit to !Main</button>
+            </div>
           </div>
         </div>`;
     }
   }
 
-  /******** CUSTOMER SEARCH LOGIC ********/
+  /******** SEARCH & NAV LOGIC ********/
   async function handleSearch(e) {
     const q = e.target.value;
     const box = document.getElementById("c-results");
     if (q.length < 2) { box.style.display="none"; return; }
     
-    try {
-      const res = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
-      const data = await res.json();
-      customerResults = data.results || [];
-      
-      if (!customerResults.length) { box.style.display="none"; return; }
-      box.style.display = "block";
-      box.innerHTML = customerResults.map((c, i) => `
-        <div data-i="${i}">${c.name} <small style="display:block; color:#888;">${c.city}, ${c.state}</small></div>
-      `).join("");
-      
-      box.onclick = (ev) => {
-        const div = ev.target.closest('div[data-i]');
-        if (div) {
-          state.customer = customerResults[div.dataset.i];
-          state.step = 2; render();
-        }
-      };
-    } catch(e) { console.error("Search error", e); }
+    const res = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
+    const data = await res.json();
+    customerResults = data.results || [];
+    
+    if (!customerResults.length) { box.style.display="none"; return; }
+    box.style.display = "block";
+    box.innerHTML = customerResults.map((c, i) => `<div data-i="${i}">${c.name} (${c.city})</div>`).join("");
+    
+    box.onclick = (ev) => {
+      state.customer = customerResults[ev.target.dataset.i];
+      state.step = 2; render();
+    };
   }
 
-  /******** TRANSITION TO REVIEW ********/
   function toReview() {
     state.cart = products.map((p, i) => ({
       ...p,
       qty: parseInt(document.getElementById(`qty-${i}`).value) || 0
     })).filter(i => i.qty > 0);
     
-    if (!state.cart.length) return alert("Please select at least one product.");
+    if (!state.cart.length) return alert("Select at least one item.");
     state.step = 3; render();
   }
 
-  /******** GOOGLE SHEETS SUBMISSION ********/
   async function submitOrder() {
     const btn = document.querySelector(".success");
-    btn.disabled = true; 
-    btn.innerText = "Processing...";
-
+    btn.disabled = true; btn.innerText = "Submitting...";
     try {
       const res = await fetch(API_URL, {
         method: "POST",
@@ -232,20 +238,12 @@
       });
       const d = await res.json();
       if (d.success) {
-        alert("Success! Order sent to !Main screen.");
-        state = { step: 1, customer: null, cart: [] }; 
-        render();
-      } else {
-        throw new Error(d.error);
+        alert("Order submitted successfully!");
+        state = { step: 1, customer: null, cart: [] }; render();
       }
-    } catch(e) { 
-      alert("Submission failed. Please check connection."); 
-      btn.disabled = false; 
-      btn.innerText = "Confirm & Submit to !Main";
-    }
+    } catch(e) { alert("Error"); btn.disabled = false; btn.innerText = "Submit to !Main"; }
   }
 
-  // Initial Load
   loadProducts();
 </script>
 </body>
