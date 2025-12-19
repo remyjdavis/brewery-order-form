@@ -3,17 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>SBC Order System</title>
+  <title>SBC Order Portal</title>
   <style>
     /* BASE STYLES */
-    body { font-family: -apple-system, system-ui, sans-serif; background: #f4f4f9; margin: 0; padding: 0; color: #333; padding-bottom: 80px; }
+    body { font-family: -apple-system, system-ui, sans-serif; background: #f4f4f9; margin: 0; padding: 0; color: #333; padding-bottom: 90px; }
     
-    /* COMPACT HEADER */
-    .site-header { background: #1a1a1a; color: white; padding: 10px 20px; display: flex; align-items: center; justify-content: center; gap: 20px; border-bottom: 3px solid #007bff; }
-    .site-header img { max-width: 60px; height: auto; }
+    /* PROFESSIONAL COMPACT HEADER */
+    .site-header { 
+      background: #1a1a1a; 
+      color: white; 
+      padding: 15px 25px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      gap: 25px;
+      border-bottom: 3px solid #007bff; 
+    }
+    .site-header img { max-width: 70px; height: auto; }
     .header-info { text-align: left; }
-    .site-header h1 { margin: 0; font-size: 1.1em; }
-    .header-info p { margin: 0; font-size: 0.75em; opacity: 0.7; }
+    .site-header h1 { margin: 0; font-size: 1.25em; letter-spacing: 0.5px; color: #fff; }
+    .header-info p { margin: 2px 0; font-size: 0.85em; opacity: 0.8; line-height: 1.3; }
 
     /* CARD CONTAINER */
     .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 92%; max-width: 850px; margin: 20px auto; position: relative; }
@@ -33,19 +42,20 @@
       right: 0;
       background: #fff;
       border-top: 2px solid #007bff;
-      padding: 15px 25px;
+      padding: 15px 30px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
       z-index: 10000;
     }
-    .live-info div { font-size: 0.85em; color: #666; }
-    .live-info strong { font-size: 1.2em; color: #1a1a1a; display: block; }
-    .discount-alert { color: #28a745; font-weight: bold; font-size: 0.8em; }
+    .live-info div { font-size: 0.9em; color: #666; }
+    .live-info strong { font-size: 1.3em; color: #1a1a1a; display: block; }
+    .discount-alert { color: #28a745; font-weight: bold; font-size: 0.85em; }
 
-    /* SEARCH & AUTOCOMPLETE */
+    /* AUTOCOMPLETE SEARCH */
     .autocomplete-wrapper { position: relative; max-width: 500px; margin: 0 auto; }
+    input[type="text"] { width: 100%; padding: 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
     .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 9999; border-radius: 0 0 8px 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); max-height: 250px; overflow-y: auto; display: none; top: 100%; left: 0; }
     .dropdown div { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; }
 
@@ -63,7 +73,9 @@
   <img src="logo.png" alt="SBC Logo">
   <div class="header-info">
     <h1>Suburban Brewing Company</h1>
-    <p>Honey Brook, PA • Wholesale Portal</p>
+    <p>3041 Horseshoe Pike, Honey Brook, PA 19344</p>
+    <p>Sales Rep: Remy Davis</p>
+    <p>(908) 642-1019 • [INSERT EMAIL HERE]</p>
   </div>
 </header>
 
@@ -79,6 +91,7 @@
 </div>
 
 <script>
+  // CONFIG
   const API_URL = "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec"; 
   const PRODUCT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&single=true&output=csv";
   const TAX_RATE = 0.06;
@@ -86,6 +99,7 @@
   let products = [];
   let state = { step: 1, customer: null, cart: [] };
 
+  // INITIAL LOAD
   async function loadProducts() {
     try {
       const res = await fetch(`${PRODUCT_CSV_URL}&t=${Date.now()}`);
@@ -99,9 +113,10 @@
         return { name: obj["Product Name"], price: parseFloat(obj["Price"]) || 0, stock: parseInt(obj["Qty In Stock"]) || 0 };
       }).filter(p => p.name);
       render();
-    } catch(e) { console.error("CSV Load Fail", e); }
+    } catch(e) { console.error("CSV Fail", e); }
   }
 
+  // RENDER ENGINE
   function render() {
     const el = document.getElementById("form-container");
     const bar = document.getElementById("live-bar");
@@ -112,7 +127,6 @@
       el.innerHTML = `<div class="card" style="text-align:center;"><h2>Select Customer</h2><div class="autocomplete-wrapper"><input id="c-search" type="text" placeholder="Search customer..." autocomplete="off"><div id="c-results" class="dropdown"></div></div></div>`;
       document.getElementById("c-search").addEventListener("input", handleSearch);
     } 
-    
     else if (state.step === 2) {
       bar.style.display = "flex";
       el.innerHTML = `
@@ -127,34 +141,27 @@
           <div class="btn-group"><button class="secondary" onclick="state.step=1;render()">Back</button></div>
         </div>`;
     }
-
     else if (state.step === 3) {
       renderReview(el);
     }
   }
 
+  // LIVE TOTAL LOGIC
   function updateLiveTotal() {
-    let sub = 0;
-    let qty = 0;
+    let sub = 0; let qty = 0;
     products.forEach((p, i) => {
       const val = parseInt(document.getElementById(`qty-${i}`).value) || 0;
-      sub += (val * p.price);
-      qty += val;
+      sub += (val * p.price); qty += val;
     });
-
     document.getElementById("case-count").innerText = `${qty} Cases Selected`;
     document.getElementById("live-subtotal").innerText = `$${sub.toFixed(2)}`;
-    
     const hint = document.getElementById("discount-hint");
-    if (qty > 0 && qty < 10) {
-      hint.innerText = `Add ${10 - qty} more for 10% off!`;
-    } else if (qty >= 10) {
-      hint.innerText = "10% Bulk Discount Applied!";
-    } else {
-      hint.innerText = "";
-    }
+    if (qty > 0 && qty < 10) hint.innerText = `Add ${10 - qty} more for 10% off!`;
+    else if (qty >= 10) hint.innerText = "10% Bulk Discount Applied!";
+    else hint.innerText = "";
   }
 
+  // REVIEW LOGIC
   function renderReview(el) {
     const sub = state.cart.reduce((s, i) => s + (i.price * i.qty), 0);
     const totalQty = state.cart.reduce((s, i) => s + i.qty, 0);
@@ -165,27 +172,29 @@
     el.innerHTML = `
       <div class="card">
         <h2>Order Review</h2>
-        <div style="font-size:0.9em; margin-bottom:20px;"><strong>${state.customer.name}</strong><br>${state.customer.address}</div>
-        <table style="width:100%; border-collapse:collapse; font-size:0.9em;">
-          ${state.cart.map(i => `<tr style="border-bottom:1px solid #eee;"><td style="padding:8px 0;">${i.name} (x${i.qty})</td><td style="text-align:right;">$${(i.qty*i.price).toFixed(2)}</td></tr>`).join("")}
+        <div style="font-size:0.95em; margin-bottom:20px; border-left:4px solid #007bff; padding-left:15px;">
+          <strong>${state.customer.name}</strong><br>${state.customer.address}, ${state.customer.city}
+        </div>
+        <table style="width:100%; border-collapse:collapse; font-size:0.9em; margin-bottom:20px;">
+          <tr style="border-bottom:2px solid #333;"><th style="text-align:left; padding:8px 0;">Item</th><th style="text-align:right;">Total</th></tr>
+          ${state.cart.map(i => `<tr style="border-bottom:1px solid #eee;"><td style="padding:10px 0;">${i.name} (x${i.qty})</td><td style="text-align:right;">$${(i.qty*i.price).toFixed(2)}</td></tr>`).join("")}
         </table>
-        <div style="margin-top:15px; text-align:right; font-size:1.1em;">
-          <div>Subtotal: $${sub.toFixed(2)}</div>
-          ${disc > 0 ? `<div style="color:green;">Discount: -$${disc.toFixed(2)}</div>` : ""}
-          ${tax > 0 ? `<div>Tax: $${tax.toFixed(2)}</div>` : ""}
-          <strong style="font-size:1.3em; display:block; margin-top:10px;">Total: $${(sub - disc + tax).toFixed(2)}</strong>
+        <div style="text-align:right;">
+          <div style="margin-bottom:5px;">Subtotal: $${sub.toFixed(2)}</div>
+          ${disc > 0 ? `<div style="color:green; margin-bottom:5px;">Bulk Discount (10%): -$${disc.toFixed(2)}</div>` : ""}
+          ${tax > 0 ? `<div style="margin-bottom:5px;">Tax (6%): $${tax.toFixed(2)}</div>` : ""}
+          <strong style="font-size:1.4em; border-top:2px solid #333; display:inline-block; padding-top:10px;">Total: $${(sub - disc + tax).toFixed(2)}</strong>
         </div>
         <div class="btn-group">
-          <button class="secondary" onclick="state.step=2;render()">Edit</button>
+          <button class="secondary" onclick="state.step=2;render()">Edit Order</button>
           <button class="success" onclick="submitOrder()">Submit to !Main</button>
         </div>
       </div>`;
   }
 
-  // --- Utility Functions (Search & Submit) ---
+  // AUTOCOMPLETE & SUBMIT
   async function handleSearch(e) {
-    const q = e.target.value;
-    if (q.length < 2) return;
+    const q = e.target.value; if (q.length < 2) return;
     const res = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
     const data = await res.json();
     const box = document.getElementById("c-results");
@@ -193,11 +202,7 @@
     box.innerHTML = data.results.map((c, i) => `<div onclick="selectCustomer(${JSON.stringify(c).replace(/"/g, '&quot;')})">${c.name} (${c.city})</div>`).join("");
   }
 
-  window.selectCustomer = (c) => {
-    state.customer = c;
-    state.step = 2;
-    render();
-  };
+  window.selectCustomer = (c) => { state.customer = c; state.step = 2; render(); };
 
   function toReview() {
     state.cart = products.map((p, i) => ({ ...p, qty: parseInt(document.getElementById(`qty-${i}`).value) || 0 })).filter(i => i.qty > 0);
@@ -206,10 +211,9 @@
   }
 
   async function submitOrder() {
-    const btn = document.querySelector(".success");
-    btn.disabled = true; btn.innerText = "Sending...";
+    const btn = document.querySelector(".success"); btn.disabled = true; btn.innerText = "Sending...";
     await fetch(API_URL, { method: "POST", body: JSON.stringify({ customer: state.customer, items: state.cart }) });
-    alert("Order Submitted!");
+    alert("Success! Order sent to !Main.");
     state = { step: 1, customer: null, cart: [] }; render();
   }
 
