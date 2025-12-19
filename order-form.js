@@ -5,6 +5,8 @@ const PRODUCT_CSV_URL =
 
 /******** STATE ********/
 let products = [];
+let customerResults = [];
+
 let state = {
   step: 1,
   customer: null,
@@ -71,8 +73,9 @@ function render() {
       </div>
     `;
 
-    const input = document.getElementById("customer-input");
-    input.addEventListener("input", handleAutocomplete);
+    document
+      .getElementById("customer-input")
+      .addEventListener("input", handleAutocomplete);
   }
 
   /* STEP 2 — PRODUCTS */
@@ -80,16 +83,23 @@ function render() {
     el.innerHTML = `
       <div class="card">
         <h2>Products</h2>
+
         <div class="grid">
           ${products.map((p, i) => `
             <div class="product-card">
               <strong>${p.name}</strong>
               <div>$${p.price.toFixed(2)}</div>
               <div>In Stock: ${p.stock}</div>
-              <input type="number" min="0" max="${p.stock}" id="qty-${i}">
+              <input
+                type="number"
+                min="0"
+                max="${p.stock}"
+                id="qty-${i}"
+              >
             </div>
           `).join("")}
         </div>
+
         <button class="primary" onclick="review()">Review Order</button>
       </div>
     `;
@@ -98,15 +108,23 @@ function render() {
 
 /******** AUTOCOMPLETE ********/
 async function handleAutocomplete(e) {
-  const results = await searchCustomers(e.target.value);
+  const query = e.target.value;
   const box = document.getElementById("autocomplete-results");
 
-  box.innerHTML = results.map(c => `
-    <div class="autocomplete-item"
-         onclick='selectCustomer(${JSON.stringify(c)})'>
+  customerResults = await searchCustomers(query);
+
+  box.innerHTML = customerResults.map((c, i) => `
+    <div class="autocomplete-item" data-index="${i}">
       ${c.name}
     </div>
   `).join("");
+
+  box.querySelectorAll(".autocomplete-item").forEach(item => {
+    item.addEventListener("click", () => {
+      const index = Number(item.dataset.index);
+      selectCustomer(customerResults[index]);
+    });
+  });
 }
 
 function selectCustomer(customer) {
@@ -127,7 +145,7 @@ function review() {
     return;
   }
 
-  alert("Review page next — logic intact.");
+  alert("Review logic next step — state is correct.");
 }
 
 /******** INIT ********/
