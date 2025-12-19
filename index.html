@@ -8,6 +8,7 @@
         :root { --sbc-blue: #007bff; --sbc-dark: #1a1a1a; --bg: #f4f7f9; }
         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: var(--bg); margin: 0; padding-bottom: 120px; color: #333; }
         
+        /* PROFESSIONAL LEFT-ALIGNED HEADER */
         .site-header { background: #fff; padding: 30px 5%; border-bottom: 5px solid var(--sbc-dark); display: flex; align-items: center; gap: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .site-header img { height: 85px; }
         .header-text { text-align: left; }
@@ -17,8 +18,10 @@
         .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
         .card { background: white; padding: 40px; border-radius: 4px; border: 1px solid #e1e4e8; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         
+        /* AGREEMENT BOX */
         .legal-scroll { height: 350px; overflow-y: scroll; border: 1px solid #eee; padding: 25px; background: #fafafa; font-size: 0.9em; line-height: 1.7; margin: 20px 0; border-radius: 4px; }
         
+        /* LIVE BAR */
         .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--sbc-dark); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; z-index: 9999; border-top: 4px solid var(--sbc-blue); }
         .summary-flex { display: flex; gap: 30px; }
         .summary-item { text-align: left; }
@@ -91,8 +94,15 @@
         
         const disc = (totalQty >= 10) ? (sub * 0.10) : 0;
         
-        // KEYWORD TAX LOGIC
-        const restaurantKeywords = ["restaurant", "cafe", "grill", "pub", "kitchen", "bar", "tavern", "inn", "bistro"];
+        // EXHAUSTIVE RESTAURANT KEYWORD LIST
+        const restaurantKeywords = [
+            "restaurant", "cafe", "grill", "pub", "kitchen", "bar", "tavern", 
+            "inn", "bistro", "diner", "steakhouse", "eatery", "pizzeria", 
+            "pizza", "deli", "brewpub", "lounge", "house", "brasserie", 
+            "cantina", "shack", "gastropub", "smokehouse", "bbq", "oyster",
+            "sushi", "trattoria", "noodle", "burger", "wing", "taproom"
+        ];
+        
         const isRestaurant = state.customer && restaurantKeywords.some(kw => state.customer.name.toLowerCase().includes(kw));
         
         const tax = isRestaurant ? ((sub - disc) * 0.06) : 0;
