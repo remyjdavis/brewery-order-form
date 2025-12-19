@@ -3,21 +3,25 @@ const API_URL =
   "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec";
 
 const PRODUCT_CSV_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&single=true&output=csv";
+  "PUT_YOUR_PUBLISHED_CSV_URL_HERE";
 
 /******** STATE ********/
 let products = [];
 let state = {
   step: 1,
   customer: null,
-  cart: [],
-  taxRate: 0
+  cart: []
 };
 
 /******** CSV PARSER ********/
 function parseCSV(text) {
   const lines = text.trim().split("\n");
-  const headers = lines.shift().split(",").map(h => h.trim());
+  const rawHeaders = lines.shift().split(",");
+
+  // normalize headers
+  const headers = rawHeaders.map(h =>
+    h.toLowerCase().replace(/\s+/g, " ").trim()
+  );
 
   return lines.map(line => {
     const values = line.split(",");
@@ -29,23 +33,44 @@ function parseCSV(text) {
   });
 }
 
-/******** LOAD PRODUCTS — FIXED HEADERS ********/
+/******** LOAD PRODUCTS — BULLETPROOF ********/
 async function loadProducts() {
-  const response = await fetch(PRODUCT_CSV_URL);
-  const text = await response.text();
-
+  const res = await fetch(PRODUCT_CSV_URL);
+  const text = await res.text();
   const rows = parseCSV(text);
 
-  products = rows.map(row => ({
-    name: row["Product Name"],                 // ✅ Column A
-    price: Number(row["Price"]) || 0,          // ✅ Price
-    stock: Number(row["Qty In Stock"]) || 0    // ✅ FIXED HEADER
-  }));
+  products = rows.map((row, index) => {
+    const name =
+      row["product name"] ||
+      row["name"] ||
+      row["product"] ||
+      "";
+
+    const price =
+      Number(row["price"]) ||
+      Number(row["unit price"]) ||
+      0;
+
+    const stock =
+      Number(
+        row["qty in stock"] ||
+        row["quantity in stock"] ||
+        row["stock"] ||
+        row["inventory"] ||
+        0
+      );
+
+    return {
+      name,
+      price,
+      stock
+    };
+  }).filter(p => p.name); // remove empty rows
 
   render();
 }
 
-/******** AUTOCOMPLETE — UNCHANGED ********/
+/******** AUTOCOMPLETE — UNTOUCHED ********/
 async function fetchCustomers(q) {
   if (q.length < 2) return [];
   const r = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
@@ -85,7 +110,6 @@ function render() {
   const el = document.getElementById("form-container");
   el.innerHTML = "";
 
-  /* STEP 1 — CUSTOMER */
   if (state.step === 1) {
     el.innerHTML = `
       <div class="card">
@@ -99,7 +123,6 @@ function render() {
     bindAutocomplete();
   }
 
-  /* STEP 2 — PRODUCTS (GRID LOCKED) */
   if (state.step === 2) {
     let html = `<div class="card"><h2>Select Products</h2><div class="grid">`;
 
@@ -109,40 +132,29 @@ function render() {
           <strong>${p.name}</strong>
           $${p.price.toFixed(2)}<br>
           In Stock: ${p.stock}
-          <input type="number"
-                 min="0"
-                 max="${p.stock}"
-                 id="q-${i}">
+          <input type="number" min="0" max="${p.stock}" id="q-${i}">
         </div>`;
     });
 
-    html += `</div>
+    html += `
+      </div>
       <button class="primary" onclick="review()">Review Order</button>
-    </div>`;
+      </div>`;
 
     el.innerHTML = html;
   }
 
-  /* STEP 3 — REVIEW */
   if (state.step === 3) {
-    let subtotal = 0, cases = 0, keg = 0;
-
+    let subtotal = 0;
     let html = `
       <div class="card">
       <h2>Review Order</h2>
-      <p><strong>${state.customer.name}</strong><br>
-      ${state.customer.address}<br>
-      ${state.customer.city}, ${state.customer.state} ${state.customer.zip}</p>
-      <hr>
       <table class="review-table">
       <tr><th>Product</th><th>Qty</th><th>Total</th></tr>`;
 
     state.cart.forEach(i => {
       const line = i.qty * i.price;
       subtotal += line;
-      if (/case/i.test(i.name)) cases += i.qty;
-      if (/keg/i.test(i.name)) keg += i.qty * 30;
-
       html += `
         <tr>
           <td>${i.name}</td>
@@ -151,18 +163,9 @@ function render() {
         </tr>`;
     });
 
-    const discount = cases >= 10 ? subtotal * 0.10 : 0;
-    const tax = state.customer.businessType === "Restaurant" ? subtotal * 0.06 : 0;
-    const total = subtotal - discount + tax + keg;
-
     html += `
       </table>
-      <p>Subtotal: $${subtotal.toFixed(2)}</p>
-      <p>Discount: -$${discount.toFixed(2)}</p>
-      <p>Tax: $${tax.toFixed(2)}</p>
-      <p>Keg Deposit: $${keg.toFixed(2)}</p>
-      <h3>Total: $${total.toFixed(2)}</h3>
-
+      <h3>Total: $${subtotal.toFixed(2)}</h3>
       <button onclick="state.step=2;render()">Back</button>
       <button class="primary">Submit</button>
       </div>`;
