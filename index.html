@@ -110,17 +110,21 @@
 
     if (state.step === 0) {
       app.innerHTML = `<div class="card">
-        <h2 style="font-size:1.1em; border-bottom:2px solid #007bff; padding-bottom:8px;">Wholesale Purchase Agreement</h2>
-        <div style="font-size:0.8em; max-height: 300px; overflow-y: auto; border: 1px solid #eee; padding: 15px; margin: 15px 0; background: #fafafa; line-height: 1.6; color: #444;">
-            <p><strong>1. LICENSURE:</strong> Purchaser warrants a valid retail liquor license.</p>
-            <p><strong>2. TAXES:</strong> 6% sales tax applied to restaurant/retail accounts.</p>
-            <p><strong>3. KEGS:</strong> $30.00 deposit per unit.</p>
-            <p><strong>4. PAYMENT:</strong> Due on delivery (Fintech or Check).</p>
-            <p><strong>5. DISCOUNTS:</strong> 10% Bulk Discount applies to 10+ total units.</p>
+        <h2 style="font-size:1.1em; border-bottom:2px solid #007bff; padding-bottom:8px;">Wholesale Purchase & Distribution Agreement</h2>
+        <div style="font-size:0.75em; max-height: 400px; overflow-y: auto; border: 1px solid #eee; padding: 20px; margin: 15px 0; background: #fafafa; line-height: 1.8; color: #444; text-align: justify;">
+            <p><strong>1. SCOPE OF AGREEMENT:</strong> This Agreement governs the sale and distribution of malt or brewed beverages by Suburban Brewing Co. ("Seller") to the Retail Licensee ("Purchaser").</p>
+            <p><strong>2. LICENSURE AND COMPLIANCE:</strong> The Purchaser represents and warrants that they hold a current and valid retail liquor license issued by the Pennsylvania Liquor Control Board (PLCB). Purchaser agrees to comply with all local, state, and federal laws regarding the sale and service of alcohol.</p>
+            <p><strong>3. PRICING AND TAXATION:</strong> All prices are subject to change based on market fluctuations. In accordance with PA Title 47, Seller is required to collect appropriate taxes. A 6% Sales Tax will be automatically applied to accounts identified as retail/restaurant entities unless a valid Tax Exempt certificate is on file.</p>
+            <p><strong>4. DELIVERY AND ACCEPTANCE:</strong> Risk of loss passes to the Purchaser upon delivery to the licensed premises. Purchaser must inspect all goods upon arrival. Claims for breakage or shortage must be made at the time of delivery.</p>
+            <p><strong>5. EQUIPMENT AND COOPERAGE:</strong> All kegs (cooperage) remain the property of Suburban Brewing Co. A deposit of $30.00 per unit is required. Deposits are refundable upon the return of undamaged, authorized cooperage. Purchaser is liable for the full replacement cost ($120.00) of any lost or destroyed kegs.</p>
+            <p><strong>6. PAYMENT TERMS:</strong> Payment is due net-on-delivery. Fintech-enabled accounts will be drafted automatically upon invoice finalization. For non-Fintech accounts, payment via business check must be presented at the time of drop-off. Failure to pay may result in a "No-Service" status and reporting to the PLCB credit list where applicable.</p>
+            <p><strong>7. PRODUCT QUALITY:</strong> Seller guarantees the quality of product at the time of delivery. Because our product is unpasteurized, it MUST be maintained at a constant refrigeration temperature of 38°F. Seller is not responsible for product spoilage due to improper storage or line maintenance by the Purchaser.</p>
+            <p><strong>8. LIMITATION OF LIABILITY:</strong> Seller’s liability for any claim shall not exceed the purchase price of the specific goods giving rise to the claim. Seller shall not be liable for any indirect, special, or consequential damages.</p>
+            <p><strong>9. FORCE MAJEURE:</strong> Neither party shall be liable for failure to perform duties due to acts of God, strikes, or governmental restrictions beyond their control.</p>
         </div>
         <label style="display:flex; align-items:center; gap:12px; margin-bottom:20px; font-size:0.9em; cursor:pointer; background: #eef6ff; padding: 12px; border-radius: 6px;">
             <input type="checkbox" id="agree-cb" style="transform: scale(1.3);" onchange="document.getElementById('proceed-btn').disabled = !this.checked"> 
-            <strong>I agree to the Wholesale Purchase Terms.</strong>
+            <strong>I acknowledge that I am an authorized agent of the licensee and agree to the terms above.</strong>
         </label>
         <button id="proceed-btn" class="primary" disabled onclick="state.step=1;render()">I Agree & Proceed</button>
       </div>`;
@@ -223,7 +227,7 @@
         app.innerHTML = `<div class="card" style="text-align:center; padding:50px 20px;">
             <div style="font-size: 3em; color: #28a745; margin-bottom: 10px;">✓</div>
             <h2>Order Submitted!</h2>
-            <p>Thank you. SBC has been notified.</p>
+            <p>SBC has been notified. Check your email for a summary.</p>
             <button class="primary" onclick="location.reload()" style="max-width:220px; margin-top:25px;">Start New Order</button>
         </div>`;
     }
