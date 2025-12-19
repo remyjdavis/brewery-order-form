@@ -13,23 +13,19 @@ let state = {
   cart: []
 };
 
-/**************** ROBUST CSV PARSER ****************/
+/**************** CSV ****************/
 function parseCSV(text) {
   const lines = text.trim().split("\n");
   const rawHeaders = lines.shift().split(",");
 
-  // 🔒 Normalize headers once
   const headers = rawHeaders.map(h =>
-    h.trim().toLowerCase()
-      .replace(/\s+/g, "_")
+    h.trim().toLowerCase().replace(/\s+/g, "_")
   );
 
   return lines.map(line => {
     const values = line.split(",");
     let obj = {};
-    headers.forEach((h, i) => {
-      obj[h] = (values[i] || "").trim();
-    });
+    headers.forEach((h, i) => obj[h] = (values[i] || "").trim());
     return obj;
   });
 }
@@ -40,18 +36,10 @@ async function loadProducts() {
   const text = await res.text();
 
   products = parseCSV(text).map(p => ({
-    // ✅ THESE KEYS NOW ALWAYS EXIST
     name: p.product_name,
     price: Number(p.price),
     stock: Number(p.qty_in_stock)
   }));
-
-  // 🔒 Hard validation (dev safety)
-  products.forEach(p => {
-    if (!p.name) console.error("Missing product name", p);
-    if (isNaN(p.price)) console.error("Invalid price", p);
-    if (isNaN(p.stock)) console.error("Invalid stock", p);
-  });
 
   render();
 }
@@ -60,7 +48,6 @@ async function loadProducts() {
 async function handleAutocomplete(val) {
   const box = document.getElementById("autocomplete-results");
   box.innerHTML = "";
-
   if (val.length < 2) return;
 
   const res = await fetch(`${API_URL}?q=${encodeURIComponent(val)}`);
@@ -81,22 +68,61 @@ function selectCustomer(customer) {
   render();
 }
 
+/**************** TOTAL CALC ****************/
+function calculateTotals() {
+  let subtotal = 0;
+  let caseCount = 0;
+  let kegDeposit = 0;
+
+  products.forEach((p, i) => {
+    const qty = Number(document.getElementById(`q-${i}`)?.value || 0);
+    if (qty > 0) {
+      subtotal += qty * p.price;
+      if (/case/i.test(p.name)) caseCount += qty;
+      if (/keg/i.test(p.name)) kegDeposit += qty * 30;
+    }
+  });
+
+  const discount = caseCount >= 10 ? subtotal * 0.10 : 0;
+  const taxable = subtotal - discount;
+  const tax =
+    state.customer?.businessType === "Restaurant"
+      ? taxable * 0.06
+      : 0;
+
+  const total = taxable + tax + kegDeposit;
+
+  return { subtotal, discount, tax, kegDeposit, total };
+}
+
+function updateLiveTotal() {
+  const t = calculateTotals();
+  document.getElementById("live-subtotal").textContent =
+    `$${t.subtotal.toFixed(2)}`;
+  document.getElementById("live-discount").textContent =
+    `-$${t.discount.toFixed(2)}`;
+  document.getElementById("live-tax").textContent =
+    `$${t.tax.toFixed(2)}`;
+  document.getElementById("live-keg").textContent =
+    `$${t.kegDeposit.toFixed(2)}`;
+  document.getElementById("live-total").textContent =
+    `$${t.total.toFixed(2)}`;
+}
+
 /**************** RENDER ****************/
 function render() {
   const el = document.getElementById("form-container");
   el.innerHTML = "";
 
-  /* STEP 1 — CUSTOMER */
+  /* STEP 1 */
   if (state.step === 1) {
     el.innerHTML = `
       <div class="card">
         <h2>Select Customer</h2>
         <div class="autocomplete-wrapper">
-          <input
-            id="customer-input"
-            placeholder="Search customer..."
-            oninput="handleAutocomplete(this.value)"
-          >
+          <input id="customer-input"
+                 placeholder="Search customer..."
+                 oninput="handleAutocomplete(this.value)">
           <div id="autocomplete-results"></div>
         </div>
       </div>
@@ -104,7 +130,7 @@ function render() {
     return;
   }
 
-  /* STEP 2 — PRODUCT GRID (DESKTOP LOCKED) */
+  /* STEP 2 — PRODUCT GRID + LIVE TOTAL */
   if (state.step === 2) {
     const card = document.createElement("div");
     card.className = "card";
@@ -114,21 +140,33 @@ function render() {
     grid.className = "grid";
 
     products.forEach((p, i) => {
-      const prod = document.createElement("div");
-      prod.className = "product-card";
-
-      prod.innerHTML = `
+      const div = document.createElement("div");
+      div.className = "product-card";
+      div.innerHTML = `
         <strong>${p.name}</strong>
         <div>Price: $${p.price.toFixed(2)}</div>
         <div>In Stock: ${p.stock}</div>
         ${p.stock <= 5 ? `<div style="color:red;">Low stock</div>` : ""}
-        <input type="number" min="0" max="${p.stock}" id="q-${i}">
+        <input type="number"
+               min="0"
+               max="${p.stock}"
+               id="q-${i}"
+               oninput="updateLiveTotal()">
       `;
-
-      grid.appendChild(prod);
+      grid.appendChild(div);
     });
 
     card.appendChild(grid);
+
+    card.innerHTML += `
+      <div style="margin-top:20px;">
+        <div>Subtotal: <strong id="live-subtotal">$0.00</strong></div>
+        <div>Discount: <strong id="live-discount">$0.00</strong></div>
+        <div>Tax: <strong id="live-tax">$0.00</strong></div>
+        <div>Keg Deposit: <strong id="live-keg">$0.00</strong></div>
+        <h3>Total: <span id="live-total">$0.00</span></h3>
+      </div>
+    `;
 
     const btn = document.createElement("button");
     btn.className = "primary";
@@ -142,11 +180,12 @@ function render() {
 
   /* STEP 3 — REVIEW */
   if (state.step === 3) {
-    let subtotal = 0;
+    const t = calculateTotals();
 
     el.innerHTML = `
       <div class="card">
         <h2>Review Order</h2>
+
         <p>
           <strong>${state.customer.name}</strong><br>
           ${state.customer.address}<br>
@@ -155,23 +194,24 @@ function render() {
 
         <table class="review-table">
           <tr><th>Product</th><th>Qty</th><th>Total</th></tr>
-          ${state.cart.map(i => {
-            const line = i.qty * i.price;
-            subtotal += line;
-            return `
-              <tr>
-                <td>${i.name}</td>
-                <td>${i.qty}</td>
-                <td>$${line.toFixed(2)}</td>
-              </tr>
-            `;
-          }).join("")}
+          ${state.cart.map(i => `
+            <tr>
+              <td>${i.name}</td>
+              <td>${i.qty}</td>
+              <td>$${(i.qty * i.price).toFixed(2)}</td>
+            </tr>
+          `).join("")}
         </table>
 
-        <h3>Total: $${subtotal.toFixed(2)}</h3>
+        <p>Subtotal: $${t.subtotal.toFixed(2)}</p>
+        <p>Discount: -$${t.discount.toFixed(2)}</p>
+        <p>Tax: $${t.tax.toFixed(2)}</p>
+        <p>Keg Deposit: $${t.kegDeposit.toFixed(2)}</p>
+
+        <h3>Total: $${t.total.toFixed(2)}</h3>
 
         <button onclick="state.step=2;render()">Back</button>
-        <button class="primary" onclick="submit()">Submit</button>
+        <button class="primary" onclick="submit()">Submit Order</button>
       </div>
     `;
   }
