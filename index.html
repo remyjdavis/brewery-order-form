@@ -5,45 +5,54 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Suburban Brewing Company — Wholesale Order</title>
   <style>
-    /* CSS SECTION */
-    body { font-family: -apple-system, system-ui, sans-serif; background: #f4f4f9; margin: 0; padding: 0; color: #333; }
+    /* RESET & BASE STYLES */
+    body { font-family: -apple-system, system-ui, sans-serif; background: #f4f4f9; margin: 0; padding: 0; color: #333; line-height: 1.5; }
     
-    .site-header { background: #1a1a1a; color: white; padding: 20px; text-align: center; display: flex; flex-direction: column; align-items: center; }
-    .site-header img { max-width: 120px; margin-bottom: 10px; }
-    .header-info h1 { margin: 0; font-size: 1.5em; }
-    .header-info p { margin: 5px 0; font-size: 0.9em; opacity: 0.8; }
+    /* HEADER SECTION */
+    .site-header { background: #1a1a1a; color: white; padding: 25px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; }
+    .site-header img { max-width: 140px; margin-bottom: 15px; }
+    .header-info h1 { margin: 0; font-size: 1.4em; letter-spacing: 1px; }
+    .header-info p { margin: 4px 0; font-size: 0.85em; opacity: 0.8; }
 
-    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; margin: 20px auto; }
+    /* LAYOUT CONTAINERS */
+    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; margin: 20px auto; box-sizing: border-box; }
+    h2 { margin-top: 0; font-size: 1.2em; color: #007bff; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+
+    /* FORM ELEMENTS */
+    input[type="text"], input[type="number"] { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; -webkit-appearance: none; }
     
-    /* Search & Autocomplete */
-    input[type="text"], input[type="number"] { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+    /* AUTOCOMPLETE DROPDOWN */
     .autocomplete-wrapper { position: relative; }
-    .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 1000; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-height: 200px; overflow-y: auto; display: none; }
-    .dropdown div { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; }
-    .dropdown div:hover { background: #f0f7ff; }
+    .dropdown { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 9999; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.15); max-height: 250px; overflow-y: auto; display: none; }
+    .dropdown div { padding: 14px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 0.95em; }
+    .dropdown div:hover { background: #f0f7ff; color: #007bff; }
 
-    /* Product Grid */
-    .grid { display: grid; gap: 10px; margin-top: 20px; }
-    .product-card { border: 1px solid #eee; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: #fafafa; }
-    .product-card strong { font-size: 1.1em; }
-    .product-card input { width: 80px; margin: 0; text-align: center; border: 2px solid #007bff; }
+    /* PRODUCT GRID */
+    .grid { display: grid; gap: 12px; margin-top: 15px; }
+    .product-card { border: 1px solid #eee; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; background: #fff; }
+    .product-card strong { font-size: 1em; display: block; }
+    .product-card small { color: #666; font-size: 0.85em; }
+    .product-card input { width: 75px; margin: 0; text-align: center; border: 2px solid #007bff; font-weight: bold; }
 
-    /* Review Table */
-    .address-block { background: #f0f7ff; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 5px solid #007bff; }
-    .review-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-    .review-table th { text-align: left; border-bottom: 2px solid #333; padding: 10px 0; }
-    .review-table td { padding: 10px 0; border-bottom: 1px solid #eee; }
+    /* REVIEW STYLES */
+    .address-block { background: #f0f7ff; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 5px solid #007bff; font-size: 0.9em; }
+    .review-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+    .review-table th { text-align: left; border-bottom: 2px solid #333; padding: 8px 0; font-size: 0.85em; }
+    .review-table td { padding: 10px 0; border-bottom: 1px solid #eee; font-size: 0.95em; }
 
-    .totals { border-top: 2px solid #333; padding-top: 10px; }
-    .total-row { display: flex; justify-content: space-between; padding: 5px 0; }
-    .grand-total { font-weight: bold; font-size: 1.3em; color: #d9534f; }
+    /* TOTALS BOX */
+    .totals { margin-top: 15px; padding-top: 10px; border-top: 2px solid #eee; }
+    .total-row { display: flex; justify-content: space-between; padding: 4px 0; }
+    .discount-row { color: #28a745; font-weight: 500; }
+    .grand-total { font-weight: bold; font-size: 1.3em; color: #1a1a1a; border-top: 2px solid #333; margin-top: 10px; padding-top: 10px; }
 
-    /* Buttons */
-    .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-    button { flex: 1; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
+    /* BUTTONS */
+    .btn-group { display: flex; gap: 10px; margin-top: 25px; }
+    button { flex: 1; padding: 16px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; transition: opacity 0.2s; }
+    button:active { opacity: 0.7; }
     .primary { background: #007bff; color: white; }
-    .success { background: #28a745; color: white; }
-    .secondary { background: #6c757d; color: white; }
+    .success { background: #28a745; color: white; width: 100%; }
+    .secondary { background: #e4e6eb; color: #333; }
   </style>
 </head>
 <body>
@@ -60,28 +69,28 @@
 <main id="form-container"></main>
 
 <script>
-  /******** CONFIG ********/
+  /******** CONFIGURATION ********/
   const API_URL = "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec";
   const PRODUCT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&single=true&output=csv";
-  const TAX_RATE = 0.06; // PA Sales Tax example
+  const TAX_RATE = 0.06; // PA Sales Tax
 
-  /******** STATE ********/
+  /******** APP STATE ********/
   let products = [];
   let customerResults = [];
   let state = { step: 1, customer: null, cart: [] };
 
-  /******** LOAD PRODUCTS ********/
+  /******** LOAD PRODUCTS FROM CSV ********/
   async function loadProducts() {
     try {
-      const res = await fetch(`${PRODUCT_CSV_URL}&t=${Date.now()}`);
+      const res = await fetch(`${PRODUCT_CSV_URL}&cachebust=${Date.now()}`);
       const text = await res.text();
       const lines = text.trim().split(/\r?\n/);
       const headers = lines.shift().split(",").map(h => h.trim());
       
       products = lines.map(line => {
-        const v = line.split(",");
+        const values = line.split(",");
         const obj = {};
-        headers.forEach((h, i) => obj[h] = (v[i] || "").trim());
+        headers.forEach((h, i) => obj[h] = (values[i] || "").trim());
         return { 
           name: obj["Product Name"], 
           price: parseFloat(obj["Price"]) || 0, 
@@ -89,10 +98,10 @@
         };
       }).filter(p => p.name);
       render();
-    } catch(e) { console.error("Error loading products", e); }
+    } catch(e) { console.error("Error loading products:", e); }
   }
 
-  /******** RENDER ********/
+  /******** RENDER ENGINE ********/
   function render() {
     const el = document.getElementById("form-container");
     el.innerHTML = "";
@@ -110,15 +119,18 @@
       document.getElementById("c-search").addEventListener("input", handleSearch);
     } 
 
-    // STEP 2: PRODUCT GRID
+    // STEP 2: PRODUCT SELECTION GRID
     else if (state.step === 2) {
       el.innerHTML = `
         <div class="card">
           <h2>Order for ${state.customer.name}</h2>
           <div class="grid">${products.map((p, i) => `
             <div class="product-card">
-              <div><strong>${p.name}</strong><br><small>$${p.price.toFixed(2)}</small></div>
-              <input type="number" id="qty-${i}" min="0" max="${p.stock}" placeholder="0">
+              <div>
+                <strong>${p.name}</strong>
+                <small>$${p.price.toFixed(2)} | Stock: ${p.stock}</small>
+              </div>
+              <input type="number" id="qty-${i}" min="0" max="${p.stock}" placeholder="0" pattern="[0-9]*">
             </div>`).join("")}
           </div>
           <div class="btn-group">
@@ -128,20 +140,26 @@
         </div>`;
     }
 
-    // STEP 3: REVIEW PAGE
+    // STEP 3: REVIEW & CALCULATION PAGE
     else if (state.step === 3) {
-      const sub = state.cart.reduce((s, i) => s + (i.price * i.qty), 0);
-      const totalQty = state.cart.reduce((s, i) => s + i.qty, 0);
-      const disc = totalQty >= 10 ? sub * 0.10 : 0;
-      const isRest = state.customer.businessType.toLowerCase().includes("restaurant");
-      const tax = isRest ? (sub - disc) * TAX_RATE : 0;
+      const subtotal = state.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      const totalQty = state.cart.reduce((sum, item) => sum + item.qty, 0);
+      
+      // DISCOUNT LOGIC: 10% OFF IF 10+ TOTAL CASES
+      const discount = totalQty >= 10 ? subtotal * 0.10 : 0;
+      
+      // TAX LOGIC: ONLY IF BUSINESS TYPE CONTAINS "RESTAURANT"
+      const isRestaurant = (state.customer.businessType || "").toLowerCase().includes("restaurant");
+      const tax = isRestaurant ? (subtotal - discount) * TAX_RATE : 0;
+      const finalTotal = subtotal - discount + tax;
 
       el.innerHTML = `
         <div class="card">
-          <h2>Review Order</h2>
+          <h2>Order Review</h2>
           <div class="address-block">
             <strong>${state.customer.name}</strong><br>
-            ${state.customer.address}<br>${state.customer.city}, ${state.customer.state}
+            ${state.customer.address}<br>
+            ${state.customer.city}, ${state.customer.state} ${state.customer.zip}
           </div>
           <table class="review-table">
             <thead><tr><th>Item</th><th>Qty</th><th>Total</th></tr></thead>
@@ -150,52 +168,63 @@
             `).join("")}</tbody>
           </table>
           <div class="totals">
-            <div class="total-row"><span>Subtotal:</span><span>$${sub.toFixed(2)}</span></div>
-            ${disc > 0 ? `<div class="total-row" style="color:green"><span>Bulk Discount (10%):</span><span>-$${disc.toFixed(2)}</span></div>` : ""}
+            <div class="total-row"><span>Subtotal:</span><span>$${subtotal.toFixed(2)}</span></div>
+            ${discount > 0 ? `<div class="total-row discount-row"><span>Bulk Discount (10%):</span><span>-$${discount.toFixed(2)}</span></div>` : ""}
             ${tax > 0 ? `<div class="total-row"><span>Tax (Restaurant):</span><span>$${tax.toFixed(2)}</span></div>` : ""}
-            <div class="total-row grand-total"><span>Total:</span><span>$${(sub - disc + tax).toFixed(2)}</span></div>
+            <div class="total-row grand-total"><span>Total:</span><span>$${finalTotal.toFixed(2)}</span></div>
           </div>
           <div class="btn-group">
-            <button class="secondary" onclick="state.step=2;render()">Edit Items</button>
-            <button class="success" onclick="submitOrder()">Submit to !Main</button>
+            <button class="secondary" onclick="state.step=2;render()">Edit Order</button>
+            <button class="success" onclick="submitOrder()">Confirm & Submit to !Main</button>
           </div>
         </div>`;
     }
   }
 
-  /******** LOGIC ********/
+  /******** CUSTOMER SEARCH LOGIC ********/
   async function handleSearch(e) {
     const q = e.target.value;
     const box = document.getElementById("c-results");
     if (q.length < 2) { box.style.display="none"; return; }
     
-    const res = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
-    const data = await res.json();
-    customerResults = data.results || [];
-    
-    if (!customerResults.length) { box.style.display="none"; return; }
-    box.style.display = "block";
-    box.innerHTML = customerResults.map((c, i) => `<div data-i="${i}">${c.name} (${c.city})</div>`).join("");
-    
-    box.onclick = (ev) => {
-      state.customer = customerResults[ev.target.dataset.i];
-      state.step = 2; render();
-    };
+    try {
+      const res = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
+      const data = await res.json();
+      customerResults = data.results || [];
+      
+      if (!customerResults.length) { box.style.display="none"; return; }
+      box.style.display = "block";
+      box.innerHTML = customerResults.map((c, i) => `
+        <div data-i="${i}">${c.name} <small style="display:block; color:#888;">${c.city}, ${c.state}</small></div>
+      `).join("");
+      
+      box.onclick = (ev) => {
+        const div = ev.target.closest('div[data-i]');
+        if (div) {
+          state.customer = customerResults[div.dataset.i];
+          state.step = 2; render();
+        }
+      };
+    } catch(e) { console.error("Search error", e); }
   }
 
+  /******** TRANSITION TO REVIEW ********/
   function toReview() {
     state.cart = products.map((p, i) => ({
       ...p,
       qty: parseInt(document.getElementById(`qty-${i}`).value) || 0
     })).filter(i => i.qty > 0);
     
-    if (!state.cart.length) return alert("Select at least one item.");
+    if (!state.cart.length) return alert("Please select at least one product.");
     state.step = 3; render();
   }
 
+  /******** GOOGLE SHEETS SUBMISSION ********/
   async function submitOrder() {
     const btn = document.querySelector(".success");
-    btn.disabled = true; btn.innerText = "Submitting...";
+    btn.disabled = true; 
+    btn.innerText = "Processing...";
+
     try {
       const res = await fetch(API_URL, {
         method: "POST",
@@ -203,12 +232,20 @@
       });
       const d = await res.json();
       if (d.success) {
-        alert("Order submitted to !Main screen!");
-        state = { step: 1, customer: null, cart: [] }; render();
+        alert("Success! Order sent to !Main screen.");
+        state = { step: 1, customer: null, cart: [] }; 
+        render();
+      } else {
+        throw new Error(d.error);
       }
-    } catch(e) { alert("Error submitting"); btn.disabled = false; }
+    } catch(e) { 
+      alert("Submission failed. Please check connection."); 
+      btn.disabled = false; 
+      btn.innerText = "Confirm & Submit to !Main";
+    }
   }
 
+  // Initial Load
   loadProducts();
 </script>
 </body>
