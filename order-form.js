@@ -1,11 +1,11 @@
-/**************** CONFIG ****************/
+/******** CONFIG ********/
 const API_URL =
   "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec";
 
 const PRODUCT_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&single=true&output=csv";
 
-/**************** STATE ****************/
+/******** STATE ********/
 let products = [];
 let state = {
   step: 1,
@@ -13,215 +13,166 @@ let state = {
   cart: []
 };
 
-/**************** CSV ****************/
+/******** CSV ********/
 function parseCSV(text) {
   const lines = text.trim().split("\n");
   const headers = lines.shift().split(",");
-  return lines.map(row => {
-    const values = row.split(",");
-    let obj = {};
-    headers.forEach((h, i) => {
-      obj[h.trim()] = (values[i] || "").trim();
-    });
-    return obj;
+  return lines.map(l => {
+    const v = l.split(",");
+    let o = {};
+    headers.forEach((h, i) => o[h.trim()] = (v[i] || "").trim());
+    return o;
   });
 }
 
-/**************** LOAD PRODUCTS ****************/
+/******** LOAD PRODUCTS ********/
 async function loadProducts() {
-  const res = await fetch(PRODUCT_CSV_URL);
-  const text = await res.text();
-
+  const text = await (await fetch(PRODUCT_CSV_URL)).text();
   products = parseCSV(text).map(p => ({
     name: p["Product Name"],
-    price: Number(p["Price"])
+    price: Number(p["Price"]),
+    inventory: Number(p["Qty in stock"] || 0)
   }));
-
   render();
 }
 
-/**************** RENDER ****************/
-function render() {
-  const container = document.getElementById("form-container");
-  container.innerHTML = "";
+/******** CUSTOMER SEARCH ********/
+async function autocomplete(val) {
+  if (val.length < 2) return;
+  const res = await fetch(`${API_URL}?q=${encodeURIComponent(val)}`);
+  const data = await res.json();
 
-  /* STEP 1 — CUSTOMER SEARCH */
+  const box = document.getElementById("results");
+  box.innerHTML = "";
+
+  data.results.forEach(c => {
+    const div = document.createElement("div");
+    div.className = "result-item";
+    div.textContent = c.name;
+    div.onclick = () => {
+      state.customer = c;
+      state.step = 2;
+      render();
+    };
+    box.appendChild(div);
+  });
+}
+
+/******** RENDER ********/
+function render() {
+  const el = document.getElementById("form-container");
+  el.innerHTML = "";
+
+  /* STEP 1 */
   if (state.step === 1) {
-    container.innerHTML = `
+    el.innerHTML = `
       <div class="card">
         <h2>Select Customer</h2>
-
-        <div class="autocomplete-wrapper">
-          <input
-            id="customer-search"
-            class="search-input"
-            placeholder="Search customer name..."
-            autocomplete="off"
-          />
-          <div id="results" class="results"></div>
-        </div>
-      </div>
-    `;
-
-    document
-      .getElementById("customer-search")
-      .addEventListener("input", e => {
-        autocomplete(e.target.value);
-      });
-
-    return;
+        <input placeholder="Search customer..." oninput="autocomplete(this.value)">
+        <div id="results"></div>
+      </div>`;
   }
 
-  /* STEP 2 — PRODUCTS */
+  /* STEP 2 */
   if (state.step === 2) {
-    container.innerHTML = `
+    el.innerHTML = `
       <div class="card">
         <h2>Select Products</h2>
-        <div id="product-grid" class="grid"></div>
+        <div class="grid">
+          ${products.map((p,i)=>`
+            <div class="product-card">
+              <strong>${p.name}</strong><br>
+              $${p.price.toFixed(2)}<br>
+              ${p.inventory <= 10 ? `<span class="stock very-low">LOW STOCK</span>` : ""}
+              <input type="number" min="0" id="q-${i}" placeholder="Qty">
+            </div>
+          `).join("")}
+        </div>
         <button onclick="review()">Review Order</button>
-      </div>
-    `;
-
-    const grid = document.getElementById("product-grid");
-
-    products.forEach((p, i) => {
-      const card = document.createElement("div");
-      card.className = "product-card";
-      card.innerHTML = `
-        <strong>${p.name}</strong>
-        <div>$${p.price.toFixed(2)}</div>
-        <input type="number" min="0" id="qty-${i}" placeholder="Qty">
-      `;
-      grid.appendChild(card);
-    });
-
-    return;
+      </div>`;
   }
 
-  /* STEP 3 — REVIEW */
+  /* STEP 3 */
   if (state.step === 3) {
-    let subtotal = 0;
-    let keg = 0;
-    let cases = 0;
+    let subtotal = 0, cases = 0, keg = 0;
 
-    const rows = state.cart.map(item => {
-      const line = item.qty * item.price;
-      subtotal += line;
-      if (/keg/i.test(item.name)) keg += item.qty * 30;
-      if (/case/i.test(item.name)) cases += item.qty;
-
-      return `
-        <tr>
-          <td>${item.name}</td>
-          <td>${item.qty}</td>
-          <td>$${item.price.toFixed(2)}</td>
-          <td>$${line.toFixed(2)}</td>
-        </tr>
-      `;
-    }).join("");
-
-    const discount = cases >= 10 ? subtotal * 0.1 : 0;
-    const tax =
-      state.customer.businessType === "Restaurant" ? subtotal * 0.06 : 0;
-
-    container.innerHTML = `
+    el.innerHTML = `
       <div class="card">
         <h2>Review Order</h2>
-
         <p>
           <strong>${state.customer.name}</strong><br>
           ${state.customer.address}<br>
           ${state.customer.city}, ${state.customer.state} ${state.customer.zip}
         </p>
-
+        <hr>
         <table class="review-table">
-          <tr>
-            <th>Product</th><th>Qty</th><th>Price</th><th>Total</th>
-          </tr>
-          ${rows}
-        </table>
+          <tr><th>Product</th><th>Qty</th><th>Total</th></tr>
+          ${state.cart.map(i=>{
+            const line=i.qty*i.price;
+            subtotal+=line;
+            if(/case/i.test(i.name)) cases+=i.qty;
+            if(/keg/i.test(i.name)) keg+=i.qty*30;
+            return `<tr><td>${i.name}</td><td>${i.qty}</td><td>$${line.toFixed(2)}</td></tr>`;
+          }).join("")}
+        </table>`;
 
-        <p>Subtotal: $${subtotal.toFixed(2)}</p>
-        <p>Discount: -$${discount.toFixed(2)}</p>
-        <p>Tax: $${tax.toFixed(2)}</p>
-        <p>Keg Deposit: $${keg.toFixed(2)}</p>
+    const discount = cases >= 10 ? subtotal * 0.10 : 0;
+    const tax = state.customer.businessType === "Restaurant" ? subtotal * 0.06 : 0;
+    const total = subtotal - discount + tax + keg;
 
-        <h3>Total: $${(subtotal - discount + tax + keg).toFixed(2)}</h3>
+    el.innerHTML += `
+      <p>Subtotal: $${subtotal.toFixed(2)}</p>
+      <p>Discount: -$${discount.toFixed(2)}</p>
+      <p>Tax: $${tax.toFixed(2)}</p>
+      <p>Keg Deposit: $${keg.toFixed(2)}</p>
+      <h3>Total: $${total.toFixed(2)}</h3>
 
-        <button onclick="submit()">Submit Order</button>
+      <div class="rep-override">
+        <label><input type="checkbox" id="repOverride"> Sales Rep Override</label>
       </div>
-    `;
+
+      <button onclick="window.print()">Print Invoice</button>
+      <button onclick="emailFlow()">Email Invoice</button>
+
+      <div id="emailBox" style="display:none">
+        <input id="emailInput" placeholder="Enter email address">
+        <button onclick="submit()">Send Email</button>
+      </div>
+    </div>`;
   }
 }
 
-/**************** AUTOCOMPLETE (FIXED) ****************/
-async function autocomplete(value) {
-  const resultsBox = document.getElementById("results");
-  if (!resultsBox) return;
-
-  if (value.length < 2) {
-    resultsBox.innerHTML = "";
-    return;
-  }
-
-  const res = await fetch(`${API_URL}?q=${encodeURIComponent(value)}`);
-  const data = await res.json();
-
-  resultsBox.innerHTML = "";
-
-  data.results.forEach(customer => {
-    const item = document.createElement("div");
-    item.className = "result-item";
-    item.textContent = customer.name;
-
-    item.addEventListener("mousedown", () => {
-      selectCustomer(customer);
-    });
-
-    resultsBox.appendChild(item);
-  });
-}
-
-function selectCustomer(customer) {
-  state.customer = customer;
-  state.step = 2;
-  render();
-}
-
-/**************** REVIEW ****************/
+/******** ACTIONS ********/
 function review() {
-  state.cart = products
-    .map((p, i) => ({
-      name: p.name,
-      price: p.price,
-      qty: Number(document.getElementById(`qty-${i}`).value || 0)
-    }))
-    .filter(i => i.qty > 0);
+  state.cart = products.map((p,i)=>({
+    ...p,
+    qty:Number(document.getElementById(`q-${i}`).value||0)
+  })).filter(i=>i.qty>0);
 
-  if (!state.cart.length) {
-    alert("Please add at least one product.");
-    return;
-  }
-
+  if (!state.cart.length) return alert("Select products");
   state.step = 3;
   render();
 }
 
-/**************** SUBMIT ****************/
+function emailFlow() {
+  document.getElementById("emailBox").style.display = "block";
+}
+
 async function submit() {
-  await fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
+  await fetch(API_URL,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({
       customer: state.customer,
-      items: state.cart
+      items: state.cart,
+      email: document.getElementById("emailInput").value,
+      repOverride: document.getElementById("repOverride").checked
     })
   });
-
-  alert("Order submitted.");
+  alert("Order sent");
   location.reload();
 }
 
-/**************** INIT ****************/
+/******** INIT ********/
 loadProducts();
 render();
