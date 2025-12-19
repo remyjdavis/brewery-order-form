@@ -19,7 +19,7 @@
         .card { background: white; padding: 40px; border-radius: 4px; border: 1px solid #e1e4e8; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         
         /* AGREEMENT */
-        .legal-scroll { height: 300px; overflow-y: scroll; border: 1px solid #eee; padding: 20px; background: #fafafa; font-size: 0.9em; line-height: 1.6; margin: 20px 0; }
+        .legal-scroll { height: 350px; overflow-y: scroll; border: 1px solid #eee; padding: 25px; background: #fafafa; font-size: 0.9em; line-height: 1.7; margin: 20px 0; border-radius: 4px; }
         
         /* LIVE BAR */
         .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--sbc-dark); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; z-index: 9999; border-top: 4px solid var(--sbc-blue); }
@@ -35,7 +35,7 @@
         /* SEARCH & GRID */
         .search-wrap { position: relative; width: 100%; margin: 20px 0; }
         input[type="text"] { width: 100%; padding: 15px; border: 1px solid #ccc; font-size: 1.1em; box-sizing: border-box; }
-        #results { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 100; box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+        #results { position: absolute; width: 100%; background: white; border: 1px solid #ddd; z-index: 100; box-shadow: 0 8px 16px rgba(0,0,0,0.1); display: none;}
         .dropdown-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; }
         .dropdown-item:hover { background: #f8f9fa; }
 
@@ -104,13 +104,15 @@
         if (state.step === 0) {
             app.innerHTML = `
                 <div class="card">
-                    <h2 style="margin-top:0;">Wholesale Agreement</h2>
+                    <h2 style="margin-top:0; text-align:center;">Wholesale Terms of Sale</h2>
                     <div class="legal-scroll">
-                        <p><strong>REFRIGERATION:</strong> All beer is unpasteurized. Must be kept at 38°F.</p>
-                        <p><strong>DEPOSITS:</strong> $30 deposit per keg. Lost kegs billed at $120.</p>
-                        <p><strong>PAYMENT:</strong> Net-on-delivery. Check or Fintech only.</p>
+                        <p><strong>1. QUALITY CONTROL:</strong> All Suburban Brewing Co. products are unpasteurized and must be maintained at a constant refrigeration temperature of 38°F. Suburban Brewing Co. is not liable for product spoilage due to temperature abuse at the retail level.</p>
+                        <p><strong>2. LICENSURE:</strong> Purchaser warrants that they hold a valid retail liquor license. Any change in licensure status must be reported to Suburban Brewing Co. immediately.</p>
+                        <p><strong>3. PAYMENTS:</strong> Payment is Net-on-Delivery. Fintech accounts are drafted automatically. Non-fintech accounts must provide a business check at the time of delivery.</p>
+                        <p><strong>4. COOPERAGE:</strong> All kegs remain the property of Suburban Brewing Co. A $30.00 deposit is required for each unit. Lost or damaged kegs will be billed at $120.00 per unit.</p>
+                        <p><strong>5. TAXATION & DISCOUNTS:</strong> A 6% PA Sales Tax is applied only to restaurant (non-fintech) accounts. A 10% volume discount is applied to orders of 10 units or more.</p>
                     </div>
-                    <label style="display:block; margin-bottom:20px; cursor:pointer;">
+                    <label style="display:block; margin-bottom:20px; cursor:pointer; text-align:center;">
                         <input type="checkbox" id="agree"> I agree to the Suburban Brewing Co. Wholesale Terms.
                     </label>
                     <button class="btn btn-primary" onclick="if(document.getElementById('agree').checked){state.step=1;render()}">Enter Portal</button>
@@ -151,7 +153,7 @@
                             </div>
                         </div>
                         <div style="text-align:right;">
-                            <div style="color:#666; font-size:0.7em; text-transform:uppercase;">ORDER DATE</div>
+                            <div style="color:#666; font-size:0.8em; text-transform:uppercase;">ORDER DATE</div>
                             <div style="font-weight:bold; font-size:1.2em;">${new Date().toLocaleDateString()}</div>
                         </div>
                     </div>
