@@ -45,7 +45,7 @@ function render() {
   const container = document.getElementById("form-container");
   container.innerHTML = "";
 
-  /* ================= STEP 1 ================= */
+  /* STEP 1 — CUSTOMER SEARCH */
   if (state.step === 1) {
     container.innerHTML = `
       <div class="card">
@@ -53,19 +53,26 @@ function render() {
 
         <div class="autocomplete-wrapper">
           <input
-            class="search-input"
             id="customer-search"
-            placeholder="Start typing customer name..."
-            oninput="autocomplete(this.value)"
+            class="search-input"
+            placeholder="Search customer name..."
+            autocomplete="off"
           />
           <div id="results" class="results"></div>
         </div>
       </div>
     `;
+
+    document
+      .getElementById("customer-search")
+      .addEventListener("input", e => {
+        autocomplete(e.target.value);
+      });
+
     return;
   }
 
-  /* ================= STEP 2 ================= */
+  /* STEP 2 — PRODUCTS */
   if (state.step === 2) {
     container.innerHTML = `
       <div class="card">
@@ -80,20 +87,18 @@ function render() {
     products.forEach((p, i) => {
       const card = document.createElement("div");
       card.className = "product-card";
-
       card.innerHTML = `
         <strong>${p.name}</strong>
         <div>$${p.price.toFixed(2)}</div>
         <input type="number" min="0" id="qty-${i}" placeholder="Qty">
       `;
-
       grid.appendChild(card);
     });
 
     return;
   }
 
-  /* ================= STEP 3 ================= */
+  /* STEP 3 — REVIEW */
   if (state.step === 3) {
     let subtotal = 0;
     let keg = 0;
@@ -119,8 +124,6 @@ function render() {
     const tax =
       state.customer.businessType === "Restaurant" ? subtotal * 0.06 : 0;
 
-    const total = subtotal - discount + tax + keg;
-
     container.innerHTML = `
       <div class="card">
         <h2>Review Order</h2>
@@ -131,14 +134,9 @@ function render() {
           ${state.customer.city}, ${state.customer.state} ${state.customer.zip}
         </p>
 
-        <hr>
-
         <table class="review-table">
           <tr>
-            <th>Product</th>
-            <th>Qty</th>
-            <th>Price</th>
-            <th>Total</th>
+            <th>Product</th><th>Qty</th><th>Price</th><th>Total</th>
           </tr>
           ${rows}
         </table>
@@ -148,7 +146,7 @@ function render() {
         <p>Tax: $${tax.toFixed(2)}</p>
         <p>Keg Deposit: $${keg.toFixed(2)}</p>
 
-        <h3>Total: $${total.toFixed(2)}</h3>
+        <h3>Total: $${(subtotal - discount + tax + keg).toFixed(2)}</h3>
 
         <button onclick="submit()">Submit Order</button>
       </div>
@@ -156,25 +154,31 @@ function render() {
   }
 }
 
-/**************** AUTOCOMPLETE ****************/
+/**************** AUTOCOMPLETE (FIXED) ****************/
 async function autocomplete(value) {
+  const resultsBox = document.getElementById("results");
+  if (!resultsBox) return;
+
   if (value.length < 2) {
-    document.getElementById("results").innerHTML = "";
+    resultsBox.innerHTML = "";
     return;
   }
 
   const res = await fetch(`${API_URL}?q=${encodeURIComponent(value)}`);
   const data = await res.json();
 
-  const results = document.getElementById("results");
-  results.innerHTML = "";
+  resultsBox.innerHTML = "";
 
-  data.results.forEach(c => {
-    const div = document.createElement("div");
-    div.className = "result-item";
-    div.textContent = c.name;
-    div.onclick = () => selectCustomer(c);
-    results.appendChild(div);
+  data.results.forEach(customer => {
+    const item = document.createElement("div");
+    item.className = "result-item";
+    item.textContent = customer.name;
+
+    item.addEventListener("mousedown", () => {
+      selectCustomer(customer);
+    });
+
+    resultsBox.appendChild(item);
   });
 }
 
@@ -186,14 +190,16 @@ function selectCustomer(customer) {
 
 /**************** REVIEW ****************/
 function review() {
-  state.cart = products.map((p, i) => ({
-    name: p.name,
-    price: p.price,
-    qty: Number(document.getElementById(`qty-${i}`).value || 0)
-  })).filter(i => i.qty > 0);
+  state.cart = products
+    .map((p, i) => ({
+      name: p.name,
+      price: p.price,
+      qty: Number(document.getElementById(`qty-${i}`).value || 0)
+    }))
+    .filter(i => i.qty > 0);
 
   if (!state.cart.length) {
-    alert("Please select at least one product.");
+    alert("Please add at least one product.");
     return;
   }
 
@@ -212,7 +218,7 @@ async function submit() {
     })
   });
 
-  alert("Order submitted successfully.");
+  alert("Order submitted.");
   location.reload();
 }
 
