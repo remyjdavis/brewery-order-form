@@ -13,47 +13,40 @@ let state = {
   cart: []
 };
 
-/**************** CSV PARSER (LOCKED / BOM SAFE) ****************/
+/**************** CSV PARSER ****************/
 function parseCSV(text) {
-  const lines = text.trim().split(/\r?\n/);
-
-  const rawHeaders = lines.shift().split(",");
-  const headers = rawHeaders.map(h =>
-    h.replace(/\uFEFF/g, "").replace(/\s+/g, " ").trim()
-  );
-
-  return lines.map(line => {
-    const values = line.split(",");
-    const obj = {};
-    headers.forEach((h, i) => {
-      obj[h] = (values[i] || "").trim();
-    });
-    return obj;
-  });
+  return text
+    .trim()
+    .split(/\r?\n/)
+    .map(row => row.split(",").map(c => c.replace(/\uFEFF/g, "").trim()));
 }
 
-/**************** LOAD PRODUCTS ****************/
+/**************** LOAD PRODUCTS (COLUMN LOCKED) ****************/
 async function loadProducts() {
   const res = await fetch(PRODUCT_CSV_URL);
   const csv = await res.text();
-
   const rows = parseCSV(csv);
 
-  products = rows.map(r => ({
-    name: r["Product Name"],          // COLUMN A
-    price: Number(r["Price"] || 0),
-    stock: Number(r["Qty In Stock"] || 0),
-    category: r["Category"] || ""
+  // ROW 0 = headers (ignored)
+  // Column A = Product Name
+  // Column C = Price
+  // Column D = Qty In Stock
+  // Column E = Category (if exists)
+
+  products = rows.slice(1).map(r => ({
+    name: r[0] || "",                 // COLUMN A
+    price: Number(r[2] || 0),         // COLUMN C
+    stock: Number(r[3] || 0),         // COLUMN D
+    category: r[4] || ""
   }));
 
-  console.log("PRODUCTS LOADED:", products);
+  console.log("PRODUCTS LOADED (FIXED):", products);
   render();
 }
 
 /**************** CUSTOMER SEARCH ****************/
 async function searchCustomers(query) {
   if (query.length < 2) return [];
-
   const res = await fetch(`${API_URL}?q=${encodeURIComponent(query)}`);
   const data = await res.json();
   return data.results || [];
@@ -110,7 +103,7 @@ function render() {
     });
   }
 
-  /* STEP 2 — PRODUCTS (GRID — LOCKED) */
+  /* STEP 2 — PRODUCTS (GRID LOCKED) */
   if (state.step === 2) {
     el.innerHTML = `
       <div class="card">
@@ -121,12 +114,7 @@ function render() {
               <strong>${p.name}</strong>
               <div>$${p.price.toFixed(2)}</div>
               <div>In Stock: ${p.stock}</div>
-              <input
-                type="number"
-                min="0"
-                max="${p.stock}"
-                id="qty-${i}"
-                placeholder="Qty">
+              <input type="number" min="0" max="${p.stock}" id="qty-${i}">
             </div>
           `).join("")}
         </div>
@@ -137,63 +125,23 @@ function render() {
 
   /* STEP 3 — REVIEW */
   if (state.step === 3) {
-    let subtotal = 0;
-    let kegDeposit = 0;
-    let caseCount = 0;
-
     el.innerHTML = `
       <div class="card">
         <h2>Review Order</h2>
-
-        <p>
-          <strong>${state.customer.name}</strong><br>
-          ${state.customer.address}<br>
-          ${state.customer.city}, ${state.customer.state} ${state.customer.zip}
-        </p>
-
-        <hr>
-
         <table class="review-table">
           <tr>
             <th>Product</th>
             <th>Qty</th>
-            <th>Price</th>
             <th>Total</th>
           </tr>
-    `;
-
-    state.cart.forEach(item => {
-      const line = item.qty * item.price;
-      subtotal += line;
-
-      if (/keg/i.test(item.name)) kegDeposit += item.qty * 30;
-      if (/case/i.test(item.name)) caseCount += item.qty;
-
-      el.innerHTML += `
-        <tr>
-          <td>${item.name}</td>
-          <td>${item.qty}</td>
-          <td>$${item.price.toFixed(2)}</td>
-          <td>$${line.toFixed(2)}</td>
-        </tr>
-      `;
-    });
-
-    const discount = caseCount >= 10 ? subtotal * 0.10 : 0;
-    const tax =
-      state.customer.businessType === "Restaurant" ? subtotal * 0.06 : 0;
-
-    const total = subtotal - discount + tax + kegDeposit;
-
-    el.innerHTML += `
+          ${state.cart.map(i => `
+            <tr>
+              <td>${i.name}</td>
+              <td>${i.qty}</td>
+              <td>$${(i.qty * i.price).toFixed(2)}</td>
+            </tr>
+          `).join("")}
         </table>
-
-        <p>Subtotal: $${subtotal.toFixed(2)}</p>
-        <p>Discount: -$${discount.toFixed(2)}</p>
-        <p>Tax: $${tax.toFixed(2)}</p>
-        <p>Keg Deposit: $${kegDeposit.toFixed(2)}</p>
-        <h3>Total: $${total.toFixed(2)}</h3>
-
         <button onclick="state.step=2;render()">Back</button>
         <button class="primary" onclick="submitOrder()">Submit Order</button>
       </div>
@@ -206,14 +154,14 @@ function review() {
   state.cart = products.map((p, i) => {
     const qty = Number(document.getElementById(`qty-${i}`).value || 0);
     if (qty > p.stock) {
-      alert(`Not enough stock for ${p.name}`);
+      alert(`Only ${p.stock} units available for ${p.name}`);
       throw new Error("Stock exceeded");
     }
     return { ...p, qty };
   }).filter(i => i.qty > 0);
 
   if (!state.cart.length) {
-    alert("Please select at least one product.");
+    alert("Select at least one product.");
     return;
   }
 
@@ -231,7 +179,7 @@ async function submitOrder() {
     })
   });
 
-  alert("Order submitted successfully.");
+  alert("Order submitted.");
   location.reload();
 }
 
