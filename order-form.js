@@ -15,6 +15,8 @@ let state = {
   cart: []
 };
 
+let autocompleteResults = []; // ✅ SAFE STORAGE
+
 /**************** CSV ****************/
 function parseCSV(text) {
   const lines = text.trim().split("\n");
@@ -37,7 +39,7 @@ async function loadProducts() {
   products = parseCSV(text).map(p => ({
     name: p["Product Name"],
     price: Number(p["Price"]),
-    stock: Number(p["Qty In Stock"]), // ✅ FIXED HEADER
+    stock: Number(p["Qty In Stock"]),
     category: p["Category"] || ""
   }));
 
@@ -45,9 +47,9 @@ async function loadProducts() {
 }
 
 /**************** CUSTOMER SEARCH ****************/
-async function searchCustomers(q) {
-  if (q.length < 2) return [];
-  const res = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
+async function searchCustomers(query) {
+  if (query.length < 2) return [];
+  const res = await fetch(`${API_URL}?q=${encodeURIComponent(query)}`);
   const data = await res.json();
   return data.results || [];
 }
@@ -57,21 +59,27 @@ function render() {
   const el = document.getElementById("form-container");
   el.innerHTML = "";
 
-  /* STEP 1 */
+  /* STEP 1 — CUSTOMER */
   if (state.step === 1) {
     el.innerHTML = `
       <div class="card">
         <h2>Select Customer</h2>
-        <input id="customer-search" placeholder="Start typing store name..." oninput="autocomplete(this.value)">
+        <input
+          id="customer-search"
+          placeholder="Start typing store name..."
+          oninput="autocomplete(this.value)"
+        >
         <div id="results" class="autocomplete-box"></div>
-      </div>`;
+      </div>
+    `;
   }
 
-  /* STEP 2 */
+  /* STEP 2 — PRODUCTS */
   if (state.step === 2) {
     el.innerHTML = `
       <div class="card">
         <h2>Select Products</h2>
+
         <div class="product-grid">
           ${products.map((p, i) => `
             <div class="product-card">
@@ -84,12 +92,14 @@ function render() {
             </div>
           `).join("")}
         </div>
+
         <br>
         <button class="primary-btn" onclick="review()">Review Order</button>
-      </div>`;
+      </div>
+    `;
   }
 
-  /* STEP 3 */
+  /* STEP 3 — REVIEW */
   if (state.step === 3) {
     let subtotal = 0;
     let kegDeposit = 0;
@@ -111,6 +121,7 @@ function render() {
             <th>Price</th>
             <th>Total</th>
           </tr>
+
           ${state.cart.map(i => {
             const line = i.qty * i.price;
             subtotal += line;
@@ -121,7 +132,8 @@ function render() {
                 <td>${i.qty}</td>
                 <td>$${i.price.toFixed(2)}</td>
                 <td>$${line.toFixed(2)}</td>
-              </tr>`;
+              </tr>
+            `;
           }).join("")}
         </table>
 
@@ -133,32 +145,44 @@ function render() {
 
         <button onclick="state.step=2;render()">Back</button>
         <button class="primary-btn" onclick="submit()">Submit Order</button>
-      </div>`;
+      </div>
+    `;
   }
 }
 
-/**************** ACTIONS ****************/
-async function autocomplete(val) {
-  const results = await searchCustomers(val);
+/**************** AUTOCOMPLETE (FIXED) ****************/
+async function autocomplete(value) {
   const box = document.getElementById("results");
-  box.innerHTML = results.map(c =>
-    `<div class="autocomplete-item" onclick='selectCustomer(${JSON.stringify(c)})'>
+  if (!box) return;
+
+  if (value.length < 2) {
+    box.innerHTML = "";
+    return;
+  }
+
+  autocompleteResults = await searchCustomers(value);
+
+  box.innerHTML = autocompleteResults.map((c, i) => `
+    <div class="autocomplete-item" onclick="selectCustomerByIndex(${i})">
       ${c.name}
-    </div>`
-  ).join("");
+    </div>
+  `).join("");
 }
 
-function selectCustomer(c) {
-  state.customer = c;
+function selectCustomerByIndex(index) {
+  state.customer = autocompleteResults[index];
   state.step = 2;
   render();
 }
 
+/**************** ACTIONS ****************/
 function review() {
-  state.cart = products.map((p, i) => ({
-    ...p,
-    qty: Number(document.getElementById(`q-${i}`).value || 0)
-  })).filter(i => i.qty > 0);
+  state.cart = products
+    .map((p, i) => ({
+      ...p,
+      qty: Number(document.getElementById(`q-${i}`).value || 0)
+    }))
+    .filter(i => i.qty > 0);
 
   if (!state.cart.length) {
     alert("Please add at least one product.");
