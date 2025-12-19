@@ -59,14 +59,8 @@ function render() {
     el.innerHTML = `
       <div class="card">
         <h2>Select Customer</h2>
-
         <div class="autocomplete-wrapper">
-          <input
-            id="customer-input"
-            type="text"
-            placeholder="Start typing customer name..."
-            autocomplete="off"
-          />
+          <input id="customer-input" placeholder="Start typing customer name..." autocomplete="off">
           <div id="autocomplete-results"></div>
         </div>
       </div>
@@ -99,9 +93,7 @@ function render() {
     el.innerHTML = `
       <div class="card">
         <h2>Select Products</h2>
-
         <div class="grid" id="product-grid"></div>
-
         <button class="primary" onclick="review()">Review Order</button>
       </div>
     `;
@@ -117,12 +109,21 @@ function render() {
           ? `<div style="color:red;font-size:12px;">Low stock (${p.stock})</div>`
           : "";
 
+      const disabled = p.stock === 0 ? "disabled" : "";
+
       div.innerHTML = `
         <strong>${p.name}</strong>
         <div>$${p.price.toFixed(2)}</div>
         ${lowStock}
-        <input type="number" min="0" id="q-${i}" />
+        <input
+          type="number"
+          min="0"
+          max="${p.stock}"
+          id="q-${i}"
+          ${disabled}
+        >
       `;
+
       grid.appendChild(div);
     });
   }
@@ -173,12 +174,27 @@ function render() {
 
 /**************** ACTIONS ****************/
 function review() {
-  state.cart = products
-    .map((p, i) => ({
-      ...p,
-      qty: Number(document.getElementById(`q-${i}`).value || 0)
-    }))
-    .filter(i => i.qty > 0);
+  state.cart = [];
+
+  for (let i = 0; i < products.length; i++) {
+    const input = document.getElementById(`q-${i}`);
+    const qty = Number(input.value || 0);
+    const product = products[i];
+
+    if (qty > product.stock) {
+      alert(`You cannot order more than ${product.stock} of ${product.name}.`);
+      input.value = product.stock;
+      return;
+    }
+
+    if (qty > 0) {
+      state.cart.push({
+        name: product.name,
+        price: product.price,
+        qty: qty
+      });
+    }
+  }
 
   if (!state.cart.length) {
     alert("Please add at least one product.");
