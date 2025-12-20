@@ -7,12 +7,24 @@
     <style>
         :root { --sbc-blue: #007bff; --sbc-dark: #1a1a1a; --bg: #f8f9fa; --border: #dee2e6; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; color: #2d3436; }
-        .site-header { background: #fff; padding: 1rem 5%; border-bottom: 3px solid var(--sbc-dark); display: flex; align-items: center; justify-content: space-between; }
+        
+        .site-header { 
+            background: #fff; 
+            padding: 1.5rem 5%; 
+            border-bottom: 3px solid var(--sbc-dark); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: flex-start; 
+            gap: 10px;
+        }
+        .site-header img { height: 60px; }
+        .header-info { text-align: left; font-size: 0.95rem; line-height: 1.4; }
+
         .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
         .card { background: white; padding: 2.5rem; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
         
         .legal-scroll { 
-            height: 550px; 
+            height: 500px; 
             overflow-y: auto; 
             border: 2px solid #2d3436; 
             padding: 2rem; 
@@ -21,7 +33,7 @@
             line-height: 1.7; 
             background: #fff; 
         }
-        .legal-scroll h3 { margin-top: 1.5rem; border-bottom: 1px solid #eee; text-transform: uppercase; font-size: 0.95rem; color: #000; }
+        .legal-scroll h3 { margin-top: 1.5rem; border-bottom: 1px solid #eee; text-transform: uppercase; font-size: 1rem; color: #000; font-weight: 800; }
 
         .checkbox-area { 
             background: #f1f2f6; 
@@ -33,73 +45,89 @@
             gap: 15px; 
             border: 1px solid #dfe6e9;
         }
-        .checkbox-area input { transform: scale(1.5); }
-        .checkbox-area label { font-weight: bold; cursor: pointer; }
+        .checkbox-area input { transform: scale(1.6); cursor: pointer; }
+        .checkbox-area label { font-weight: bold; cursor: pointer; line-height: 1.2; }
 
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
         .product-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; text-align: center; }
         .product-img { width: 100%; height: 200px; object-fit: cover; }
         
         .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--sbc-dark); color: white; padding: 1.2rem 8%; display: flex; justify-content: space-between; align-items: center; z-index: 1001; }
-        .btn { padding: 12px 28px; border: none; border-radius: 6px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+        .btn { padding: 14px 30px; border: none; border-radius: 6px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
         .btn-primary { background: var(--sbc-blue); color: white; }
         .btn:disabled { background: #ccc; cursor: not-allowed; }
         
         .review-table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
         .review-table th { background: #f8f9fa; padding: 12px; text-align: left; border-bottom: 2px solid var(--sbc-dark); }
         .review-table td { padding: 12px; border-bottom: 1px solid #eee; }
-        #login-err { color: #e17055; font-weight: bold; margin-bottom: 15px; display: none; }
+        #login-err { color: #d63031; font-weight: bold; margin-bottom: 15px; display: none; background: #fff2f2; padding: 10px; border-radius: 5px; }
     </style>
 </head>
 <body>
 
 <header class="site-header">
-    <div style="display:flex; align-items:center; gap:20px;">
-        <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" style="height:60px;">
-        <h1 style="margin:0; font-size: 1.5rem;">Suburban Brewing Co.</h1>
-    </div>
-    <div style="text-align:right; font-size:0.85rem;">
-        3041 Horseshoe Pike, Honey Brook, PA<br>
-        <strong>Remy Davis: (908) 642-1019</strong>
+    <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" alt="SBC Logo">
+    <div class="header-info">
+        <h1 style="margin:0 0 5px 0; font-size: 1.8rem; letter-spacing: -1px;">Suburban Brewing Co.</h1>
+        3041 Horseshoe Pike, Honey Brook, PA 19344<br>
+        <strong>Sales Rep: Remy Davis</strong><br>
+        (908) 642-1019
     </div>
 </header>
 
 <div class="container" id="app"></div>
 
 <div id="live-bar" class="live-bar" style="display:none;">
-    <div>TOTAL: <span id="live-total" style="color:var(--sbc-blue); font-weight:900; font-size:1.5rem;">$0.00</span></div>
-    <button class="btn btn-primary" onclick="state.step=3;render()">Review Order</button>
+    <div>TOTAL ORDER: <span id="live-total" style="color:var(--sbc-blue); font-weight:900; font-size:1.6rem;">$0.00</span></div>
+    <button class="btn btn-primary" onclick="state.step=3;render()">Review Order & Ship</button>
 </div>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec"; 
+    const API_URL = "PASTE_YOUR_NEW_WEB_APP_URL_HERE"; 
     const PRODUCT_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&output=csv";
 
     let groupedProducts = {};
     let state = { step: 0, customer: null, cart: {} };
 
     async function init() {
-        const res = await fetch(PRODUCT_CSV);
-        const text = await res.text();
-        const rows = text.split("\n").slice(1);
-        rows.forEach(r => {
-            const c = r.split(",");
-            if (!c[0]) return;
-            const cleanName = c[0].replace(/(Keg|Case|1\/2|1\/6|BBL|Can)/gi, '').trim();
-            if (!groupedProducts[cleanName]) groupedProducts[cleanName] = { name: cleanName, img: c[3] || '', options: [] };
-            groupedProducts[cleanName].options.push({ type: c[0].replace(cleanName, '').trim() || "Unit", price: parseFloat(c[1]) || 0, stock: parseInt(c[2]) || 0 });
-        });
-        render();
+        try {
+            const res = await fetch(PRODUCT_CSV);
+            const text = await res.text();
+            const rows = text.split("\n").slice(1);
+            rows.forEach(r => {
+                const c = r.split(",");
+                if (!c[0]) return;
+                const cleanName = c[0].replace(/(Keg|Case|1\/2|1\/6|BBL|Can)/gi, '').trim();
+                if (!groupedProducts[cleanName]) groupedProducts[cleanName] = { name: cleanName, img: c[3] || '', options: [] };
+                groupedProducts[cleanName].options.push({ type: c[0].replace(cleanName, '').trim() || "Unit", price: parseFloat(c[1]) || 0, stock: parseInt(c[2]) || 0 });
+            });
+            render();
+        } catch (e) { console.error(e); }
     }
 
     async function attemptLogin() {
         const keyInput = document.getElementById("loginInput").value.trim();
         const btn = document.getElementById("loginBtn");
-        btn.innerText = "VERIFYING...";
-        const res = await fetch(`${API_URL}?key=${encodeURIComponent(keyInput)}`);
-        const data = await res.json();
-        if (data.success) { state.customer = data.customer; state.step = 2; render(); }
-        else { document.getElementById("login-err").style.display = "block"; btn.innerText = "LOGIN"; }
+        const err = document.getElementById("login-err");
+        
+        btn.innerText = "VERIFYING KEY...";
+        err.style.display = "none";
+
+        try {
+            const res = await fetch(`${API_URL}?key=${encodeURIComponent(keyInput)}`);
+            const data = await res.json();
+            if (data.success) { 
+                state.customer = data.customer; 
+                state.step = 2; 
+                render(); 
+            } else { 
+                err.style.display = "block"; 
+                btn.innerText = "LOGIN"; 
+            }
+        } catch (e) { 
+            alert("Connection Error. Check Script Deployment."); 
+            btn.innerText = "LOGIN"; 
+        }
     }
 
     function render() {
@@ -109,74 +137,78 @@
         if (state.step === 0) {
             app.innerHTML = `
             <div class="card">
-                <h2 style="text-align:center;">PA WHOLESALE DISTRIBUTION AGREEMENT</h2>
+                <h2 style="text-align:left; border-bottom: 2px solid var(--sbc-dark); padding-bottom:15px;">PA WHOLESALE DISTRIBUTION AGREEMENT</h2>
                 <div class="legal-scroll">
-                    <p>This agreement is compliant with the laws of the Commonwealth of Pennsylvania and the regulations of the Pennsylvania Liquor Control Board (PLCB).</p>
+                    <p>This Agreement governs all wholesale transactions between Suburban Brewing Co. ("SBC") and the licensed Purchaser.</p>
                     
-                    <h3>1. PLCB COMPLIANCE & LICENSURE</h3>
-                    <p>Purchaser warrants that it holds a valid, active retail or wholesale license issued by the PLCB. Purchaser agrees that all malt beverage transactions shall be conducted in accordance with the <strong>Pennsylvania Liquor Code (47 P.S. § 1-101 et seq.)</strong>. Any suspension or revocation of the Purchaser's license must be reported to SBC immediately, and all pending orders will be terminated.</p>
+                    <h3>1. PLCB COMPLIANCE</h3>
+                    <p>Purchaser warrants they hold an active license with the Pennsylvania Liquor Control Board. All sales are conducted under the <strong>Pennsylvania Liquor Code (47 P.S. § 1-101 et seq.)</strong>.</p>
                     
-                    <h3>2. PRICE POSTING & ACT 39</h3>
-                    <p>In accordance with <strong>Act 39 of 2016</strong>, SBC maintains a public price list. Purchaser acknowledges that prices are subject to change and that SBC complies with all quantity discount and case-law regulations regarding price consistency within the assigned geographic territory.</p>
+                    <h3>2. PAYMENT & SECTION 493</h3>
+                    <p>Per <strong>Section 493(2)</strong>, all deliveries to retail licensees must be paid for in cash or check at or before the time of delivery. SBC does not extend credit.</p>
                     
-                    <h3>3. CASH ON DELIVERY (COD) & SECTION 493</h3>
-                    <p>Per <strong>Section 493(2)</strong> of the Liquor Code, sales of malt or brewed beverages to retail licensees must be for cash or check paid at or before the time of delivery. SBC drivers are strictly prohibited from extending credit. Failure to provide payment upon delivery constitutes a violation of the Liquor Code and will result in non-delivery.</p>
+                    <h3>3. COLD CHAIN REQUIREMENTS</h3>
+                    <p>SBC products are unpasteurized. Purchaser agrees to maintain storage at <strong>34°F-38°F</strong>. SBC is not liable for quality degradation due to improper refrigeration.</p>
                     
-                    <h3>4. COLD CHAIN STORAGE</h3>
-                    <p>Products are unpasteurized. Purchaser agrees to store all SBC inventory at 34°F-38°F. Failure to maintain these conditions constitutes a health and quality risk. SBC is not liable for spoilage due to temperature abuse after the product has been accepted at the delivery site.</p>
-                    
-                    <h3>5. KEG SHELLS & DEPOSITS</h3>
-                    <p>A $30 deposit is required per shell. All shells remain the property of SBC. Shells must be returned in good condition. Purchaser is liable for the full replacement cost of any lost or destroyed SBC property.</p>
-                    
+                    <h3>4. COOPERAGE & KEG DEPOSITS</h3>
+                    <p>All stainless steel kegs remain the property of SBC. A <strong>$30.00 deposit</strong> is required per shell. Lost or damaged shells will be billed at a replacement cost of <strong>$145.00</strong> per unit.</p>
+
+                    <h3>5. BOUNCED CHECKS & NSF FEES</h3>
+                    <p>Any check returned for Non-Sufficient Funds (NSF) will incur a mandatory <strong>$50.00 administrative fee</strong>. The account will be moved to immediate "Cash Only" status for all future deliveries.</p>
+
                     <h3>6. GEOGRAPHIC TERRITORY</h3>
-                    <p>Purchaser acknowledges they are purchasing product for resale only within their licensed premises and within the specific geographic territory assigned by SBC under the <strong>Malt Beverage Distributing Rights Act</strong>.</p>
+                    <p>Purchaser agrees to resell SBC products only within their licensed premises and designated geographic territory.</p>
                 </div>
                 <div class="checkbox-area">
                     <input type="checkbox" id="agreeCheck" onchange="document.getElementById('acceptBtn').disabled = !this.checked">
-                    <label for="agreeCheck">I certify that I am a licensed PA retail/wholesale agent and agree to these terms.</label>
+                    <label for="agreeCheck">I certify that I am an authorized agent for a licensed PA entity and agree to the terms above.</label>
                 </div>
-                <button id="acceptBtn" class="btn btn-primary" style="width:100%;" disabled onclick="state.step=1;render()">I Accept & Agree</button>
+                <button id="acceptBtn" class="btn btn-primary" style="width:100%;" disabled onclick="state.step=1;render()">Enter Portal</button>
             </div>`;
         } else if (state.step === 1) {
             app.innerHTML = `<div class="card" style="max-width:450px; margin:auto; text-align:center;">
-                <h3>WHOLESALE ACCESS</h3>
-                <div id="login-err">⚠️ INVALID LOGIN KEY</div>
-                <input type="text" id="loginInput" placeholder="ENTER KEY" style="width:100%; padding:18px; margin-bottom:15px; border:2px solid var(--sbc-dark); border-radius:8px; text-align:center; font-size:1.3rem;">
-                <button id="loginBtn" class="btn btn-primary" style="width:100%;" onclick="attemptLogin()">SECURE LOGIN</button>
+                <h3>Wholesale Login</h3>
+                <div id="login-err">⚠️ Invalid Key. Please try again.</div>
+                <input type="text" id="loginInput" placeholder="ENTER UNIQUE KEY" style="width:100%; padding:18px; margin-bottom:15px; border:2px solid var(--sbc-dark); border-radius:8px; text-align:center; font-size:1.4rem; font-weight:bold;">
+                <button id="loginBtn" class="btn btn-primary" style="width:100%;" onclick="attemptLogin()">Log In</button>
             </div>`;
         } else if (state.step === 2) {
-            app.innerHTML = `<h3>Logged in: ${state.customer.name}</h3><div class="product-grid">${Object.values(groupedProducts).map(p => {
+            app.innerHTML = `<h3>Logged in: <span style="color:var(--sbc-blue);">${state.customer.name}</span></h3>
+            <div class="product-grid">${Object.values(groupedProducts).map(p => {
                 const id = p.name.replace(/\s/g,'');
                 return `<div class="product-card">
-                    <img src="${p.img}" class="product-img" onerror="this.src='https://via.placeholder.com/300?text=SBC'">
-                    <div class="product-info">
-                        <h4>${p.name}</h4>
-                        <select id="s-${id}" style="width:100%;">${p.options.map((o,i)=>`<option value="${i}">${o.type} - $${o.price}</option>`).join('')}</select>
-                        <br><br>Qty: <input type="number" id="q-${id}" style="width:60px;" oninput="updateCart('${p.name}','s-${id}','q-${id}')">
+                    <img src="${p.img}" class="product-img" onerror="this.src='https://via.placeholder.com/300?text=SBC+Product'">
+                    <div class="product-info" style="padding:15px;">
+                        <h4 style="margin:0 0 10px 0;">${p.name}</h4>
+                        <select id="s-${id}" style="width:100%; padding:8px; border-radius:4px;">${p.options.map((o,i)=>`<option value="${i}">${o.type} - $${o.price}</option>`).join('')}</select>
+                        <div style="margin-top:15px;">Qty: <input type="number" id="q-${id}" style="width:70px; padding:8px; border:1px solid #ccc; border-radius:4px;" oninput="updateCart('${p.name}','s-${id}','q-${id}')"></div>
                     </div>
                 </div>`;
             }).join('')}</div>`;
         } else if (state.step === 3) {
             let sub = 0; Object.values(state.cart).forEach(i => sub += (i.price * i.qty));
             app.innerHTML = `<div class="card">
-                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                    <div><strong>SUBURBAN BREWING CO.</strong><br>3041 Horseshoe Pike<br>Honey Brook, PA 19344</div>
-                    <div style="text-align:right;"><strong>ORDER DATE:</strong><br>${new Date().toLocaleDateString()}</div>
+                <div style="text-align:left;">
+                    <strong>SUBURBAN BREWING CO.</strong><br>3041 Horseshoe Pike, Honey Brook, PA 19344<br>
+                    <strong>Sales Rep: Remy Davis</strong>
+                </div>
+                <div style="text-align:right; margin-top:-45px;">
+                    <strong>ORDER DATE:</strong><br>${new Date().toLocaleDateString()}
                 </div>
                 <hr style="margin:25px 0;">
-                <div style="margin-bottom:25px;">
-                    <strong style="font-size:1.2rem; color:var(--sbc-blue);">${state.customer.name}</strong><br>
+                <div style="margin-bottom:25px; text-align:left; line-height:1.6;">
+                    <strong style="font-size:1.4rem; color:var(--sbc-blue);">${state.customer.name}</strong><br>
                     ${state.customer.address}<br>
                     ${state.customer.city}, ${state.customer.state} ${state.customer.zip}
                 </div>
                 <table class="review-table">
-                    <thead><tr><th>PRODUCT</th><th>QTY</th><th>TOTAL</th></tr></thead>
-                    <tbody>${Object.values(state.cart).map(i=>`<tr><td>${i.beer} (${i.type})</td><td>${i.qty}</td><td>$${(i.qty*i.price).toFixed(2)}</td></tr>`).join('')}</tbody>
+                    <thead><tr><th>Product</th><th style="text-align:center;">Qty</th><th style="text-align:right;">Subtotal</th></tr></thead>
+                    <tbody>${Object.values(state.cart).map(i=>`<tr><td>${i.beer} (${i.type})</td><td style="text-align:center;">${i.qty}</td><td style="text-align:right;">$${(i.qty*i.price).toFixed(2)}</td></tr>`).join('')}</tbody>
                 </table>
-                <div style="text-align:right; margin-top:30px; font-size:1.8rem;"><strong>TOTAL: $${sub.toFixed(2)}</strong></div>
+                <div style="text-align:right; margin-top:30px; font-size:2rem;"><strong>TOTAL: $${sub.toFixed(2)}</strong></div>
                 <div style="margin-top:40px; display:flex; gap:15px;">
-                    <button class="btn" style="flex:1; border:2px solid #ccc;" onclick="state.step=2;render()">EDIT</button>
-                    <button class="btn btn-primary" style="flex:2; background:#27ae60;" onclick="submitOrder()">SUBMIT ORDER</button>
+                    <button class="btn" style="flex:1; border:2px solid #ccc;" onclick="state.step=2;render()">Back to Products</button>
+                    <button class="btn btn-primary" style="flex:2; background:#27ae60;" onclick="submitOrder()">Submit Final Order</button>
                 </div>
             </div>`;
         }
@@ -193,8 +225,10 @@
     }
 
     async function submitOrder() {
+        const btn = event.target; btn.disabled = true; btn.innerText = "PROCESSING...";
         await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(state) });
-        alert("Order Transmitted!"); location.reload();
+        alert("Order Received! Thank you for choosing SBC."); 
+        location.reload();
     }
 
     init();
