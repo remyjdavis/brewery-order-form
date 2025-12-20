@@ -65,7 +65,7 @@
                 groupedProducts[cleanName].options.push({ 
                     type: c[0].replace(cleanName, '').trim() || "Unit", 
                     price: parseFloat(c[1]) || 0,
-                    stock: c[2] || "0" // Column C: Qty In Stock
+                    stock: c[2] || "0" 
                 });
             });
             render();
@@ -133,48 +133,36 @@
                 </div></div>`;
             }).join('')}</div>`;
         } else if (state.step === 3) {
-            let subtotal = 0;
-            let kegCount = 0;
+            let subtotal = 0, kegCount = 0;
             Object.values(state.cart).forEach(i => {
                 subtotal += (i.price * i.qty);
                 if (i.type.toLowerCase().includes("keg") || i.type.includes("1/")) kegCount += i.qty;
             });
-            let kegDeposit = kegCount * 30.00;
-            let tax = 0.00; 
-            let discount = 0.00;
-            let grandTotal = subtotal + kegDeposit + tax - discount;
-
+            let kegDep = kegCount * 30, tax = 0, disc = 0, grand = subtotal + kegDep + tax - disc;
             app.innerHTML = `<div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                     <div style="text-align:left;">
-                        <strong>SUBURBAN BREWING CO.</strong><br>
-                        3041 Horseshoe Pike, Honey Brook, PA 19344<br>
-                        <strong>Sales Rep: Remy Davis</strong><br>
-                        (908) 642-1019
+                        <strong>SUBURBAN BREWING CO.</strong><br>3041 Horseshoe Pike, Honey Brook, PA 19344<br>
+                        <strong>Sales Rep: Remy Davis</strong><br>(908) 642-1019
                     </div>
-                    <div style="text-align:right;">
-                        <strong>ORDER DATE:</strong><br>${new Date().toLocaleDateString()}
-                    </div>
+                    <div style="text-align:right;"><strong>ORDER DATE:</strong><br>${new Date().toLocaleDateString()}</div>
                 </div>
                 <hr style="margin:20px 0; border:0; border-top:1px solid #eee;">
                 <div style="text-align:left; margin-bottom:20px;">
                     <strong style="font-size:1.4rem;">${state.customer.name}</strong><br>
-                    ${state.customer.address}<br>
-                    ${state.customer.city}, ${state.customer.state} ${state.customer.zip}
+                    ${state.customer.address}<br>${state.customer.city}, ${state.customer.state} ${state.customer.zip}
                 </div>
                 <table class="review-table">
                     <thead><tr><th>Product Item</th><th>Qty</th><th>Total</th></tr></thead>
                     <tbody>${Object.values(state.cart).map(i=>`<tr><td>${i.beer} (${i.type})</td><td>${i.qty}</td><td>$${(i.qty*i.price).toFixed(2)}</td></tr>`).join('')}</tbody>
                 </table>
-                
                 <div style="margin-top:30px; border-top:2px solid var(--sbc-dark); padding-top:15px; text-align:right; line-height:1.8;">
                     <div>Subtotal: $${subtotal.toFixed(2)}</div>
-                    ${kegDeposit > 0 ? `<div>Keg Deposits ($30.00 ea): $${kegDeposit.toFixed(2)}</div>` : ''}
+                    ${kegDep > 0 ? `<div>Keg Deposits ($30.00 ea): $${kegDep.toFixed(2)}</div>` : ''}
                     <div>Tax: $${tax.toFixed(2)}</div>
-                    <div>Discount: -$${discount.toFixed(2)}</div>
-                    <div style="font-size:1.6rem; font-weight:900; color:var(--sbc-blue); margin-top:10px;">GRAND TOTAL: $${grandTotal.toFixed(2)}</div>
+                    <div>Discount: -$${disc.toFixed(2)}</div>
+                    <div style="font-size:1.6rem; font-weight:900; color:var(--sbc-blue); margin-top:10px;">GRAND TOTAL: $${grand.toFixed(2)}</div>
                 </div>
-
                 <div style="display:flex; gap:15px; margin-top:40px;">
                     <button class="btn" style="flex:1; border:2px solid #ccc; background:#fff;" onclick="state.step=2;render()">Edit Order</button>
                     <button class="btn btn-primary" style="flex:2; background:#27ae60;" onclick="submitOrder()">Confirm & Submit Order</button>
@@ -189,4 +177,21 @@
     }
 
     function updateCart(beer, sId, qId) {
-        const
+        const opt = groupedProducts[beer].options[document.getElementById(sId).value];
+        const qty = parseInt(document.getElementById(qId).value) || 0;
+        if (qty > 0) state.cart[`${beer}-${opt.type}`] = { beer, type: opt.type, price: opt.price, qty };
+        else delete state.cart[`${beer}-${opt.type}`];
+        let t = 0; Object.values(state.cart).forEach(i => t += (i.price * i.qty));
+        document.getElementById("live-total").innerText = "$" + t.toFixed(2);
+    }
+
+    async function submitOrder() {
+        const btn = event.target; btn.disabled = true; btn.innerText = "SUBMITTING...";
+        await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(state) });
+        alert("Order successfully submitted to Suburban Brewing Co.");
+        location.reload();
+    }
+    init();
+</script>
+</body>
+</html>
