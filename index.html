@@ -6,7 +6,7 @@
     <title>SBC Wholesale Portal</title>
     <style>
         :root { --sbc-blue: #007bff; --sbc-dark: #1a1a1a; --bg: #f8f9fa; --border: #dee2e6; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; color: #2d3436; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding-bottom: 120px; color: #2d3436; }
         .site-header { background: #fff; padding: 1.5rem 5%; border-bottom: 3px solid var(--sbc-dark); display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
         .header-info { text-align: left; font-size: 0.95rem; line-height: 1.4; }
         .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
@@ -18,7 +18,8 @@
         .checkbox-area label { font-weight: bold; cursor: pointer; }
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
         .product-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; text-align: center; }
-        .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--sbc-dark); color: white; padding: 1.2rem 8%; display: flex; justify-content: space-between; align-items: center; z-index: 1001; }
+        .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--sbc-dark); color: white; padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; z-index: 1001; border-top: 4px solid var(--sbc-blue); }
+        .live-stats { font-size: 0.9rem; line-height: 1.2; }
         .btn { padding: 14px 30px; border: none; border-radius: 6px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
         .btn-primary { background: var(--sbc-blue); color: white; }
         .review-table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
@@ -41,8 +42,16 @@
 <div class="container" id="app"></div>
 
 <div id="live-bar" class="live-bar" style="display:none;">
-    <div>SUBTOTAL: <span id="live-total" style="color:var(--sbc-blue); font-weight:900; font-size:1.6rem;">$0.00</span></div>
-    <button class="btn btn-primary" onclick="state.step=3;render()">Review Order Details</button>
+    <div class="live-stats">
+        <div>SUBTOTAL: <span id="live-sub">$0.00</span></div>
+        <div id="live-tax-row" style="color:#bdc3c7;">TAX: <span id="live-tax">$0.00</span></div>
+        <div id="live-disc-row" style="color:#ff7675;">DISC: <span id="live-disc">-$0.00</span></div>
+    </div>
+    <div style="text-align:right;">
+        <div style="font-size:0.8rem; opacity:0.8;">EST. TOTAL</div>
+        <div id="live-total" style="color:var(--sbc-blue); font-weight:900; font-size:1.6rem;">$0.00</div>
+    </div>
+    <button class="btn btn-primary" onclick="state.step=3;render()">Review Order</button>
 </div>
 
 <script>
@@ -131,6 +140,7 @@
                     Qty: <input type="number" id="q-${id}" style="width:60px; padding:5px;" min="0" oninput="updateCart('${p.name}','s-${id}','q-${id}')">
                 </div></div>`;
             }).join('')}</div>`;
+            updateLiveCalculations();
         } else if (state.step === 3) {
             let subtotal = 0, kegCount = 0, caseCount = 0;
             Object.values(state.cart).forEach(i => {
@@ -138,33 +148,21 @@
                 if (i.type.toLowerCase().includes("keg") || i.type.includes("1/")) kegCount += i.qty;
                 if (i.type.toLowerCase().includes("case")) caseCount += i.qty;
             });
-
-            // Keyword detection: If NOT a restaurant keyword, it's Retail (Untaxed)
             const restKeywords = ["RESTAURANT", "REST", "BAR", "GRILL", "PUB", "TAVERN", "INN", "DINER", "KITCHEN", "HOUSE", "BREWERY", "BISTRO", "CAFE", "CLUB", "PIZZA", "STEAK", "DELI"];
             const isRestaurant = restKeywords.some(kw => state.customer.name.toUpperCase().includes(kw));
-            
             let kegDep = kegCount * 30;
-            let tax = isRestaurant ? (subtotal * 0.06) : 0; // Only Restaurants Taxed
+            let tax = isRestaurant ? (subtotal * 0.06) : 0;
             let disc = (caseCount >= 10) ? (subtotal * 0.10) : 0;
             let grand = state.manualTotal !== null ? state.manualTotal : (subtotal + kegDep + tax - disc);
 
             app.innerHTML = `<div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                    <div style="text-align:left;">
-                        <strong>SUBURBAN BREWING CO.</strong><br>3041 Horseshoe Pike, Honey Brook, PA 19344<br>
-                        <strong>Sales Rep: Remy Davis</strong><br>(908) 642-1019
-                    </div>
+                    <div style="text-align:left;"><strong>SUBURBAN BREWING CO.</strong><br>3041 Horseshoe Pike, Honey Brook, PA 19344<br><strong>Sales Rep: Remy Davis</strong><br>(908) 642-1019</div>
                     <div style="text-align:right;"><strong>ORDER DATE:</strong><br>${new Date().toLocaleDateString()}</div>
                 </div>
                 <hr style="margin:20px 0; border:0; border-top:1px solid #eee;">
-                <div style="text-align:left; margin-bottom:20px;">
-                    <strong style="font-size:1.4rem;">${state.customer.name}</strong><br>
-                    ${state.customer.address}<br>${state.customer.city}, ${state.customer.state} ${state.customer.zip}
-                </div>
-                <table class="review-table">
-                    <thead><tr><th>Product Item</th><th>Qty</th><th>Total</th></tr></thead>
-                    <tbody>${Object.values(state.cart).map(i=>`<tr><td>${i.beer} (${i.type})</td><td>${i.qty}</td><td>$${(i.qty*i.price).toFixed(2)}</td></tr>`).join('')}</tbody>
-                </table>
+                <div style="text-align:left; margin-bottom:20px;"><strong style="font-size:1.4rem;">${state.customer.name}</strong><br>${state.customer.address}<br>${state.customer.city}, ${state.customer.state} ${state.customer.zip}</div>
+                <table class="review-table"><thead><tr><th>Product Item</th><th>Qty</th><th>Total</th></tr></thead><tbody>${Object.values(state.cart).map(i=>`<tr><td>${i.beer} (${i.type})</td><td>${i.qty}</td><td>$${(i.qty*i.price).toFixed(2)}</td></tr>`).join('')}</tbody></table>
                 <div style="margin-top:30px; border-top:2px solid var(--sbc-dark); padding-top:15px; text-align:right; line-height:1.8;">
                     <div>Subtotal: $${subtotal.toFixed(2)}</div>
                     ${kegDep > 0 ? `<div>Keg Deposits ($30.00 ea): $${kegDep.toFixed(2)}</div>` : ''}
@@ -172,17 +170,35 @@
                     <div style="color:red;">Discount (10+ Case Mix): -$${disc.toFixed(2)}</div>
                     <div onclick="triggerOverride()" style="cursor:pointer; font-size:1.6rem; font-weight:900; color:var(--sbc-blue); margin-top:10px;">GRAND TOTAL: $${grand.toFixed(2)}</div>
                 </div>
-                <div style="display:flex; gap:15px; margin-top:40px;">
-                    <button class="btn" style="flex:1; border:2px solid #ccc; background:#fff;" onclick="state.step=2;render()">Edit Order</button>
-                    <button class="btn btn-primary" style="flex:2; background:#27ae60;" onclick="submitOrder()">Confirm & Submit Order</button>
-                </div>
+                <div style="display:flex; gap:15px; margin-top:40px;"><button class="btn" style="flex:1; border:2px solid #ccc; background:#fff;" onclick="state.step=2;render()">Edit Order</button><button class="btn btn-primary" style="flex:2; background:#27ae60;" onclick="submitOrder()">Confirm & Submit Order</button></div>
             </div>`;
         }
     }
 
+    function updateLiveCalculations() {
+        if (!state.customer) return;
+        let sub = 0, kegs = 0, cases = 0;
+        Object.values(state.cart).forEach(i => {
+            sub += (i.price * i.qty);
+            if (i.type.toLowerCase().includes("keg") || i.type.includes("1/")) kegs += i.qty;
+            if (i.type.toLowerCase().includes("case")) cases += i.qty;
+        });
+
+        const restKeywords = ["RESTAURANT", "REST", "BAR", "GRILL", "PUB", "TAVERN", "INN", "DINER", "KITCHEN", "HOUSE", "BREWERY", "BISTRO", "CAFE", "CLUB", "PIZZA", "STEAK", "DELI"];
+        const isRestaurant = restKeywords.some(kw => state.customer.name.toUpperCase().includes(kw));
+        
+        let tax = isRestaurant ? (sub * 0.06) : 0;
+        let disc = (cases >= 10) ? (sub * 0.10) : 0;
+        let total = sub + (kegs * 30) + tax - disc;
+
+        document.getElementById("live-sub").innerText = "$" + sub.toFixed(2);
+        document.getElementById("live-tax").innerText = "$" + tax.toFixed(2);
+        document.getElementById("live-disc").innerText = "-$" + disc.toFixed(2);
+        document.getElementById("live-total").innerText = "$" + total.toFixed(2);
+    }
+
     function triggerOverride() {
-        const pw = prompt("Enter Override Password:");
-        if (pw === "Yankees 1") {
+        if (prompt("Enter Override Password:") === "Yankees 1") {
             const val = prompt("Enter New Grand Total:");
             if (val !== null) { state.manualTotal = parseFloat(val); render(); }
         } else { alert("Incorrect Password"); }
@@ -198,8 +214,7 @@
         const qty = parseInt(document.getElementById(qId).value) || 0;
         if (qty > 0) state.cart[`${beer}-${opt.type}`] = { beer, type: opt.type, price: opt.price, qty };
         else delete state.cart[`${beer}-${opt.type}`];
-        let t = 0; Object.values(state.cart).forEach(i => t += (i.price * i.qty));
-        document.getElementById("live-total").innerText = "$" + t.toFixed(2);
+        updateLiveCalculations();
     }
 
     async function submitOrder() {
