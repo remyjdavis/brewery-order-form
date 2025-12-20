@@ -18,110 +18,115 @@
             background: var(--bg); 
             margin: 0; 
             color: var(--text-main);
-            line-height: 1.5;
+            line-height: 1.4;
         }
         
+        /* Compact Professional Header */
         .site-header { 
             background: #fff; 
-            padding: 2rem 5%; 
-            border-bottom: 4px solid var(--sbc-dark); 
+            padding: 1rem 5%; 
+            border-bottom: 3px solid var(--sbc-dark); 
             display: flex; 
             align-items: center; 
-            gap: 2rem;
+            justify-content: space-between;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
-        .site-header img { height: 90px; }
-        .header-text h1 { margin: 0; font-size: 1.8rem; letter-spacing: -0.5px; }
-        .header-text p { margin: 5px 0 0; font-size: 0.9rem; color: #636e72; }
+        .header-left { display: flex; align-items: center; gap: 1.5rem; }
+        .site-header img { height: 60px; } /* Smaller Logo */
+        .header-text h1 { margin: 0; font-size: 1.4rem; letter-spacing: -0.5px; }
+        .header-right { text-align: right; font-size: 0.85rem; color: #636e72; }
+        .header-right strong { color: var(--sbc-dark); }
         
-        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+        .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
         
         .card { 
             background: white; 
-            padding: 2.5rem; 
-            border-radius: 12px; 
+            padding: 2rem; 
+            border-radius: 10px; 
             border: 1px solid var(--border); 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.04); 
+            box-shadow: 0 6px 20px rgba(0,0,0,0.03); 
         }
 
         .legal-scroll { 
-            height: 400px; 
+            height: 350px; 
             overflow-y: auto; 
             border: 1px solid #eee; 
-            padding: 2rem; 
+            padding: 1.5rem; 
             background: #fdfdfd; 
-            font-size: 0.9rem; 
+            font-size: 0.85rem; 
             border-radius: 8px;
-            margin: 1.5rem 0;
+            margin: 1rem 0;
         }
 
         .product-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
-            gap: 2rem; 
-            margin-top: 2rem; 
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 1.5rem; 
+            margin-top: 1.5rem; 
         }
         .product-card { 
             background: #fff;
-            border-radius: 12px;
+            border-radius: 10px;
             overflow: hidden;
             border: 1px solid var(--border);
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.2s;
             display: flex;
             flex-direction: column;
         }
-        .product-card:hover { transform: translateY(-5px); box-shadow: 0 12px 20px rgba(0,0,0,0.08); }
-        .product-img { width: 100%; height: 250px; object-fit: cover; background: #eee; }
+        .product-card:hover { transform: translateY(-3px); border-color: var(--sbc-blue); }
+        .product-img { width: 100%; height: 220px; object-fit: cover; background: #eee; }
         
-        .product-info { padding: 1.5rem; flex-grow: 1; text-align: left; }
-        .product-info h3 { margin: 0 0 1rem 0; font-size: 1.4rem; border-bottom: 2px solid var(--bg); padding-bottom: 10px; color: var(--sbc-dark); }
+        .product-info { padding: 1.2rem; flex-grow: 1; }
+        .product-info h3 { margin: 0 0 0.8rem 0; font-size: 1.25rem; color: var(--sbc-dark); }
         
-        .format-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #b2bec3; margin-bottom: 5px; display: block; }
+        .format-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #b2bec3; margin-bottom: 4px; display: block; }
         .type-select { 
             width: 100%; 
-            padding: 12px; 
+            padding: 10px; 
             border-radius: 6px; 
             border: 1px solid var(--border); 
             background: #fff;
-            font-size: 0.95rem;
-            margin-bottom: 1.5rem;
-            font-weight: 500;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
         }
 
-        .qty-container { display: flex; align-items: center; gap: 15px; justify-content: space-between; background: #f8f9fa; padding: 10px; border-radius: 8px; }
+        .qty-container { display: flex; align-items: center; gap: 10px; justify-content: space-between; background: #f8f9fa; padding: 8px 12px; border-radius: 6px; }
         .qty-input { 
-            width: 80px; 
-            padding: 10px; 
+            width: 70px; 
+            padding: 8px; 
             text-align: center; 
             font-weight: 700; 
-            border: 2px solid var(--border); 
-            border-radius: 6px;
-            font-size: 1.1rem;
+            border: 1px solid var(--border); 
+            border-radius: 4px;
+            font-size: 1rem;
         }
 
         .live-bar { 
             position: fixed; bottom: 0; left: 0; right: 0; 
             background: var(--sbc-dark); color: white; 
-            padding: 1.2rem 10%; 
+            padding: 1rem 8%; 
             display: flex; justify-content: space-between; align-items: center; 
-            z-index: 999; border-top: 4px solid var(--sbc-blue);
+            z-index: 1001; border-top: 3px solid var(--sbc-blue);
         }
 
         .btn { 
-            padding: 12px 28px; border: none; border-radius: 6px; 
+            padding: 10px 24px; border: none; border-radius: 5px; 
             font-weight: 700; cursor: pointer; text-transform: uppercase; 
-            transition: all 0.2s; font-size: 0.9rem;
+            transition: all 0.2s; font-size: 0.85rem;
         }
         .btn-primary { background: var(--sbc-blue); color: white; }
         .btn-success { background: #00b894; color: white; width: 100%; margin-top: 2rem; }
         .btn-outline { background: transparent; border: 1px solid #dfe6e9; color: var(--text-main); }
 
-        .review-table { width: 100%; border-collapse: collapse; margin: 2rem 0; }
-        .review-table th { text-align: left; padding: 15px; background: var(--bg); border-bottom: 2px solid var(--sbc-dark); }
-        .review-table td { padding: 15px; border-bottom: 1px solid #eee; }
+        .review-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
+        .review-table th { text-align: left; padding: 12px; background: var(--bg); border-bottom: 2px solid var(--sbc-dark); }
+        .review-table td { padding: 12px; border-bottom: 1px solid #eee; }
 
         @media print {
-            .live-bar, .btn, .action-flex { display: none !important; }
+            .site-header, .live-bar, .btn, .action-flex { display: none !important; }
             .card { border: none; box-shadow: none; padding: 0; }
         }
     </style>
@@ -129,19 +134,24 @@
 <body>
 
 <header class="site-header" id="main-header">
-    <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" alt="SBC Logo">
-    <div class="header-text">
-        <h1>Suburban Brewing Co.</h1>
-        <p>3041 Horseshoe Pike, Honey Brook, PA 19344 | <strong>Remy Davis: (908) 642-1019</strong></p>
+    <div class="header-left">
+        <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" alt="SBC Logo">
+        <div class="header-text">
+            <h1>Suburban Brewing Co.</h1>
+        </div>
+    </div>
+    <div class="header-right">
+        3041 Horseshoe Pike, Honey Brook, PA<br>
+        <strong>Remy Davis: (908) 642-1019</strong>
     </div>
 </header>
 
 <div class="container" id="app"></div>
 
 <div id="live-bar" class="live-bar" style="display:none;">
-    <div id="stock-error" style="color:#ff7675; font-weight:bold; display:none;">⚠️ OVER STOCK LIMIT</div>
-    <div class="summary-item">ORDER TOTAL: <span id="live-total" style="color:var(--sbc-blue); font-size: 1.5rem; margin-left:10px;">$0.00</span></div>
-    <button class="btn btn-primary" id="review-btn" onclick="goToReview()">Review & Confirm</button>
+    <div id="stock-error" style="color:#ff7675; font-weight:bold; display:none;">⚠️ OVER STOCK</div>
+    <div class="summary-item">TOTAL: <span id="live-total" style="color:var(--sbc-blue); font-size: 1.3rem; margin-left:8px; font-weight:800;">$0.00</span></div>
+    <button class="btn btn-primary" id="review-btn" onclick="goToReview()">Review Order</button>
 </div>
 
 <script>
@@ -166,18 +176,13 @@
                 const cleanName = fullName.replace(/(Keg|Case|1\/2|1\/6|BBL|Can)/gi, '').trim();
                 const formatType = fullName.replace(cleanName, '').trim() || "Unit";
                 
-                // Image Logic: If name contains Awesome Larry, use Larry.jpg
                 let productImg = c[3]?.trim() || '';
                 if (cleanName.toLowerCase().includes("awesome larry")) {
                     productImg = GITHUB_IMG_BASE + "Larry.jpg";
                 }
 
                 if (!groupedProducts[cleanName]) {
-                    groupedProducts[cleanName] = { 
-                        name: cleanName, 
-                        img: productImg, 
-                        options: [] 
-                    };
+                    groupedProducts[cleanName] = { name: cleanName, img: productImg, options: [] };
                 }
                 groupedProducts[cleanName].options.push({
                     type: formatType,
@@ -228,31 +233,31 @@
 
         if (state.step === 0) {
             app.innerHTML = `
-                <div class="card" style="max-width:800px; margin:auto;">
-                    <h2 style="text-align:center;">Wholesale Agreement</h2>
+                <div class="card" style="max-width:750px; margin:auto;">
+                    <h2 style="text-align:center; margin-top:0;">Wholesale Agreement</h2>
                     <div class="legal-scroll">
-                        <h4>1. Product Quality</h4><p>Must be maintained at 38°F. All sales are final.</p>
-                        <h4>2. Payment</h4><p>Check due at delivery or processed via Fintech.</p>
-                        <h4>3. Cooperage</h4><p>$30 deposit per keg shell. SBC retains ownership.</p>
+                        <h4>1. Product Quality</h4><p>Must be maintained at 38°F. All sales final.</p>
+                        <h4>2. Payment</h4><p>Check due at delivery or Fintech.</p>
+                        <h4>3. Cooperage</h4><p>$30 deposit per keg shell. SBC ownership retained.</p>
                         <h4>4. Compliance</h4><p>Purchaser warrants valid PA Liquor Licensure.</p>
                     </div>
-                    <label style="display:block; text-align:center; margin: 2rem 0;">
-                        <input type="checkbox" id="agree"> I have read and agree to the Master Wholesale Terms.
+                    <label style="display:block; text-align:center; margin: 1.5rem 0;">
+                        <input type="checkbox" id="agree"> I agree to the Wholesale Terms.
                     </label>
-                    <button class="btn btn-primary" style="width:100%" onclick="if(document.getElementById('agree').checked){state.step=1;render()}">Enter Portal</button>
+                    <button class="btn btn-primary" style="width:100%" onclick="if(document.getElementById('agree').checked){state.step=1;render()}">Continue to Portal</button>
                 </div>`;
         } else if (state.step === 1) {
-            app.innerHTML = `<div class="card" style="max-width:600px; margin:auto; text-align:center;">
-                <h2>Search Account</h2>
-                <input type="text" placeholder="Start typing business name..." oninput="doSearch(this.value)" 
-                style="width:100%; padding:15px; border:1px solid var(--border); border-radius:8px; font-size:1.1rem; box-sizing:border-box;">
-                <div id="results" style="margin-top:20px; text-align:left;"></div>
+            app.innerHTML = `<div class="card" style="max-width:550px; margin:auto; text-align:center;">
+                <h3>Account Login</h3>
+                <input type="text" placeholder="Search business name..." oninput="doSearch(this.value)" 
+                style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:1rem; box-sizing:border-box;">
+                <div id="results" style="margin-top:15px; text-align:left;"></div>
             </div>`;
         } else if (state.step === 2) {
             app.innerHTML = `
-                <div style="margin-bottom:2rem; display:flex; justify-content:space-between; align-items:flex-end;">
-                    <div><h2 style="margin:0;">Ordering for: ${state.customer.name}</h2><small>${state.customer.address}</small></div>
-                    <button class="btn btn-outline" onclick="state.step=1;render()">Change Account</button>
+                <div style="margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center;">
+                    <div><h3 style="margin:0;">Client: ${state.customer.name}</h3><small>${state.customer.address}</small></div>
+                    <button class="btn btn-outline" style="padding:6px 15px;" onclick="state.step=1;render()">Change</button>
                 </div>
                 <div class="product-grid">${Object.values(groupedProducts).map(p => {
                     const cleanId = p.name.replace(/\s+/g, '');
@@ -260,10 +265,10 @@
                     const qtyId = `qty-${cleanId}`;
                     return `
                     <div class="product-card">
-                        <img src="${p.img || 'https://via.placeholder.com/400x250?text=SBC+Product'}" class="product-img" onerror="this.src='https://via.placeholder.com/400x250?text=SBC+Product'">
+                        <img src="${p.img || 'https://via.placeholder.com/400x220?text=SBC+Brewing'}" class="product-img" onerror="this.src='https://via.placeholder.com/400x220?text=SBC+Brewing'">
                         <div class="product-info">
                             <h3>${p.name}</h3>
-                            <span class="format-label">Select Format</span>
+                            <span class="format-label">Format</span>
                             <select class="type-select" id="${selectId}" onchange="updateCart('${p.name}', '${selectId}', '${qtyId}')">
                                 ${p.options.map((opt, idx) => `<option value="${idx}">${opt.type} — $${opt.price.toFixed(2)} (${opt.stock} in stock)</option>`).join("")}
                             </select>
@@ -279,7 +284,7 @@
             const t = calculate();
             app.innerHTML = `
                 <div class="card">
-                    <div style="display:flex; justify-content:space-between; border-bottom:2px solid var(--bg); padding-bottom:2rem;">
+                    <div style="display:flex; justify-content:space-between; border-bottom:2px solid var(--bg); padding-bottom:1.5rem; margin-bottom:1.5rem;">
                         <div>
                             <strong>BILL TO:</strong><br>
                             ${state.customer.name}<br>
@@ -287,9 +292,8 @@
                             ${state.customer.city}, ${state.customer.state} ${state.customer.zip}
                         </div>
                         <div style="text-align:right;">
-                            <strong style="color:var(--sbc-blue);">ORDER SUMMARY</strong><br>
-                            Date: ${new Date().toLocaleDateString()}<br>
-                            Rep: Remy Davis
+                            <strong style="color:var(--sbc-blue);">ORDER INVOICE</strong><br>
+                            ${new Date().toLocaleDateString()}<br>
                         </div>
                     </div>
                     <table class="review-table">
@@ -302,15 +306,15 @@
                                 <td style="text-align:right;">$${(i.price*i.qty).toFixed(2)}</td>
                             </tr>`).join("")}</tbody>
                     </table>
-                    <div style="text-align:right; font-size:1.1rem; line-height:2;">
+                    <div style="text-align:right; font-size:1rem; line-height:1.8;">
                         Subtotal: $${t.sub.toFixed(2)}<br>
-                        ${t.disc > 0 ? `<span style="color:#00b894;">Volume Discount: -$${t.disc.toFixed(2)}</span><br>` : ''}
+                        ${t.disc > 0 ? `<span style="color:#00b894;">Discount: -$${t.disc.toFixed(2)}</span><br>` : ''}
                         Tax: $${t.tax.toFixed(2)}<br>
-                        Keg Deposits: $${t.dep.toFixed(2)}<br>
-                        <strong style="font-size:1.8rem; color:var(--sbc-blue);">TOTAL: $${t.final.toFixed(2)}</strong>
+                        Deposits: $${t.dep.toFixed(2)}<br>
+                        <strong style="font-size:1.6rem; color:var(--sbc-blue);">TOTAL: $${t.final.toFixed(2)}</strong>
                     </div>
-                    <div class="action-flex" style="display:flex; gap:15px; margin-top:2rem;">
-                        <button class="btn btn-outline" style="flex:1" onclick="state.step=2;render()">Edit Items</button>
+                    <div class="action-flex" style="display:flex; gap:10px; margin-top:2rem;">
+                        <button class="btn btn-outline" style="flex:1" onclick="state.step=2;render()">Edit</button>
                         <button class="btn btn-outline" style="flex:1" onclick="handleEmailRequest()">${state.emailRequested ? 'Email Queued ✓' : 'Email Invoice'}</button>
                     </div>
                     <button class="btn btn-success" onclick="submitOrder()">Submit Final Order</button>
@@ -331,14 +335,14 @@
         const res = await fetch(`${API_URL}?q=${encodeURIComponent(v)}`);
         const data = await res.json();
         document.getElementById("results").innerHTML = data.results.map(c => `
-            <div style="padding:15px; border:1px solid var(--border); border-radius:8px; margin-bottom:10px; cursor:pointer; background:#fff;" 
+            <div style="padding:12px; border:1px solid var(--border); border-radius:6px; margin-bottom:8px; cursor:pointer; background:#fff; font-size:0.9rem;" 
             onclick='selectCust(${JSON.stringify(c).replace(/'/g, "&apos;")})'>
-                <strong>${c.name}</strong><br><small style="color:#636e72">${c.address}</small>
+                <strong>${c.name}</strong> — ${c.address}
             </div>`).join("");
     }
 
     function handleEmailRequest() {
-        if (!state.customer.email) state.customer.email = prompt("Enter Client Email Address:");
+        if (!state.customer.email) state.customer.email = prompt("Enter Client Email:");
         if (state.customer.email) { state.emailRequested = true; render(); }
     }
 
@@ -347,10 +351,10 @@
 
     async function submitOrder() {
         const btn = event.target;
-        btn.disabled = true; btn.innerText = "Submitting...";
-        const payload = { ...state, subject: `Suburban Brewing Company Order - ${state.customer.name}` };
+        btn.disabled = true; btn.innerText = "Processing...";
+        const payload = { ...state, subject: `Suburban Brewing Order - ${state.customer.name}` };
         await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
-        alert("Order Submitted! Confirmation email and invoice sent.");
+        alert("Order Received!");
         location.reload();
     }
 
