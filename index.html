@@ -82,13 +82,21 @@
             padding-bottom: 15px;
         }
 
-        .product-img {
+        .product-img-container {
             width: 100%;
             height: 180px;
-            object-fit: contain;
             background: #fcfcfc;
             border-bottom: 1px solid #eee;
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
         }
         
         .live-bar { 
@@ -194,21 +202,27 @@
                     const fullName = columns[0].trim();
                     const price = parseFloat(columns[1]) || 0;
                     const stock = columns[2] || "0";
+                    
+                    // Logic to find the beer name by removing sizing keywords
                     const baseName = fullName.replace(/(Keg|Case|1\/2|1\/6|BBL|Can|12oz|16oz)/gi, '').trim();
                     const type = fullName.replace(baseName, '').trim() || "Unit";
 
                     if (!groupedProducts[baseName]) {
+                        // AUTO-IMAGE LOGIC: Splits name at space, takes first word, makes it lowercase
+                        const firstWord = baseName.split(' ')[0].toLowerCase();
                         groupedProducts[baseName] = { 
                             name: baseName, 
                             options: [],
-                            image: baseName.toLowerCase().includes("larry") ? "Larry.jpg" : null
+                            image: firstWord + ".jpg" 
                         };
                     }
                     groupedProducts[baseName].options.push({ type: type, price: price, stock: stock });
                 }
             }
             render();
-        } catch (error) { console.error(error); }
+        } catch (error) { 
+            console.error("Initialization Error: ", error); 
+        }
     }
 
     function render() {
@@ -256,11 +270,12 @@
             for (const key in groupedProducts) {
                 const p = groupedProducts[key];
                 const id = p.name.replace(/\s/g, '');
-                const imgTag = p.image ? `<img src="${BASE_IMG_URL}${p.image}" class="product-img" onerror="this.style.display='none'">` : '';
-
+                
                 html += `
                     <div class="product-card">
-                        ${imgTag}
+                        <div class="product-img-container" id="img-cont-${id}">
+                            <img src="${BASE_IMG_URL}${p.image}" class="product-img" onerror="document.getElementById('img-cont-${id}').style.display='none'">
+                        </div>
                         <div style="padding:0 15px 15px 15px;">
                             <h4 style="margin:0 0 10px 0;">${p.name}</h4>
                             <select id="select-${id}" style="width:100%; padding:5px;" onchange="updateStockDisplay('${id}', '${p.name}')">
@@ -333,18 +348,27 @@
         try {
             const response = await fetch(`${API_URL}?key=${encodeURIComponent(input)}`);
             const result = await response.json();
-            if (result.success) { state.customer = result.customer; state.step = 2; render(); }
+            if (result.success) { 
+                state.customer = result.customer; 
+                state.step = 2; 
+                render(); 
+            }
             else { alert("Invalid Access Key."); }
-        } catch (e) { alert("Error."); }
+        } catch (e) { alert("Error connecting to server."); }
     }
 
     function addToCart(beerName, id) {
         const select = document.getElementById(`select-${id}`);
-        const qty = parseInt(document.getElementById(`qty-${id}`).value) || 0;
+        const qtyValue = document.getElementById(`qty-${id}`).value;
+        const qty = parseInt(qtyValue) || 0;
         const opt = groupedProducts[beerName].options[select.value];
         const key = beerName + "-" + opt.type;
-        if (qty > 0) { state.cart[key] = { beer: beerName, type: opt.type, price: opt.price, qty: qty }; }
-        else { delete state.cart[key]; }
+        
+        if (qty > 0) { 
+            state.cart[key] = { beer: beerName, type: opt.type, price: opt.price, qty: qty }; 
+        } else { 
+            delete state.cart[key]; 
+        }
         updateLiveTotals();
     }
 
@@ -360,6 +384,7 @@
         const isRestaurant = state.customer && restKeywords.some(k => state.customer.name.toUpperCase().includes(k));
         let tax = isRestaurant ? (sub * 0.06) : 0;
         let disc = (cases >= 10) ? (sub * 0.10) : 0;
+        
         document.getElementById("live-sub").innerText = "$" + sub.toFixed(2);
         document.getElementById("live-tax").innerText = "$" + tax.toFixed(2);
         document.getElementById("live-disc").innerText = "-$" + disc.toFixed(2);
@@ -367,17 +392,26 @@
     }
 
     function updateStockDisplay(id, beerName) {
-        document.getElementById(`stock-${id}`).innerText = groupedProducts[beerName].options[document.getElementById(`select-${id}`).value].stock;
+        const dropdown = document.getElementById(`select-${id}`);
+        const stockSpan = document.getElementById(`stock-${id}`);
+        stockSpan.innerText = groupedProducts[beerName].options[dropdown.value].stock;
     }
 
     function adminOverride() {
-        if (prompt("Enter Override Password:") === "Yankees 1") {
+        const pass = prompt("Enter Override Password:");
+        if (pass === "Yankees 1") {
             const val = prompt("Enter New Grand Total:");
-            if (val !== null) { state.manualTotal = parseFloat(val); render(); }
+            if (val !== null) { 
+                state.manualTotal = parseFloat(val); 
+                render(); 
+            }
         } else { alert("Unauthorized."); }
     }
 
-    function goToReview() { state.step = 3; render(); }
+    function goToReview() { 
+        state.step = 3; 
+        render(); 
+    }
 
     async function sendEmailCopy() {
         if (!state.customer.email || state.customer.email.trim() === "" || state.customer.email === "undefined") {
@@ -390,7 +424,11 @@
         }
         alert("Sending copy to " + state.customer.email + " and Remy...");
         try {
-            await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(state) });
+            await fetch(API_URL, { 
+                method: "POST", 
+                mode: "no-cors", 
+                body: JSON.stringify(state) 
+            });
             alert("Copy Sent!");
         } catch (e) { alert("Error sending email."); }
     }
@@ -410,7 +448,11 @@
         btn.innerText = "SUBMITTING...";
 
         try {
-            await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(state) });
+            await fetch(API_URL, { 
+                method: "POST", 
+                mode: "no-cors", 
+                body: JSON.stringify(state) 
+            });
             alert("Order Submitted! Confirmation emails have been triggered.");
             location.reload();
         } catch (e) {
@@ -419,6 +461,7 @@
             btn.innerText = "Submit Final Order";
         }
     }
+    
     init();
 </script>
 </body>
