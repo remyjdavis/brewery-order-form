@@ -5,143 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SBC Wholesale Portal</title>
     <style>
-        :root { 
-            --sbc-blue: #007bff; 
-            --sbc-dark: #1a1a1a; 
-            --bg: #f8f9fa; 
-            --border: #dee2e6;
-            --text-main: #2d3436;
-        }
-
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: var(--bg); 
-            margin: 0; 
-            color: var(--text-main);
-            line-height: 1.4;
-        }
-        
-        .site-header { 
-            background: #fff; 
-            padding: 1rem 5%; 
-            border-bottom: 3px solid var(--sbc-dark); 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        .header-left { display: flex; align-items: center; gap: 1.5rem; }
-        .site-header img { height: 60px; }
-        .header-text h1 { margin: 0; font-size: 1.4rem; letter-spacing: -0.5px; }
-        .header-right { text-align: right; font-size: 0.85rem; color: #636e72; }
-        .header-right strong { color: var(--sbc-dark); }
-        
-        .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
-        
-        .card { 
-            background: white; 
-            padding: 2rem; 
-            border-radius: 10px; 
-            border: 1px solid var(--border); 
-            box-shadow: 0 6px 20px rgba(0,0,0,0.03); 
-        }
-
-        /* VERY LONG LEGAL SCROLL */
-        .legal-scroll { 
-            height: 500px; 
-            overflow-y: auto; 
-            border: 2px solid #333; 
-            padding: 2rem; 
-            background: #fff; 
-            font-size: 0.85rem; 
-            border-radius: 4px;
-            margin: 1rem 0;
-            line-height: 1.6;
-            color: #222;
-        }
-        .legal-scroll h3 { text-transform: uppercase; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 25px; }
-        .legal-scroll b { color: #000; }
-
-        .product-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-            gap: 1.5rem; 
-            margin-top: 1.5rem; 
-        }
-        .product-card { 
-            background: #fff;
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-        }
-        .product-img { width: 100%; height: 220px; object-fit: cover; background: #eee; }
-        
-        .product-info { padding: 1.2rem; flex-grow: 1; }
-        .product-info h3 { margin: 0 0 0.8rem 0; font-size: 1.25rem; color: var(--sbc-dark); }
-        
-        .format-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #b2bec3; margin-bottom: 4px; display: block; }
-        .type-select { 
-            width: 100%; 
-            padding: 10px; 
-            border-radius: 6px; 
-            border: 1px solid var(--border); 
-            background: #fff;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-        }
-
-        .qty-container { display: flex; align-items: center; gap: 10px; justify-content: space-between; background: #f8f9fa; padding: 8px 12px; border-radius: 6px; }
-        .qty-input { 
-            width: 70px; 
-            padding: 8px; 
-            text-align: center; 
-            font-weight: 700; 
-            border: 1px solid var(--border); 
-            border-radius: 4px;
-        }
-
-        .live-bar { 
-            position: fixed; bottom: 0; left: 0; right: 0; 
-            background: var(--sbc-dark); color: white; 
-            padding: 1rem 8%; 
-            display: flex; justify-content: space-between; align-items: center; 
-            z-index: 1001; border-top: 3px solid var(--sbc-blue);
-        }
-
-        .btn { 
-            padding: 10px 24px; border: none; border-radius: 5px; 
-            font-weight: 700; cursor: pointer; text-transform: uppercase; 
-            transition: all 0.2s; font-size: 0.85rem;
-        }
+        :root { --sbc-blue: #007bff; --sbc-dark: #1a1a1a; --bg: #f8f9fa; --border: #dee2e6; --text: #2d3436; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); margin: 0; color: var(--text); padding-bottom: 80px; }
+        .site-header { background: #fff; padding: 1rem 5%; border-bottom: 3px solid var(--sbc-dark); display: flex; align-items: center; justify-content: space-between; }
+        .site-header img { height: 55px; }
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+        .card { background: white; padding: 2rem; border-radius: 10px; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .legal-scroll { height: 350px; overflow-y: auto; border: 1px solid #333; padding: 1.5rem; margin: 1rem 0; font-size: 0.85rem; background: #fff; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+        .product-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; text-align: center; }
+        .product-img { width: 100%; height: 180px; object-fit: cover; background: #eee; }
+        .product-info { padding: 1.2rem; }
+        .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--sbc-dark); color: white; padding: 1rem 8%; display: flex; justify-content: space-between; align-items: center; z-index: 1001; }
+        .btn { padding: 12px 24px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
         .btn-primary { background: var(--sbc-blue); color: white; }
-        .btn-success { background: #00b894; color: white; width: 100%; margin-top: 2rem; }
-        .btn-outline { background: transparent; border: 1px solid #dfe6e9; color: var(--text-main); }
-
-        .review-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
-        .review-table th { text-align: left; padding: 12px; background: var(--bg); border-bottom: 2px solid var(--sbc-dark); }
-        .review-table td { padding: 12px; border-bottom: 1px solid #eee; }
-
-        @media print {
-            .site-header, .live-bar, .btn, .action-flex { display: none !important; }
-            .card { border: none; box-shadow: none; padding: 0; }
-        }
+        .review-table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
+        .review-table th, .review-table td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
+        #login-err { color: #d63031; font-weight: bold; margin-bottom: 15px; display: none; }
+        @media print { .no-print, .live-bar { display: none !important; } .card { border: none; box-shadow: none; } }
     </style>
 </head>
 <body>
 
-<header class="site-header" id="main-header">
-    <div class="header-left">
+<header class="site-header">
+    <div style="display:flex; align-items:center; gap:15px;">
         <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" alt="SBC Logo">
-        <div class="header-text">
-            <h1>Suburban Brewing Co.</h1>
-        </div>
+        <h2 style="margin:0;">Suburban Brewing Co.</h2>
     </div>
-    <div class="header-right">
+    <div style="text-align:right; font-size:0.85rem;">
         3041 Horseshoe Pike, Honey Brook, PA<br>
         <strong>Remy Davis: (908) 642-1019</strong>
     </div>
@@ -150,239 +41,106 @@
 <div class="container" id="app"></div>
 
 <div id="live-bar" class="live-bar" style="display:none;">
-    <div id="stock-error" style="color:#ff7675; font-weight:bold; display:none;">⚠️ OVER STOCK</div>
-    <div class="summary-item">TOTAL: <span id="live-total" style="color:var(--sbc-blue); font-size: 1.3rem; margin-left:8px; font-weight:800;">$0.00</span></div>
-    <button class="btn btn-primary" id="review-btn" onclick="goToReview()">Review Order</button>
+    <div>TOTAL: <span id="live-total" style="color:var(--sbc-blue); font-weight:800; font-size:1.3rem;">$0.00</span></div>
+    <button class="btn btn-primary" onclick="state.step=3;render()">Review Order</button>
 </div>
 
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec";
     const PRODUCT_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&output=csv";
-    const GITHUB_IMG_BASE = "https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/";
 
     let groupedProducts = {};
-    let state = { step: 0, customer: null, cart: {}, overrideActive: false, emailRequested: false };
+    let state = { step: 0, customer: null, cart: {} };
 
     async function init() {
         try {
             const res = await fetch(PRODUCT_CSV);
             const text = await res.text();
             const rows = text.split("\n").slice(1);
-            
             rows.forEach(r => {
                 const c = r.split(",");
-                const fullName = c[0]?.trim();
-                if (!fullName) return;
-                
-                const cleanName = fullName.replace(/(Keg|Case|1\/2|1\/6|BBL|Can)/gi, '').trim();
-                const formatType = fullName.replace(cleanName, '').trim() || "Unit";
-                
-                let productImg = c[3]?.trim() || '';
-                if (cleanName.toLowerCase().includes("awesome larry")) {
-                    productImg = GITHUB_IMG_BASE + "Larry.jpg";
-                }
-
-                if (!groupedProducts[cleanName]) {
-                    groupedProducts[cleanName] = { name: cleanName, img: productImg, options: [] };
-                }
-                groupedProducts[cleanName].options.push({
-                    type: formatType,
-                    price: parseFloat(c[1]) || 0,
-                    stock: parseInt(c[2]) || 0
-                });
+                if (!c[0]) return;
+                const cleanName = c[0].replace(/(Keg|Case|1\/2|1\/6|BBL|Can)/gi, '').trim();
+                if (!groupedProducts[cleanName]) groupedProducts[cleanName] = { name: cleanName, img: c[3] || '', options: [] };
+                groupedProducts[cleanName].options.push({ type: c[0].replace(cleanName, '').trim() || "Unit", price: parseFloat(c[1]) || 0, stock: parseInt(c[2]) || 0 });
             });
             render();
         } catch (e) { console.error("Load Error", e); }
     }
 
-    function calculate() {
-        let sub = 0, totalQty = 0, dep = 0, overStock = false;
-        Object.values(state.cart).forEach(item => {
-            if (item.qty > 0) {
-                sub += (item.price * item.qty);
-                totalQty += item.qty;
-                if (/BBL|Keg/i.test(item.type)) dep += (item.qty * 30);
-                if (!state.overrideActive && item.qty > item.max) overStock = true;
+    async function attemptLogin() {
+        const key = document.getElementById("loginInput").value.trim().toUpperCase();
+        if (key.length < 4) return;
+        const btn = document.getElementById("loginBtn");
+        btn.innerText = "Verifying...";
+        
+        try {
+            const res = await fetch(`${API_URL}?key=${encodeURIComponent(key)}`);
+            const data = await res.json();
+            if (data.success) {
+                state.customer = data.customer;
+                state.step = 2;
+                render();
+            } else {
+                document.getElementById("login-err").style.display = "block";
+                btn.innerText = "Login";
             }
-        });
-        const disc = (totalQty >= 10) ? (sub * 0.10) : 0;
-        const tax = (state.customer && /restaurant|bar|pub|grill|cafe/i.test(state.customer.name)) ? ((sub - disc) * 0.06) : 0;
-        return { sub, disc, dep, tax, final: (sub - disc + dep + tax), overStock };
+        } catch (e) { alert("Connection Error"); btn.innerText = "Login"; }
     }
 
-    function updateCart(beerName, selectId, qtyId) {
-        const select = document.getElementById(selectId);
-        const qtyInput = document.getElementById(qtyId);
-        const optIndex = select.value;
-        const option = groupedProducts[beerName].options[optIndex];
-        const key = `${beerName}-${option.type}`;
-        const qty = Math.max(0, parseInt(qtyInput.value) || 0);
-
-        if (qty > 0) {
-            state.cart[key] = { beer: beerName, type: option.type, price: option.price, qty: qty, max: option.stock };
-        } else {
-            delete state.cart[key];
-        }
-        updateBar();
+    function updateCart(beer, selectId, qtyId) {
+        const opt = groupedProducts[beer].options[document.getElementById(selectId).value];
+        const qty = parseInt(document.getElementById(qtyId).value) || 0;
+        if (qty > 0) state.cart[`${beer}-${opt.type}`] = { beer, type: opt.type, price: opt.price, qty };
+        else delete state.cart[`${beer}-${opt.type}`];
+        
+        let total = 0;
+        Object.values(state.cart).forEach(i => total += (i.price * i.qty));
+        document.getElementById("live-total").innerText = "$" + total.toFixed(2);
     }
 
     function render() {
         const app = document.getElementById("app");
-        const bar = document.getElementById("live-bar");
-        app.innerHTML = "";
-        bar.style.display = (state.step === 2) ? "flex" : "none";
+        document.getElementById("live-bar").style.display = (state.step === 2) ? "flex" : "none";
 
         if (state.step === 0) {
-            app.innerHTML = `
-                <div class="card" style="max-width:900px; margin:auto;">
-                    <h2 style="text-align:center; margin-top:0;">Master Wholesale Distribution & Purchase Agreement</h2>
-                    <p style="text-align:center; font-size:0.8rem; color:red; font-weight:bold;">LEGALLY BINDING DOCUMENT - PLEASE READ CAREFULLY</p>
-                    <div class="legal-scroll">
-                        <h3>1. SCOPE OF AGREEMENT</h3>
-                        <p>This Agreement governs all sales of malt beverage products ("Products") by <b>Suburban Brewing Co. ("SBC")</b> to the undersigned Purchaser ("Purchaser"). By checking the box below and entering the portal, Purchaser agrees to be bound by all terms herein for this and all future transactions.</p>
-                        
-                        <h3>2. PRODUCT INTEGRITY & COLD STORAGE</h3>
-                        <p>Purchaser acknowledges that SBC Products are unpasteurized and highly perishable. Purchaser warrants that all SBC Products will be maintained at a constant temperature between <b>34°F and 38°F</b> from the moment of delivery. SBC expressly disclaims all liability for product degradation, spoilage, or "off-flavors" resulting from temperatures exceeding 40°F or improper draft line maintenance (which must be cleaned bi-weekly by a certified professional).</p>
-                        
-                        <h3>3. PRICING & PAYMENT TERMS</h3>
-                        <p><b>Check/COD Customers:</b> Payment is due in full at the immediate time of delivery. SBC drivers are instructed not to leave Product without payment. <b>Fintech Customers:</b> Transactions will be initiated via the Fintech electronic platform. Any failed electronic transfer or returned check shall result in a <b>$100.00 Administrative Fee</b> plus the maximum interest rate allowed by law (1.5% per month) on the outstanding balance.</p>
-                        
-                        <h3>4. COOPERAGE (KEG SHELLS)</h3>
-                        <p>All kegs remains the <b>exclusive property of SBC</b>. The $30.00 deposit is a security measure and does not constitute a sale of the vessel. Purchaser is liable for the replacement cost of any lost, stolen, or damaged kegs at a rate of <b>$165.00 per unit</b>. Empty kegs must be made available for pick-up upon the next delivery.</p>
-                        
-                        <h3>5. LICENSURE & LEGAL COMPLIANCE</h3>
-                        <p>Purchaser warrants they hold a valid liquor license issued by the <b>Pennsylvania Liquor Control Board (PLCB)</b>. Purchaser agrees to indemnify SBC against any legal action, fines, or license suspensions resulting from the Purchaser's illegal sale or service of SBC products (including sales to minors or intoxicated persons).</p>
-                        
-                        <h3>6. DRAFT EQUIPMENT & BRANDING</h3>
-                        <p>Purchaser shall only use SBC branded tap handles for SBC products. Substituting a competitor's product on an SBC handle is a violation of trademark law. SBC is not responsible for any damage to Purchaser's refrigeration or draft systems caused by improper connection or use of SBC cooperage.</p>
-
-                        <h3>7. LIMITATION OF LIABILITY</h3>
-                        <p>In no event shall SBC be liable for lost profits, indirect, or consequential damages. SBC’s total liability for any claim shall not exceed the purchase price of the specific Product giving rise to the claim.</p>
-
-                        <h3>8. FORCE MAJEURE</h3>
-                        <p>SBC shall not be held liable for failure to deliver or delays caused by acts of God, supply chain collapse, labor strikes, or government-mandated brewery shutdowns.</p>
-
-                        <h3>9. JURISDICTION & GOVERNING LAW</h3>
-                        <p>This agreement shall be governed by the laws of the Commonwealth of Pennsylvania. Any legal action shall be brought exclusively in the courts of <b>Chester County, PA</b>. The prevailing party in any litigation shall be entitled to recover reasonable attorney’s fees and court costs.</p>
-                        
-                        <p><i>Revised December 19, 2025.</i></p>
-                    </div>
-                    <label style="display:block; text-align:center; margin: 1.5rem 0; font-weight:bold; color:#000;">
-                        <input type="checkbox" id="agree" style="transform: scale(1.3); margin-right:10px;"> 
-                        I ACCEPT THE ABOVE MASTER AGREEMENT AND AUTHORIZE RECURRING TRANSACTIONS.
-                    </label>
-                    <button class="btn btn-primary" style="width:100%; height:60px; font-size:1.1rem;" onclick="if(document.getElementById('agree').checked){state.step=1;render()}">Enter Wholesale Portal</button>
-                </div>`;
+            app.innerHTML = `<div class="card"><h2 style="text-align:center;">Wholesale Agreement</h2><div class="legal-scroll"><p>Cold Storage Required (34-38F). Keg Deposits are $30. Payment due at delivery for Check customers.</p></div><button class="btn btn-primary" style="width:100%;" onclick="state.step=1;render()">I Accept Agreement</button></div>`;
         } else if (state.step === 1) {
-            app.innerHTML = `<div class="card" style="max-width:550px; margin:auto; text-align:center;">
-                <h3>Account Login</h3>
-                <input type="text" placeholder="Search business name..." oninput="doSearch(this.value)" 
-                style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:1rem; box-sizing:border-box;">
-                <div id="results" style="margin-top:15px; text-align:left;"></div>
-            </div>`;
+            app.innerHTML = `<div class="card" style="max-width:400px; margin:auto; text-align:center;"><h3>Client Login</h3><p style="font-size:0.8rem; color:#666;">Enter your Login Key to proceed</p><input type="text" id="loginInput" placeholder="EX: REMY12345" style="width:100%; padding:15px; margin-bottom:10px; border:2px solid var(--sbc-dark); border-radius:8px; text-align:center; font-size:1.2rem; text-transform:uppercase;"><div id="login-err">⚠️ Invalid Login Key</div><button id="loginBtn" class="btn btn-primary" style="width:100%;" onclick="attemptLogin()">Login</button></div>`;
         } else if (state.step === 2) {
-            app.innerHTML = `
-                <div style="margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center;">
-                    <div><h3 style="margin:0;">Client: ${state.customer.name}</h3><small>${state.customer.address}</small></div>
-                    <button class="btn btn-outline" style="padding:6px 15px;" onclick="state.step=1;render()">Change Account</button>
-                </div>
-                <div class="product-grid">${Object.values(groupedProducts).map(p => {
-                    const cleanId = p.name.replace(/\s+/g, '');
-                    const selectId = `select-${cleanId}`;
-                    const qtyId = `qty-${cleanId}`;
-                    return `
-                    <div class="product-card">
-                        <img src="${p.img || 'https://via.placeholder.com/400x220?text=SBC+Brewing'}" class="product-img" onerror="this.src='https://via.placeholder.com/400x220?text=SBC+Brewing'">
-                        <div class="product-info">
-                            <h3>${p.name}</h3>
-                            <span class="format-label">Format</span>
-                            <select class="type-select" id="${selectId}" onchange="updateCart('${p.name}', '${selectId}', '${qtyId}')">
-                                ${p.options.map((opt, idx) => `<option value="${idx}">${opt.type} — $${opt.price.toFixed(2)} (${opt.stock} in stock)</option>`).join("")}
-                            </select>
-                            <div class="qty-container">
-                                <span class="format-label" style="margin:0;">Quantity</span>
-                                <input type="number" id="${qtyId}" class="qty-input" placeholder="0" min="0" 
-                                oninput="updateCart('${p.name}', '${selectId}', '${qtyId}')">
-                            </div>
-                        </div>
-                    </div>`;
-                }).join("")}</div>`;
+            app.innerHTML = `<h3>Welcome, ${state.customer.name}</h3><div class="product-grid">${Object.values(groupedProducts).map(p => {
+                const id = p.name.replace(/\s/g,'');
+                return `<div class="product-card"><img src="${p.img}" class="product-img" onerror="this.src='https://via.placeholder.com/200?text=SBC'"><div class="product-info"><h4>${p.name}</h4><select id="s-${id}" style="width:100%; padding:5px;" onchange="updateCart('${p.name}','s-${id}','q-${id}')">${p.options.map((o,i)=>`<option value="${i}">${o.type} - $${o.price}</option>`).join('')}</select><br><br>Qty: <input type="number" id="q-${id}" style="width:60px;" oninput="updateCart('${p.name}','s-${id}','q-${id}')"></div></div>`;
+            }).join('')}</div>`;
         } else if (state.step === 3) {
-            const t = calculate();
-            app.innerHTML = `
-                <div class="card">
-                    <div style="display:flex; justify-content:space-between; border-bottom:2px solid var(--bg); padding-bottom:1.5rem; margin-bottom:1.5rem;">
-                        <div>
-                            <strong>BILL TO:</strong><br>
-                            ${state.customer.name}<br>
-                            ${state.customer.address}<br>
-                            ${state.customer.city}, ${state.customer.state} ${state.customer.zip}
-                        </div>
-                        <div style="text-align:right;">
-                            <strong style="color:var(--sbc-blue);">ORDER INVOICE</strong><br>
-                            ${new Date().toLocaleDateString()}<br>
-                        </div>
-                    </div>
-                    <table class="review-table">
-                        <thead><tr><th>Product</th><th>Format</th><th style="text-align:center;">Qty</th><th style="text-align:right;">Total</th></tr></thead>
-                        <tbody>${Object.values(state.cart).map(i => `
-                            <tr>
-                                <td><strong>${i.beer}</strong></td>
-                                <td>${i.type}</td>
-                                <td style="text-align:center;">${i.qty}</td>
-                                <td style="text-align:right;">$${(i.price*i.qty).toFixed(2)}</td>
-                            </tr>`).join("")}</tbody>
-                    </table>
-                    <div style="text-align:right; font-size:1rem; line-height:1.8;">
-                        Subtotal: $${t.sub.toFixed(2)}<br>
-                        ${t.disc > 0 ? `<span style="color:#00b894;">Discount: -$${t.disc.toFixed(2)}</span><br>` : ''}
-                        Tax: $${t.tax.toFixed(2)}<br>
-                        Deposits: $${t.dep.toFixed(2)}<br>
-                        <strong style="font-size:1.6rem; color:var(--sbc-blue);">TOTAL: $${t.final.toFixed(2)}</strong>
-                    </div>
-                    <div class="action-flex" style="display:flex; gap:10px; margin-top:2rem;">
-                        <button class="btn btn-outline" style="flex:1" onclick="state.step=2;render()">Edit</button>
-                        <button class="btn btn-outline" style="flex:1" onclick="handleEmailRequest()">${state.emailRequested ? 'Email Queued ✓' : 'Email Invoice'}</button>
-                    </div>
-                    <button class="btn btn-success" onclick="submitOrder()">Submit Final Order</button>
-                </div>`;
+            let sub = 0; Object.values(state.cart).forEach(i => sub += (i.price * i.qty));
+            app.innerHTML = `<div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div><strong>Suburban Brewing Co.</strong><br>3041 Horseshoe Pike<br>Honey Brook, PA 19344</div>
+                    <div style="text-align:right;"><strong>Order Date:</strong><br>${new Date().toLocaleDateString()}</div>
+                </div>
+                <hr style="margin:20px 0; border:0; border-top:1px solid #eee;">
+                <div style="margin-bottom:20px;">
+                    <strong style="font-size:1.2rem; color:var(--sbc-blue);">${state.customer.name}</strong><br>
+                    ${state.customer.address}<br>
+                    ${state.customer.city}, ${state.customer.state} ${state.customer.zip}
+                </div>
+                <table class="review-table"><thead><tr><th>Product</th><th>Qty</th><th>Total</th></tr></thead><tbody>
+                ${Object.values(state.cart).map(i=>`<tr><td>${i.beer} (${i.type})</td><td>${i.qty}</td><td>$${(i.qty*i.price).toFixed(2)}</td></tr>`).join('')}
+                </tbody></table>
+                <div style="text-align:right; margin-top:20px; font-size:1.5rem;"><strong>TOTAL: $${sub.toFixed(2)}</strong></div>
+                <div class="no-print" style="margin-top:30px; display:flex; gap:10px;">
+                    <button class="btn" style="flex:1; border:1px solid #ccc;" onclick="state.step=2;render()">Edit Order</button>
+                    <button class="btn btn-primary" style="flex:2; background:#00b894;" onclick="submitOrder()">Submit Final Order</button>
+                </div>
+            </div>`;
         }
     }
 
-    function updateBar() {
-        const t = calculate();
-        document.getElementById("live-total").innerText = "$" + t.final.toFixed(2);
-        document.getElementById("stock-error").style.display = t.overStock ? "block" : "none";
-        document.getElementById("review-btn").disabled = t.overStock;
-        document.getElementById("review-btn").style.opacity = t.overStock ? "0.5" : "1";
-    }
-
-    async function doSearch(v) {
-        if (v.length < 2) return;
-        const res = await fetch(`${API_URL}?q=${encodeURIComponent(v)}`);
-        const data = await res.json();
-        document.getElementById("results").innerHTML = data.results.map(c => `
-            <div style="padding:12px; border:1px solid var(--border); border-radius:6px; margin-bottom:8px; cursor:pointer; background:#fff; font-size:0.9rem;" 
-            onclick='selectCust(${JSON.stringify(c).replace(/'/g, "&apos;")})'>
-                <strong>${c.name}</strong> — ${c.address}
-            </div>`).join("");
-    }
-
-    function handleEmailRequest() {
-        if (!state.customer.email) state.customer.email = prompt("Enter Client Email:");
-        if (state.customer.email) { state.emailRequested = true; render(); }
-    }
-
-    window.selectCust = (c) => { state.customer = c; state.step = 2; render(); };
-    function goToReview() { state.step = 3; render(); }
-
     async function submitOrder() {
-        const btn = event.target;
-        btn.disabled = true; btn.innerText = "Processing...";
-        const payload = { ...state, subject: `Suburban Brewing Order - ${state.customer.name}` };
-        await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
-        alert("Order Received!");
-        location.reload();
+        const btn = event.target; btn.disabled = true; btn.innerText = "Processing...";
+        await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(state) });
+        alert("Order Received!"); location.reload();
     }
 
     init();
