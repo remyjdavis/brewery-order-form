@@ -10,21 +10,18 @@
         .site-header { background: white; padding: 25px; border-bottom: 5px solid var(--sbc-dark); display: flex; align-items: center; gap: 20px; }
         .site-header img { height: 75px; }
         .container { max-width: 800px; margin: 30px auto; padding: 0 15px; }
-        .card { background: white; padding: 30px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .legal-scroll { height: 350px; overflow-y: scroll; border: 1px solid #eee; padding: 20px; font-size: 0.9em; line-height: 1.6; background: #fafafa; margin-bottom: 20px; }
-        
+        .card { background: white; padding: 30px; border-radius: 8px; border: 1px solid #ddd; }
+        .legal-scroll { height: 350px; overflow-y: scroll; border: 1px solid #eee; padding: 20px; font-size: 0.85em; line-height: 1.6; background: #fafafa; margin-bottom: 20px; text-align: left; }
         .search-input { width: 100%; padding: 20px; font-size: 1.3em; border: 2px solid #ccc; border-radius: 8px; box-sizing: border-box; }
-        #results { background: white; border-radius: 0 0 8px 8px; border: 1px solid #ddd; border-top: none; max-height: 300px; overflow-y: auto; }
-        .result-item { padding: 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; display: block; width: 100%; text-align: left; background: none; border-left: none; border-right: none; }
+        #results { background: white; border: 1px solid #ddd; border-top: none; max-height: 300px; overflow-y: auto; }
+        .result-item { padding: 18px; border-bottom: 1px solid #f0f0f0; cursor: pointer; width: 100%; text-align: left; background: white; border-left: none; border-right: none; display: block; font-size: 1.1em; }
         .result-item:hover { background: #f8f9fa; color: var(--sbc-blue); }
-
         .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .product-card { border: 1px solid #eee; padding: 15px; border-radius: 6px; text-align: center; background: white; }
         .qty-input { width: 70px; padding: 10px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: 1.1em; }
-        
         .live-bar { position: fixed; bottom: 0; left:0; right:0; background: var(--sbc-dark); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
-        .btn { padding: 15px 25px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; text-transform: uppercase; width: 100%; }
-        .btn-success { background: #28a745; color: white; font-size: 1.2em; }
+        .btn { padding: 15px 25px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .btn-success { background: #28a745; color: white; width: 100%; font-size: 1.2em; }
     </style>
 </head>
 <body>
@@ -38,7 +35,7 @@
 
 <div id="live-bar" class="live-bar" style="display:none;">
     <div style="font-size: 1.2em;">Total: <span id="live-total">$0.00</span></div>
-    <button class="btn" style="width:auto; background:var(--sbc-blue); color:white;" onclick="goToStep(3)">Review Order</button>
+    <button class="btn" style="width:auto; background:var(--sbc-blue); color:white;" onclick="state.step=3;render()">Review Order</button>
 </div>
 
 <script>
@@ -52,8 +49,6 @@
 
     let state = { step: 0, customer: null, cart: [] };
 
-    function goToStep(s) { state.step = s; render(); }
-
     function render() {
         const app = document.getElementById("app");
         document.getElementById("live-bar").style.display = (state.step === 2) ? "flex" : "none";
@@ -64,25 +59,26 @@
                 <div class="card">
                     <h2>Wholesale Agreement</h2>
                     <div class="legal-scroll">
-                        <p><strong>SUBURBAN BREWING CO. WHOLESALE TERMS AND CONDITIONS</strong></p>
-                        <p>1. <strong>PAYMENT TERMS:</strong> For accounts designated as "Check," payment is due in full at the time of delivery. Accounts designated as "Fintech" will be processed through the established electronic payment system.</p>
-                        <p>2. <strong>KEG DEPOSITS:</strong> A deposit of $30.00 per keg is required. This deposit will be waived if an empty keg of the same size is exchanged at the time of delivery.</p>
-                        <p>3. <strong>PRODUCT QUALITY:</strong> All beer must be stored in a refrigerated environment. Suburban Brewing Co. is not responsible for quality issues arising from improper storage after delivery.</p>
-                        <p>4. <strong>ACCEPTANCE:</strong> By placing an order through this portal, you acknowledge that you have the authority to bind your business to these terms.</p>
+                        <p><strong>PENNSYLVANIA LIQUOR CONTROL BOARD (PLCB) COMPLIANCE & TERMS</strong></p>
+                        <p><strong>1. CASH ON DELIVERY (C.O.D.):</strong> In accordance with PA Title 40 and PLCB regulations, all sales to retail licensees not utilizing an approved electronic payment provider (e.g., Fintech) must be paid for in full at the time of delivery by check or money order. Suburban Brewing Co. cannot extend credit.</p>
+                        <p><strong>2. KEG DEPOSITS:</strong> A mandatory $30.00 deposit is required for each keg. Deposits are only waived upon a 1-for-1 exchange of a clean, empty keg of the same size.</p>
+                        <p><strong>3. TAXATION:</strong> Prices listed include all applicable PA Malt Beverage taxes. Sales tax is the responsibility of the retailer.</p>
+                        <p><strong>4. REFUNDS & RETURNS:</strong> PA law prohibits the return of malt or brewed beverages except in cases of product defect or error in delivery. Defective product must be reported within 24 hours.</p>
+                        <p><strong>5. AUTHORITY:</strong> By clicking "I Accept," the user certifies they are at least 21 years of age and authorized to purchase on behalf of the licensee.</p>
                     </div>
-                    <button class="btn btn-success" onclick="goToStep(1)">I Accept & Agree</button>
+                    <button class="btn btn-success" onclick="state.step=1;render()">I Accept & Agree</button>
                 </div>`;
         } else if (state.step === 1) {
             app.innerHTML = `
                 <div class="card">
-                    <h2>Account Search</h2>
-                    <input type="text" class="search-input" id="searchInput" placeholder="Search business name..." oninput="doSearch(this.value)">
+                    <h2>Search Your Account</h2>
+                    <input type="text" class="search-input" placeholder="Type business name..." oninput="doSearch(this.value)">
                     <div id="results"></div>
                 </div>`;
         } else if (state.step === 2) {
             app.innerHTML = `
                 <div class="card">
-                    <h3>Ordering for: ${state.customer.name}</h3>
+                    <h3>Account: ${state.customer.name}</h3>
                     <div class="product-grid">
                         ${PRODUCTS.map(p => `
                             <div class="product-card">
@@ -96,22 +92,22 @@
             const t = calculate();
             app.innerHTML = `
                 <div class="card">
-                    <div style="border-bottom:3px solid #111; padding-bottom:10px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #000; padding-bottom:10px;">
                         <strong>Suburban Brewing Co.</strong>
                         <span>${new Date().toLocaleDateString()}</span>
                     </div>
-                    <div>
+                    <div style="margin-top:15px;">
                         <strong>BILL TO:</strong><br>${state.customer.name}<br>${state.customer.address}<br>${state.customer.city}, ${state.customer.state} ${state.customer.zip}
                     </div>
                     <table style="width:100%; margin-top:20px; border-collapse:collapse;">
-                        <thead style="background:#f4f4f4;"><tr><th style="text-align:left;">Item</th><th>Qty</th><th style="text-align:right;">Total</th></tr></thead>
+                        <thead style="background:#eee;"><tr><th style="text-align:left;">Item</th><th>Qty</th><th style="text-align:right;">Total</th></tr></thead>
                         <tbody>${state.cart.filter(i => i.qty > 0).map(i => `<tr><td>${i.name}</td><td style="text-align:center;">${i.qty}</td><td style="text-align:right;">$${(i.qty*i.price).toFixed(2)}</td></tr>`).join('')}</tbody>
                     </table>
                     <h2 style="text-align:right; color:var(--sbc-blue);">TOTAL: $${t.final.toFixed(2)}</h2>
-                    <div style="margin:20px 0; padding:15px; border:1px solid var(--sbc-blue); border-radius:8px;">
+                    <div style="margin:20px 0; padding:15px; border:1px solid #ccc; border-radius:8px;">
                         <label><input type="checkbox" id="want-email" onchange="document.getElementById('email-wrap').style.display=this.checked?'block':'none'"> Email me a copy of this invoice</label>
                         <div id="email-wrap" style="display:none; margin-top:10px;">
-                            <input type="email" id="cust-email" class="search-input" style="padding:10px; font-size:1em;" placeholder="Email address...">
+                            <input type="email" id="cust-email" class="search-input" style="padding:10px; font-size:1em;" placeholder="Enter email...">
                         </div>
                     </div>
                     <button class="btn btn-success" onclick="handleFinalSubmit()">Submit Order</button>
@@ -131,7 +127,8 @@
 
     function selectCustomer(c) { 
         state.customer = c; 
-        goToStep(2); 
+        state.step = 2; 
+        render(); 
     }
 
     function updateCart(n, p, q) {
@@ -150,14 +147,11 @@
     async function handleFinalSubmit() {
         const want = document.getElementById("want-email").checked;
         const email = document.getElementById("cust-email").value;
-        if (want && !email) return alert("Enter email");
-        
-        event.target.innerText = "Processing...";
+        if (want && !email) return alert("Email required");
+        event.target.innerText = "Sending...";
         await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ ...state, totals: calculate(), recipientEmail: want ? email : null }) });
-        alert("Order Sent!");
-        location.reload();
+        alert("Order Submitted!"); location.reload();
     }
-
     render();
 </script>
 </body>
