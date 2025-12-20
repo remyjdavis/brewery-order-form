@@ -6,161 +6,28 @@
     <title>SBC Wholesale Portal</title>
     <style>
         :root { --sbc-blue: #007bff; --sbc-dark: #1a1a1a; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background: #f4f7f9; margin: 0; padding-bottom: 100px; }
+        body { font-family: -apple-system, sans-serif; background: #f4f7f9; margin: 0; padding-bottom: 120px; }
         .site-header { background: white; padding: 25px; border-bottom: 5px solid var(--sbc-dark); display: flex; align-items: center; gap: 20px; }
         .site-header img { height: 75px; }
         .container { max-width: 800px; margin: 30px auto; padding: 0 15px; }
         .card { background: white; padding: 30px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .legal-scroll { height: 300px; overflow-y: scroll; border: 1px solid #eee; padding: 15px; font-size: 0.9em; line-height: 1.6; background: #fafafa; margin-bottom: 20px; }
+        .legal-scroll { height: 350px; overflow-y: scroll; border: 1px solid #eee; padding: 20px; font-size: 0.9em; line-height: 1.6; background: #fafafa; margin-bottom: 20px; }
         
-        /* FULL WIDTH SEARCH */
-        .search-input { width: 100%; padding: 18px; font-size: 1.2em; border: 2px solid #ccc; border-radius: 8px; box-sizing: border-box; margin-bottom: 10px; }
-        #results { background: white; border-radius: 8px; border: 1px solid #eee; margin-top: 5px; }
-        .result-item { padding: 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+        /* THE LONG SEARCH BAR */
+        .search-input { width: 100%; padding: 20px; font-size: 1.25em; border: 2px solid #ccc; border-radius: 8px; box-sizing: border-box; margin-bottom: 10px; }
+        .search-input:focus { border-color: var(--sbc-blue); outline: none; box-shadow: 0 0 10px rgba(0,123,255,0.1); }
+        
+        #results { background: white; border-radius: 8px; border: 1px solid #eee; margin-top: 5px; max-height: 300px; overflow-y: auto; }
+        .result-item { padding: 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: 0.2s; }
         .result-item:hover { background: #f8f9fa; color: var(--sbc-blue); }
 
         .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .product-card { border: 1px solid #eee; padding: 15px; border-radius: 6px; text-align: center; }
-        .qty-input { width: 60px; padding: 8px; text-align: center; border: 1px solid #ccc; border-radius: 4px; }
+        .product-card { border: 1px solid #eee; padding: 15px; border-radius: 6px; text-align: center; background: #fff; }
+        .qty-input { width: 70px; padding: 10px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: 1.1em; }
         
         .live-bar { position: fixed; bottom: 0; left:0; right:0; background: var(--sbc-dark); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
-        .btn { padding: 15px 25px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        .btn-success { background: #28a745; color: white; width: 100%; }
+        .btn { padding: 15px 25px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        .btn-success { background: #28a745; color: white; width: 100%; font-size: 1.2em; }
+        .btn-success:hover { background: #218838; }
     </style>
 </head>
-<body>
-
-<header class="site-header">
-    <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png">
-    <div><h1 style="margin:0;">Suburban Brewing Co.</h1><p style="margin:0;">Wholesale Portal</p></div>
-</header>
-
-<div class="container" id="app"></div>
-
-<div id="live-bar" class="live-bar" style="display:none;">
-    <div style="font-size: 1.2em;">Total Estimate: <span id="live-total" style="color:var(--sbc-blue);">$0.00</span></div>
-    <button class="btn" style="width:auto; background:var(--sbc-blue); color:white;" onclick="state.step=3;render()">Review & Submit</button>
-</div>
-
-<script>
-    const API_URL = "PASTE_YOUR_APPS_SCRIPT_URL_HERE"; 
-    const PRODUCT_DATA = [
-        { name: "50/50 IPA (1/2 Keg)", price: 185.00 },
-        { name: "50/50 IPA (1/6 Keg)", price: 85.00 },
-        { name: "SBC Lager (1/2 Keg)", price: 165.00 },
-        { name: "SBC Lager (1/6 Keg)", price: 75.00 }
-        // Add more products as needed
-    ];
-
-    let state = { step: 0, customer: null, cart: [] };
-
-    function render() {
-        const app = document.getElementById("app");
-        document.getElementById("live-bar").style.display = (state.step === 2) ? "flex" : "none";
-        app.innerHTML = "";
-
-        if (state.step === 0) {
-            app.innerHTML = `
-                <div class="card">
-                    <h2>Wholesale Agreement</h2>
-                    <div class="legal-scroll">
-                        <p><strong>Suburban Brewing Co. Terms of Service:</strong></p>
-                        <p>1. Payments are due upon delivery for Check accounts...</p>
-                        <p>2. Keg deposits are $30.00 per unit...</p>
-                        </div>
-                    <button class="btn btn-success" onclick="state.step=1;render()">I Accept & Agree</button>
-                </div>`;
-        } else if (state.step === 1) {
-            app.innerHTML = `
-                <div class="card">
-                    <h2>Find Your Account</h2>
-                    <input type="text" class="search-input" placeholder="Type business or restaurant name..." oninput="doSearch(this.value)">
-                    <div id="results"></div>
-                </div>`;
-        } else if (state.step === 2) {
-            app.innerHTML = `
-                <div class="card">
-                    <h3>Account: ${state.customer.name}</h3>
-                    <div class="product-grid">
-                        ${PRODUCT_DATA.map(p => `
-                            <div class="product-card">
-                                <strong>${p.name}</strong><br><small>$${p.price.toFixed(2)}</small><br><br>
-                                <input type="number" class="qty-input" min="0" value="${getQty(p.name)}" 
-                                       oninput="updateCart('${p.name}', ${p.price}, this.value)">
-                            </div>`).join('')}
-                    </div>
-                </div>`;
-        } else if (state.step === 3) {
-            const t = calculate();
-            app.innerHTML = `
-                <div class="card">
-                    <div style="border-bottom:4px solid #111; padding-bottom:10px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:flex-end;">
-                        <div><strong>Suburban Brewing Co.</strong><br>Remy Davis | (908) 642-1019</div>
-                        <div style="text-align:right;">${new Date().toLocaleDateString()}</div>
-                    </div>
-                    <div>
-                        <strong>BILL TO:</strong><br>${state.customer.name}<br>${state.customer.address}<br>${state.customer.city}, ${state.customer.state} ${state.customer.zip}
-                    </div>
-                    <table style="width:100%; margin-top:20px; border-collapse:collapse;">
-                        <thead><tr style="background:#f4f4f4;"><th style="text-align:left; padding:8px;">Item</th><th style="text-align:center;">Qty</th><th style="text-align:right; padding:8px;">Total</th></tr></thead>
-                        <tbody>${state.cart.filter(i => i.qty > 0).map(i => `<tr><td style="padding:8px; border-bottom:1px solid #eee;">${i.name}</td><td style="text-align:center;">${i.qty}</td><td style="text-align:right; padding:8px;">$${(i.qty*i.price).toFixed(2)}</td></tr>`).join('')}</tbody>
-                    </table>
-                    <div style="text-align:right; margin-top:20px;">
-                        <h2 style="color:var(--sbc-blue);">TOTAL: $${t.final.toFixed(2)}</h2>
-                    </div>
-                    <div style="margin:20px 0; padding:15px; border:1px solid var(--sbc-blue); border-radius:8px;">
-                        <label><input type="checkbox" id="want-email" onchange="document.getElementById('email-wrap').style.display=this.checked?'block':'none'"> Send a copy of this invoice to my email</label>
-                        <div id="email-wrap" style="display:none; margin-top:10px;">
-                            <input type="email" id="cust-email" class="search-input" style="padding:10px; font-size:1em;" placeholder="Enter email address...">
-                        </div>
-                    </div>
-                    <button class="btn btn-success" onclick="handleFinalSubmit()">Submit Final Order</button>
-                </div>`;
-        }
-    }
-
-    async function doSearch(v) {
-        if(v.length < 3) return;
-        try {
-            const res = await fetch(API_URL + "?q=" + encodeURIComponent(v));
-            const data = await res.json();
-            document.getElementById("results").innerHTML = data.results.map(c => `
-                <div class="result-item" onclick='selectCustomer(${JSON.stringify(c)})'>
-                    <strong>${c.name}</strong><br><small>${c.address}, ${c.city}</small>
-                </div>`).join("");
-        } catch(e) { console.error("Search error", e); }
-    }
-
-    function selectCustomer(c) { state.customer = c; state.step = 2; render(); }
-    function updateCart(n, p, q) {
-        const idx = state.cart.findIndex(i => i.name === n);
-        const qty = parseInt(q) || 0;
-        if (idx > -1) state.cart[idx].qty = qty; else state.cart.push({name:n, price:p, qty:qty});
-        document.getElementById("live-total").innerText = "$" + calculate().final.toFixed(2);
-    }
-    function getQty(n) { return state.cart.find(i => i.name === n)?.qty || 0; }
-    function calculate() {
-        let sub = 0;
-        state.cart.forEach(i => sub += (i.qty * i.price));
-        return { final: sub };
-    }
-
-    async function handleFinalSubmit() {
-        const want = document.getElementById("want-email").checked;
-        const email = document.getElementById("cust-email").value;
-        if (want && !email) return alert("Please enter email");
-        
-        const btn = event.target;
-        btn.innerText = "Processing..."; btn.disabled = true;
-
-        await fetch(API_URL, {
-            method: "POST",
-            body: JSON.stringify({ ...state, totals: calculate(), recipientEmail: want ? email : null })
-        });
-        alert("Order Submitted Successfully!"); location.reload();
-    }
-
-    render();
-</script>
-</body>
-</html>
