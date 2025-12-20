@@ -5,31 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SBC Wholesale Portal</title>
     <style>
-        :root { --sbc-blue: #007bff; --sbc-dark: #1a1a1a; --bg: #f8f9fa; --border: #dee2e6; --text: #2d3436; }
-        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); margin: 0; color: var(--text); padding-bottom: 80px; }
+        :root { --sbc-blue: #007bff; --sbc-dark: #1a1a1a; --bg: #f8f9fa; --border: #dee2e6; }
+        body { font-family: sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; }
         .site-header { background: #fff; padding: 1rem 5%; border-bottom: 3px solid var(--sbc-dark); display: flex; align-items: center; justify-content: space-between; }
-        .site-header img { height: 55px; }
         .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
         .card { background: white; padding: 2rem; border-radius: 10px; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .legal-scroll { height: 350px; overflow-y: auto; border: 1px solid #333; padding: 1.5rem; margin: 1rem 0; font-size: 0.85rem; background: #fff; }
+        
+        /* The Long Legal Scroll Box */
+        .legal-scroll { 
+            height: 450px; 
+            overflow-y: auto; 
+            border: 2px solid #333; 
+            padding: 2rem; 
+            margin: 1.5rem 0; 
+            font-size: 0.85rem; 
+            line-height: 1.6;
+            background: #fff;
+            color: #222;
+        }
+
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
-        .product-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; text-align: center; }
-        .product-img { width: 100%; height: 180px; object-fit: cover; background: #eee; }
-        .product-info { padding: 1.2rem; }
+        .product-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; text-align: center; }
+        .product-img { width: 100%; height: 180px; object-fit: cover; }
         .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--sbc-dark); color: white; padding: 1rem 8%; display: flex; justify-content: space-between; align-items: center; z-index: 1001; }
         .btn { padding: 12px 24px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
         .btn-primary { background: var(--sbc-blue); color: white; }
         .review-table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
         .review-table th, .review-table td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
         #login-err { color: #d63031; font-weight: bold; margin-bottom: 15px; display: none; }
-        @media print { .no-print, .live-bar { display: none !important; } .card { border: none; box-shadow: none; } }
+        @media print { .no-print, .live-bar { display: none !important; } }
     </style>
 </head>
 <body>
 
 <header class="site-header">
     <div style="display:flex; align-items:center; gap:15px;">
-        <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" alt="SBC Logo">
+        <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" style="height:55px;">
         <h2 style="margin:0;">Suburban Brewing Co.</h2>
     </div>
     <div style="text-align:right; font-size:0.85rem;">
@@ -53,39 +64,27 @@
     let state = { step: 0, customer: null, cart: {} };
 
     async function init() {
-        try {
-            const res = await fetch(PRODUCT_CSV);
-            const text = await res.text();
-            const rows = text.split("\n").slice(1);
-            rows.forEach(r => {
-                const c = r.split(",");
-                if (!c[0]) return;
-                const cleanName = c[0].replace(/(Keg|Case|1\/2|1\/6|BBL|Can)/gi, '').trim();
-                if (!groupedProducts[cleanName]) groupedProducts[cleanName] = { name: cleanName, img: c[3] || '', options: [] };
-                groupedProducts[cleanName].options.push({ type: c[0].replace(cleanName, '').trim() || "Unit", price: parseFloat(c[1]) || 0, stock: parseInt(c[2]) || 0 });
-            });
-            render();
-        } catch (e) { console.error("Load Error", e); }
+        const res = await fetch(PRODUCT_CSV);
+        const text = await res.text();
+        const rows = text.split("\n").slice(1);
+        rows.forEach(r => {
+            const c = r.split(",");
+            if (!c[0]) return;
+            const cleanName = c[0].replace(/(Keg|Case|1\/2|1\/6|BBL|Can)/gi, '').trim();
+            if (!groupedProducts[cleanName]) groupedProducts[cleanName] = { name: cleanName, img: c[3] || '', options: [] };
+            groupedProducts[cleanName].options.push({ type: c[0].replace(cleanName, '').trim() || "Unit", price: parseFloat(c[1]) || 0, stock: parseInt(c[2]) || 0 });
+        });
+        render();
     }
 
     async function attemptLogin() {
         const key = document.getElementById("loginInput").value.trim().toUpperCase();
-        if (key.length < 4) return;
         const btn = document.getElementById("loginBtn");
         btn.innerText = "Verifying...";
-        
-        try {
-            const res = await fetch(`${API_URL}?key=${encodeURIComponent(key)}`);
-            const data = await res.json();
-            if (data.success) {
-                state.customer = data.customer;
-                state.step = 2;
-                render();
-            } else {
-                document.getElementById("login-err").style.display = "block";
-                btn.innerText = "Login";
-            }
-        } catch (e) { alert("Connection Error"); btn.innerText = "Login"; }
+        const res = await fetch(`${API_URL}?key=${encodeURIComponent(key)}`);
+        const data = await res.json();
+        if (data.success) { state.customer = data.customer; state.step = 2; render(); }
+        else { document.getElementById("login-err").style.display = "block"; btn.innerText = "Login"; }
     }
 
     function updateCart(beer, selectId, qtyId) {
@@ -93,7 +92,6 @@
         const qty = parseInt(document.getElementById(qtyId).value) || 0;
         if (qty > 0) state.cart[`${beer}-${opt.type}`] = { beer, type: opt.type, price: opt.price, qty };
         else delete state.cart[`${beer}-${opt.type}`];
-        
         let total = 0;
         Object.values(state.cart).forEach(i => total += (i.price * i.qty));
         document.getElementById("live-total").innerText = "$" + total.toFixed(2);
@@ -104,13 +102,34 @@
         document.getElementById("live-bar").style.display = (state.step === 2) ? "flex" : "none";
 
         if (state.step === 0) {
-            app.innerHTML = `<div class="card"><h2 style="text-align:center;">Wholesale Agreement</h2><div class="legal-scroll"><p>Cold Storage Required (34-38F). Keg Deposits are $30. Payment due at delivery for Check customers.</p></div><button class="btn btn-primary" style="width:100%;" onclick="state.step=1;render()">I Accept Agreement</button></div>`;
+            app.innerHTML = `
+            <div class="card">
+                <h2 style="text-align:center;">MASTER DISTRIBUTION & PURCHASE AGREEMENT</h2>
+                <div class="legal-scroll">
+                    <h3>1. SCOPE OF AGREEMENT</h3>
+                    <p>This Agreement governs the sale and distribution of all malt beverage products ("Products") by Suburban Brewing Co. ("SBC") to the Purchaser. By placing an order, Purchaser agrees to be bound by these terms.</p>
+                    
+                    <h3>2. COLD STORAGE REQUIREMENTS</h3>
+                    <p>All SBC Products are unpasteurized and must be maintained at constant refrigeration temperatures between 34°F and 38°F. Failure to maintain proper cold chain storage voids all product warranties and return policies.</p>
+                    
+                    <h3>3. PAYMENT TERMS</h3>
+                    <p><strong>Check/COD Customers:</strong> Payment is due in full at the time of delivery. Failure to provide payment will result in the withholding of product.<br>
+                    <strong>Fintech Customers:</strong> Payments will be processed via the agreed-upon third-party platform within 24-48 hours of delivery.</p>
+                    
+                    <h3>4. KEG DEPOSITS & SHELL RETURNS</h3>
+                    <p>A mandatory $30.00 deposit is applied to every keg shell. Purchaser is responsible for the safekeeping of shells. Credits for returned shells will be applied to future invoices upon physical pickup by SBC staff.</p>
+                    
+                    <h3>5. ACCEPTANCE</h3>
+                    <p>By clicking "I ACCEPT" below and entering the portal, you acknowledge you have the authority to bind your organization to these terms and conditions.</p>
+                    </div>
+                <button class="btn btn-primary" style="width:100%;" onclick="state.step=1;render()">I Accept & Agree to Terms</button>
+            </div>`;
         } else if (state.step === 1) {
-            app.innerHTML = `<div class="card" style="max-width:400px; margin:auto; text-align:center;"><h3>Client Login</h3><p style="font-size:0.8rem; color:#666;">Enter your Login Key to proceed</p><input type="text" id="loginInput" placeholder="EX: REMY12345" style="width:100%; padding:15px; margin-bottom:10px; border:2px solid var(--sbc-dark); border-radius:8px; text-align:center; font-size:1.2rem; text-transform:uppercase;"><div id="login-err">⚠️ Invalid Login Key</div><button id="loginBtn" class="btn btn-primary" style="width:100%;" onclick="attemptLogin()">Login</button></div>`;
+            app.innerHTML = `<div class="card" style="max-width:400px; margin:auto; text-align:center;"><h3>Client Login</h3><input type="text" id="loginInput" placeholder="ENTER KEY" style="width:100%; padding:15px; margin-bottom:10px; border:2px solid var(--sbc-dark); border-radius:8px; text-align:center; font-size:1.2rem; text-transform:uppercase;"><div id="login-err">⚠️ Invalid Login Key</div><button id="loginBtn" class="btn btn-primary" style="width:100%;" onclick="attemptLogin()">Login</button></div>`;
         } else if (state.step === 2) {
-            app.innerHTML = `<h3>Welcome, ${state.customer.name}</h3><div class="product-grid">${Object.values(groupedProducts).map(p => {
+            app.innerHTML = `<h3>Ordering for: ${state.customer.name}</h3><div class="product-grid">${Object.values(groupedProducts).map(p => {
                 const id = p.name.replace(/\s/g,'');
-                return `<div class="product-card"><img src="${p.img}" class="product-img" onerror="this.src='https://via.placeholder.com/200?text=SBC'"><div class="product-info"><h4>${p.name}</h4><select id="s-${id}" style="width:100%; padding:5px;" onchange="updateCart('${p.name}','s-${id}','q-${id}')">${p.options.map((o,i)=>`<option value="${i}">${o.type} - $${o.price}</option>`).join('')}</select><br><br>Qty: <input type="number" id="q-${id}" style="width:60px;" oninput="updateCart('${p.name}','s-${id}','q-${id}')"></div></div>`;
+                return `<div class="product-card"><img src="${p.img}" class="product-img" onerror="this.src='https://via.placeholder.com/200?text=SBC'"><div class="product-info"><h4>${p.name}</h4><select id="s-${id}" style="width:100%;" onchange="updateCart('${p.name}','s-${id}','q-${id}')">${p.options.map((o,i)=>`<option value="${i}">${o.type} - $${o.price}</option>`).join('')}</select><br><br>Qty: <input type="number" id="q-${id}" style="width:60px;" oninput="updateCart('${p.name}','s-${id}','q-${id}')"></div></div>`;
             }).join('')}</div>`;
         } else if (state.step === 3) {
             let sub = 0; Object.values(state.cart).forEach(i => sub += (i.price * i.qty));
@@ -138,7 +157,6 @@
     }
 
     async function submitOrder() {
-        const btn = event.target; btn.disabled = true; btn.innerText = "Processing...";
         await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(state) });
         alert("Order Received!"); location.reload();
     }
