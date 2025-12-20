@@ -21,7 +21,6 @@
         .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--sbc-dark); color: white; padding: 1.2rem 8%; display: flex; justify-content: space-between; align-items: center; z-index: 1001; }
         .btn { padding: 14px 30px; border: none; border-radius: 6px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
         .btn-primary { background: var(--sbc-blue); color: white; }
-        .btn:disabled { background: #ccc; cursor: not-allowed; }
         .review-table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
         .review-table th { background: #f8f9fa; padding: 12px; text-align: left; border-bottom: 2px solid var(--sbc-dark); }
         .review-table td { padding: 12px; border-bottom: 1px solid #eee; }
@@ -51,7 +50,7 @@
     const PRODUCT_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&output=csv";
 
     let groupedProducts = {};
-    let state = { step: 0, customer: null, cart: {} };
+    let state = { step: 0, customer: null, cart: {}, manualTotal: null };
 
     async function init() {
         try {
@@ -133,20 +132,21 @@
                 </div></div>`;
             }).join('')}</div>`;
         } else if (state.step === 3) {
-            let subtotal = 0, kegCount = 0;
+            let subtotal = 0, kegCount = 0, caseCount = 0;
             Object.values(state.cart).forEach(i => {
                 subtotal += (i.price * i.qty);
                 if (i.type.toLowerCase().includes("keg") || i.type.includes("1/")) kegCount += i.qty;
+                if (i.type.toLowerCase().includes("case")) caseCount += i.qty;
             });
 
-            // Logic for Restaurant Detection
+            // Keyword detection: If NOT a restaurant keyword, it's Retail (Untaxed)
             const restKeywords = ["RESTAURANT", "REST", "BAR", "GRILL", "PUB", "TAVERN", "INN", "DINER", "KITCHEN", "HOUSE", "BREWERY", "BISTRO", "CAFE", "CLUB", "PIZZA", "STEAK", "DELI"];
             const isRestaurant = restKeywords.some(kw => state.customer.name.toUpperCase().includes(kw));
             
             let kegDep = kegCount * 30;
-            let tax = isRestaurant ? 0 : (subtotal * 0.06);
-            let disc = isRestaurant ? (subtotal * 0.10) : 0;
-            let grand = subtotal + kegDep + tax - disc;
+            let tax = isRestaurant ? (subtotal * 0.06) : 0; // Only Restaurants Taxed
+            let disc = (caseCount >= 10) ? (subtotal * 0.10) : 0;
+            let grand = state.manualTotal !== null ? state.manualTotal : (subtotal + kegDep + tax - disc);
 
             app.innerHTML = `<div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:flex-start;">
@@ -168,9 +168,9 @@
                 <div style="margin-top:30px; border-top:2px solid var(--sbc-dark); padding-top:15px; text-align:right; line-height:1.8;">
                     <div>Subtotal: $${subtotal.toFixed(2)}</div>
                     ${kegDep > 0 ? `<div>Keg Deposits ($30.00 ea): $${kegDep.toFixed(2)}</div>` : ''}
-                    <div>Tax (6%): $${tax.toFixed(2)}</div>
-                    <div style="color:red;">Discount${isRestaurant ? ' (Restaurant 10%)' : ''}: -$${disc.toFixed(2)}</div>
-                    <div style="font-size:1.6rem; font-weight:900; color:var(--sbc-blue); margin-top:10px;">GRAND TOTAL: $${grand.toFixed(2)}</div>
+                    <div>Tax ${isRestaurant ? '(6%)' : '(Exempt)'}: $${tax.toFixed(2)}</div>
+                    <div style="color:red;">Discount (10+ Case Mix): -$${disc.toFixed(2)}</div>
+                    <div onclick="triggerOverride()" style="cursor:pointer; font-size:1.6rem; font-weight:900; color:var(--sbc-blue); margin-top:10px;">GRAND TOTAL: $${grand.toFixed(2)}</div>
                 </div>
                 <div style="display:flex; gap:15px; margin-top:40px;">
                     <button class="btn" style="flex:1; border:2px solid #ccc; background:#fff;" onclick="state.step=2;render()">Edit Order</button>
@@ -178,6 +178,14 @@
                 </div>
             </div>`;
         }
+    }
+
+    function triggerOverride() {
+        const pw = prompt("Enter Override Password:");
+        if (pw === "Yankees 1") {
+            const val = prompt("Enter New Grand Total:");
+            if (val !== null) { state.manualTotal = parseFloat(val); render(); }
+        } else { alert("Incorrect Password"); }
     }
 
     function updateStockLabel(id, beerName) {
