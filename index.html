@@ -321,7 +321,7 @@
                     <div class="btn-area-nav" style="display:flex; gap:10px; margin-top:40px;">
                         <button class="btn btn-outline" onclick="state.step=2;render()">Edit Order</button>
                         <button class="btn btn-outline" onclick="window.print()">Print Order</button>
-                        <button class="btn btn-outline" onclick="alert('Copy sent to representative.')">Email Copy</button>
+                        <button class="btn btn-outline" onclick="sendEmailCopy()">Email Copy</button>
                         <button class="btn btn-success" style="flex:1;" onclick="submitFinalOrder()">Submit Final Order</button>
                     </div>
                 </div>`;
@@ -379,8 +379,23 @@
 
     function goToReview() { state.step = 3; render(); }
 
+    async function sendEmailCopy() {
+        if (!state.customer.email || state.customer.email.trim() === "" || state.customer.email === "undefined") {
+            const userEmail = prompt("Where should we send this copy? Please enter an email address:");
+            if (!userEmail || !userEmail.includes("@")) {
+                alert("A valid email address is required.");
+                return;
+            }
+            state.customer.email = userEmail.trim();
+        }
+        alert("Sending copy to " + state.customer.email + " and Remy...");
+        try {
+            await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(state) });
+            alert("Copy Sent!");
+        } catch (e) { alert("Error sending email."); }
+    }
+
     async function submitFinalOrder() {
-        // Logic to ask for email if missing
         if (!state.customer.email || state.customer.email.trim() === "" || state.customer.email === "undefined") {
             const userEmail = prompt("Please enter your email address for order confirmation:");
             if (!userEmail || !userEmail.includes("@")) {
@@ -395,17 +410,11 @@
         btn.innerText = "SUBMITTING...";
 
         try {
-            // Note: mode 'no-cors' used because Apps Script doesn't return CORS headers on POST
-            await fetch(API_URL, { 
-                method: "POST", 
-                mode: "no-cors", 
-                body: JSON.stringify(state) 
-            });
+            await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(state) });
             alert("Order Submitted! Confirmation emails have been triggered.");
             location.reload();
         } catch (e) {
-            console.error(e);
-            alert("Submission error. Please check your connection and try again.");
+            alert("Error submitting order.");
             btn.disabled = false;
             btn.innerText = "Submit Final Order";
         }
