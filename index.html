@@ -21,7 +21,6 @@
             line-height: 1.4;
         }
         
-        /* Compact Professional Header */
         .site-header { 
             background: #fff; 
             padding: 1rem 5%; 
@@ -35,7 +34,7 @@
             z-index: 1000;
         }
         .header-left { display: flex; align-items: center; gap: 1.5rem; }
-        .site-header img { height: 60px; } /* Smaller Logo */
+        .site-header img { height: 60px; }
         .header-text h1 { margin: 0; font-size: 1.4rem; letter-spacing: -0.5px; }
         .header-right { text-align: right; font-size: 0.85rem; color: #636e72; }
         .header-right strong { color: var(--sbc-dark); }
@@ -50,16 +49,21 @@
             box-shadow: 0 6px 20px rgba(0,0,0,0.03); 
         }
 
+        /* VERY LONG LEGAL SCROLL */
         .legal-scroll { 
-            height: 350px; 
+            height: 500px; 
             overflow-y: auto; 
-            border: 1px solid #eee; 
-            padding: 1.5rem; 
-            background: #fdfdfd; 
+            border: 2px solid #333; 
+            padding: 2rem; 
+            background: #fff; 
             font-size: 0.85rem; 
-            border-radius: 8px;
+            border-radius: 4px;
             margin: 1rem 0;
+            line-height: 1.6;
+            color: #222;
         }
+        .legal-scroll h3 { text-transform: uppercase; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 25px; }
+        .legal-scroll b { color: #000; }
 
         .product-grid { 
             display: grid; 
@@ -72,11 +76,9 @@
             border-radius: 10px;
             overflow: hidden;
             border: 1px solid var(--border);
-            transition: transform 0.2s;
             display: flex;
             flex-direction: column;
         }
-        .product-card:hover { transform: translateY(-3px); border-color: var(--sbc-blue); }
         .product-img { width: 100%; height: 220px; object-fit: cover; background: #eee; }
         
         .product-info { padding: 1.2rem; flex-grow: 1; }
@@ -101,7 +103,6 @@
             font-weight: 700; 
             border: 1px solid var(--border); 
             border-radius: 4px;
-            font-size: 1rem;
         }
 
         .live-bar { 
@@ -233,18 +234,44 @@
 
         if (state.step === 0) {
             app.innerHTML = `
-                <div class="card" style="max-width:750px; margin:auto;">
-                    <h2 style="text-align:center; margin-top:0;">Wholesale Agreement</h2>
+                <div class="card" style="max-width:900px; margin:auto;">
+                    <h2 style="text-align:center; margin-top:0;">Master Wholesale Distribution & Purchase Agreement</h2>
+                    <p style="text-align:center; font-size:0.8rem; color:red; font-weight:bold;">LEGALLY BINDING DOCUMENT - PLEASE READ CAREFULLY</p>
                     <div class="legal-scroll">
-                        <h4>1. Product Quality</h4><p>Must be maintained at 38°F. All sales final.</p>
-                        <h4>2. Payment</h4><p>Check due at delivery or Fintech.</p>
-                        <h4>3. Cooperage</h4><p>$30 deposit per keg shell. SBC ownership retained.</p>
-                        <h4>4. Compliance</h4><p>Purchaser warrants valid PA Liquor Licensure.</p>
+                        <h3>1. SCOPE OF AGREEMENT</h3>
+                        <p>This Agreement governs all sales of malt beverage products ("Products") by <b>Suburban Brewing Co. ("SBC")</b> to the undersigned Purchaser ("Purchaser"). By checking the box below and entering the portal, Purchaser agrees to be bound by all terms herein for this and all future transactions.</p>
+                        
+                        <h3>2. PRODUCT INTEGRITY & COLD STORAGE</h3>
+                        <p>Purchaser acknowledges that SBC Products are unpasteurized and highly perishable. Purchaser warrants that all SBC Products will be maintained at a constant temperature between <b>34°F and 38°F</b> from the moment of delivery. SBC expressly disclaims all liability for product degradation, spoilage, or "off-flavors" resulting from temperatures exceeding 40°F or improper draft line maintenance (which must be cleaned bi-weekly by a certified professional).</p>
+                        
+                        <h3>3. PRICING & PAYMENT TERMS</h3>
+                        <p><b>Check/COD Customers:</b> Payment is due in full at the immediate time of delivery. SBC drivers are instructed not to leave Product without payment. <b>Fintech Customers:</b> Transactions will be initiated via the Fintech electronic platform. Any failed electronic transfer or returned check shall result in a <b>$100.00 Administrative Fee</b> plus the maximum interest rate allowed by law (1.5% per month) on the outstanding balance.</p>
+                        
+                        <h3>4. COOPERAGE (KEG SHELLS)</h3>
+                        <p>All kegs remains the <b>exclusive property of SBC</b>. The $30.00 deposit is a security measure and does not constitute a sale of the vessel. Purchaser is liable for the replacement cost of any lost, stolen, or damaged kegs at a rate of <b>$165.00 per unit</b>. Empty kegs must be made available for pick-up upon the next delivery.</p>
+                        
+                        <h3>5. LICENSURE & LEGAL COMPLIANCE</h3>
+                        <p>Purchaser warrants they hold a valid liquor license issued by the <b>Pennsylvania Liquor Control Board (PLCB)</b>. Purchaser agrees to indemnify SBC against any legal action, fines, or license suspensions resulting from the Purchaser's illegal sale or service of SBC products (including sales to minors or intoxicated persons).</p>
+                        
+                        <h3>6. DRAFT EQUIPMENT & BRANDING</h3>
+                        <p>Purchaser shall only use SBC branded tap handles for SBC products. Substituting a competitor's product on an SBC handle is a violation of trademark law. SBC is not responsible for any damage to Purchaser's refrigeration or draft systems caused by improper connection or use of SBC cooperage.</p>
+
+                        <h3>7. LIMITATION OF LIABILITY</h3>
+                        <p>In no event shall SBC be liable for lost profits, indirect, or consequential damages. SBC’s total liability for any claim shall not exceed the purchase price of the specific Product giving rise to the claim.</p>
+
+                        <h3>8. FORCE MAJEURE</h3>
+                        <p>SBC shall not be held liable for failure to deliver or delays caused by acts of God, supply chain collapse, labor strikes, or government-mandated brewery shutdowns.</p>
+
+                        <h3>9. JURISDICTION & GOVERNING LAW</h3>
+                        <p>This agreement shall be governed by the laws of the Commonwealth of Pennsylvania. Any legal action shall be brought exclusively in the courts of <b>Chester County, PA</b>. The prevailing party in any litigation shall be entitled to recover reasonable attorney’s fees and court costs.</p>
+                        
+                        <p><i>Revised December 19, 2025.</i></p>
                     </div>
-                    <label style="display:block; text-align:center; margin: 1.5rem 0;">
-                        <input type="checkbox" id="agree"> I agree to the Wholesale Terms.
+                    <label style="display:block; text-align:center; margin: 1.5rem 0; font-weight:bold; color:#000;">
+                        <input type="checkbox" id="agree" style="transform: scale(1.3); margin-right:10px;"> 
+                        I ACCEPT THE ABOVE MASTER AGREEMENT AND AUTHORIZE RECURRING TRANSACTIONS.
                     </label>
-                    <button class="btn btn-primary" style="width:100%" onclick="if(document.getElementById('agree').checked){state.step=1;render()}">Continue to Portal</button>
+                    <button class="btn btn-primary" style="width:100%; height:60px; font-size:1.1rem;" onclick="if(document.getElementById('agree').checked){state.step=1;render()}">Enter Wholesale Portal</button>
                 </div>`;
         } else if (state.step === 1) {
             app.innerHTML = `<div class="card" style="max-width:550px; margin:auto; text-align:center;">
@@ -257,7 +284,7 @@
             app.innerHTML = `
                 <div style="margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center;">
                     <div><h3 style="margin:0;">Client: ${state.customer.name}</h3><small>${state.customer.address}</small></div>
-                    <button class="btn btn-outline" style="padding:6px 15px;" onclick="state.step=1;render()">Change</button>
+                    <button class="btn btn-outline" style="padding:6px 15px;" onclick="state.step=1;render()">Change Account</button>
                 </div>
                 <div class="product-grid">${Object.values(groupedProducts).map(p => {
                     const cleanId = p.name.replace(/\s+/g, '');
