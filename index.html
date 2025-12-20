@@ -7,79 +7,41 @@
     <style>
         :root { --sbc-blue: #007bff; --sbc-dark: #1a1a1a; --bg: #f8f9fa; --border: #dee2e6; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; color: #2d3436; }
-        
-        .site-header { 
-            background: #fff; 
-            padding: 1.5rem 5%; 
-            border-bottom: 3px solid var(--sbc-dark); 
-            display: flex; 
-            flex-direction: column; 
-            align-items: flex-start; 
-            gap: 10px;
-        }
-        .site-header img { height: 60px; }
+        .site-header { background: #fff; padding: 1.5rem 5%; border-bottom: 3px solid var(--sbc-dark); display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
         .header-info { text-align: left; font-size: 0.95rem; line-height: 1.4; }
-
         .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
         .card { background: white; padding: 2.5rem; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
-        
-        .legal-scroll { 
-            height: 500px; 
-            overflow-y: auto; 
-            border: 2px solid #2d3436; 
-            padding: 2rem; 
-            margin: 1.5rem 0; 
-            font-size: 0.85rem; 
-            line-height: 1.7; 
-            background: #fff; 
-        }
-        .legal-scroll h3 { margin-top: 1.5rem; border-bottom: 1px solid #eee; text-transform: uppercase; font-size: 1rem; color: #000; font-weight: 800; }
-
-        .checkbox-area { 
-            background: #f1f2f6; 
-            padding: 1.5rem; 
-            border-radius: 8px; 
-            margin-bottom: 1.5rem; 
-            display: flex; 
-            align-items: center; 
-            gap: 15px; 
-            border: 1px solid #dfe6e9;
-        }
-        .checkbox-area input { transform: scale(1.6); cursor: pointer; }
-        .checkbox-area label { font-weight: bold; cursor: pointer; line-height: 1.2; }
-
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
-        .product-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; text-align: center; }
-        .product-img { width: 100%; height: 200px; object-fit: cover; }
-        
+        .legal-scroll { height: 450px; overflow-y: auto; border: 2px solid var(--sbc-dark); padding: 1.5rem; margin: 1.5rem 0; font-size: 0.85rem; line-height: 1.6; background: #fff; }
+        .legal-scroll h3 { margin-top: 1.2rem; border-bottom: 1px solid #eee; text-transform: uppercase; font-size: 0.9rem; }
+        .checkbox-area { background: #f1f2f6; padding: 1.2rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px; border: 1px solid #dfe6e9; font-weight: bold; }
+        .checkbox-area input { transform: scale(1.4); }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; }
+        .product-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; text-align: center; padding: 10px; }
         .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--sbc-dark); color: white; padding: 1.2rem 8%; display: flex; justify-content: space-between; align-items: center; z-index: 1001; }
-        .btn { padding: 14px 30px; border: none; border-radius: 6px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+        .btn { padding: 12px 24px; border: none; border-radius: 6px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
         .btn-primary { background: var(--sbc-blue); color: white; }
         .btn:disabled { background: #ccc; cursor: not-allowed; }
-        
-        .review-table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
-        .review-table th { background: #f8f9fa; padding: 12px; text-align: left; border-bottom: 2px solid var(--sbc-dark); }
-        .review-table td { padding: 12px; border-bottom: 1px solid #eee; }
-        #login-err { color: #d63031; font-weight: bold; margin-bottom: 15px; display: none; background: #fff2f2; padding: 10px; border-radius: 5px; }
+        .review-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .review-table th { text-align: left; border-bottom: 2px solid #000; padding: 10px; }
+        .review-table td { padding: 10px; border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body>
 
 <header class="site-header">
-    <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" alt="SBC Logo">
+    <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" style="height:60px;">
     <div class="header-info">
-        <h1 style="margin:0 0 5px 0; font-size: 1.8rem; letter-spacing: -1px;">Suburban Brewing Co.</h1>
+        <h1 style="margin:0; font-size:1.6rem;">Suburban Brewing Co.</h1>
         3041 Horseshoe Pike, Honey Brook, PA 19344<br>
-        <strong>Sales Rep: Remy Davis</strong><br>
-        (908) 642-1019
+        <strong>Sales Rep: Remy Davis</strong> | (908) 642-1019
     </div>
 </header>
 
 <div class="container" id="app"></div>
 
 <div id="live-bar" class="live-bar" style="display:none;">
-    <div>TOTAL ORDER: <span id="live-total" style="color:var(--sbc-blue); font-weight:900; font-size:1.6rem;">$0.00</span></div>
-    <button class="btn btn-primary" onclick="state.step=3;render()">Review Order & Ship</button>
+    <div>TOTAL: <span id="live-total" style="color:var(--sbc-blue); font-weight:900; font-size:1.5rem;">$0.00</span></div>
+    <button class="btn btn-primary" onclick="state.step=3;render()">Review Order Details</button>
 </div>
 
 <script>
@@ -90,44 +52,26 @@
     let state = { step: 0, customer: null, cart: {} };
 
     async function init() {
-        try {
-            const res = await fetch(PRODUCT_CSV);
-            const text = await res.text();
-            const rows = text.split("\n").slice(1);
-            rows.forEach(r => {
-                const c = r.split(",");
-                if (!c[0]) return;
-                const cleanName = c[0].replace(/(Keg|Case|1\/2|1\/6|BBL|Can)/gi, '').trim();
-                if (!groupedProducts[cleanName]) groupedProducts[cleanName] = { name: cleanName, img: c[3] || '', options: [] };
-                groupedProducts[cleanName].options.push({ type: c[0].replace(cleanName, '').trim() || "Unit", price: parseFloat(c[1]) || 0, stock: parseInt(c[2]) || 0 });
-            });
-            render();
-        } catch (e) { console.error(e); }
+        const res = await fetch(PRODUCT_CSV);
+        const text = await res.text();
+        const rows = text.split("\n").slice(1);
+        rows.forEach(r => {
+            const c = r.split(","); if (!c[0]) return;
+            const cleanName = c[0].replace(/(Keg|Case|1\/2|1\/6|BBL|Can)/gi, '').trim();
+            if (!groupedProducts[cleanName]) groupedProducts[cleanName] = { name: cleanName, img: c[3] || '', options: [] };
+            groupedProducts[cleanName].options.push({ type: c[0].replace(cleanName, '').trim() || "Unit", price: parseFloat(c[1]) || 0 });
+        });
+        render();
     }
 
     async function attemptLogin() {
-        const keyInput = document.getElementById("loginInput").value.trim();
+        const key = document.getElementById("loginInput").value.trim();
         const btn = document.getElementById("loginBtn");
-        const err = document.getElementById("login-err");
-        
-        btn.innerText = "VERIFYING KEY...";
-        err.style.display = "none";
-
-        try {
-            const res = await fetch(`${API_URL}?key=${encodeURIComponent(keyInput)}`);
-            const data = await res.json();
-            if (data.success) { 
-                state.customer = data.customer; 
-                state.step = 2; 
-                render(); 
-            } else { 
-                err.style.display = "block"; 
-                btn.innerText = "LOGIN"; 
-            }
-        } catch (e) { 
-            alert("Connection Error. Check Script Deployment."); 
-            btn.innerText = "LOGIN"; 
-        }
+        btn.innerText = "VERIFYING...";
+        const res = await fetch(`${API_URL}?key=${encodeURIComponent(key)}`);
+        const data = await res.json();
+        if (data.success) { state.customer = data.customer; state.step = 2; render(); }
+        else { alert("Invalid Key"); btn.innerText = "LOG IN"; }
     }
 
     function render() {
@@ -137,98 +81,80 @@
         if (state.step === 0) {
             app.innerHTML = `
             <div class="card">
-                <h2 style="text-align:left; border-bottom: 2px solid var(--sbc-dark); padding-bottom:15px;">PA WHOLESALE DISTRIBUTION AGREEMENT</h2>
+                <h2>Wholesale Purchase Agreement</h2>
                 <div class="legal-scroll">
-                    <p>This Agreement governs all wholesale transactions between Suburban Brewing Co. ("SBC") and the licensed Purchaser.</p>
-                    
-                    <h3>1. PLCB COMPLIANCE</h3>
-                    <p>Purchaser warrants they hold an active license with the Pennsylvania Liquor Control Board. All sales are conducted under the <strong>Pennsylvania Liquor Code (47 P.S. § 1-101 et seq.)</strong>.</p>
-                    
-                    <h3>2. PAYMENT & SECTION 493</h3>
-                    <p>Per <strong>Section 493(2)</strong>, all deliveries to retail licensees must be paid for in cash or check at or before the time of delivery. SBC does not extend credit.</p>
-                    
-                    <h3>3. COLD CHAIN REQUIREMENTS</h3>
-                    <p>SBC products are unpasteurized. Purchaser agrees to maintain storage at <strong>34°F-38°F</strong>. SBC is not liable for quality degradation due to improper refrigeration.</p>
-                    
-                    <h3>4. COOPERAGE & KEG DEPOSITS</h3>
-                    <p>All stainless steel kegs remain the property of SBC. A <strong>$30.00 deposit</strong> is required per shell. Lost or damaged shells will be billed at a replacement cost of <strong>$145.00</strong> per unit.</p>
-
-                    <h3>5. BOUNCED CHECKS & NSF FEES</h3>
-                    <p>Any check returned for Non-Sufficient Funds (NSF) will incur a mandatory <strong>$50.00 administrative fee</strong>. The account will be moved to immediate "Cash Only" status for all future deliveries.</p>
-
-                    <h3>6. GEOGRAPHIC TERRITORY</h3>
-                    <p>Purchaser agrees to resell SBC products only within their licensed premises and designated geographic territory.</p>
+                    <h3>1. PA Liquor Code Compliance</h3>
+                    <p>Purchaser warrants a valid PLCB license. All sales are per Section 493(2) requiring payment at or before delivery.</p>
+                    <h3>2. Cooperage & Kegs</h3>
+                    <p>All keg shells remain SBC property. A $30.00 deposit is required. Unreturned or damaged shells will be billed at $145.00 each.</p>
+                    <h3>3. Bounced Checks</h3>
+                    <p>Returned checks (NSF) incur a $50.00 fee. Account will move to Cash-Only status immediately.</p>
+                    <h3>4. Cold Chain</h3>
+                    <p>Products are unpasteurized. Storage must be 34°F-38°F. SBC is not liable for spoilage due to improper cooling.</p>
                 </div>
                 <div class="checkbox-area">
-                    <input type="checkbox" id="agreeCheck" onchange="document.getElementById('acceptBtn').disabled = !this.checked">
-                    <label for="agreeCheck">I certify that I am an authorized agent for a licensed PA entity and agree to the terms above.</label>
+                    <input type="checkbox" id="agree" onchange="document.getElementById('next').disabled = !this.checked">
+                    <label for="agree">I agree to the terms of this agreement.</label>
                 </div>
-                <button id="acceptBtn" class="btn btn-primary" style="width:100%;" disabled onclick="state.step=1;render()">Enter Portal</button>
+                <button id="next" class="btn btn-primary" style="width:100%" disabled onclick="state.step=1;render()">Continue</button>
             </div>`;
         } else if (state.step === 1) {
-            app.innerHTML = `<div class="card" style="max-width:450px; margin:auto; text-align:center;">
-                <h3>Wholesale Login</h3>
-                <div id="login-err">⚠️ Invalid Key. Please try again.</div>
-                <input type="text" id="loginInput" placeholder="ENTER UNIQUE KEY" style="width:100%; padding:18px; margin-bottom:15px; border:2px solid var(--sbc-dark); border-radius:8px; text-align:center; font-size:1.4rem; font-weight:bold;">
-                <button id="loginBtn" class="btn btn-primary" style="width:100%;" onclick="attemptLogin()">Log In</button>
+            app.innerHTML = `<div class="card" style="max-width:400px; margin:auto; text-align:center;">
+                <h3>Account Login</h3>
+                <input type="text" id="loginInput" placeholder="Enter Key" style="width:100%; padding:15px; margin-bottom:15px; border:2px solid #000; font-size:1.2rem; text-align:center;">
+                <button id="loginBtn" class="btn btn-primary" style="width:100%" onclick="attemptLogin()">Log In</button>
             </div>`;
         } else if (state.step === 2) {
-            app.innerHTML = `<h3>Logged in: <span style="color:var(--sbc-blue);">${state.customer.name}</span></h3>
-            <div class="product-grid">${Object.values(groupedProducts).map(p => {
+            app.innerHTML = `<h3>Ordering for: ${state.customer.name}</h3><div class="product-grid">${Object.values(groupedProducts).map(p => {
                 const id = p.name.replace(/\s/g,'');
                 return `<div class="product-card">
-                    <img src="${p.img}" class="product-img" onerror="this.src='https://via.placeholder.com/300?text=SBC+Product'">
-                    <div class="product-info" style="padding:15px;">
-                        <h4 style="margin:0 0 10px 0;">${p.name}</h4>
-                        <select id="s-${id}" style="width:100%; padding:8px; border-radius:4px;">${p.options.map((o,i)=>`<option value="${i}">${o.type} - $${o.price}</option>`).join('')}</select>
-                        <div style="margin-top:15px;">Qty: <input type="number" id="q-${id}" style="width:70px; padding:8px; border:1px solid #ccc; border-radius:4px;" oninput="updateCart('${p.name}','s-${id}','q-${id}')"></div>
-                    </div>
+                    <h4>${p.name}</h4>
+                    <select id="s-${id}" style="width:100%; padding:5px;">${p.options.map((o,i)=>`<option value="${i}">${o.type} - $${o.price}</option>`).join('')}</select>
+                    <br><br>Qty: <input type="number" id="q-${id}" style="width:60px;" oninput="updateCart('${p.name}','s-${id}','q-${id}')">
                 </div>`;
             }).join('')}</div>`;
         } else if (state.step === 3) {
-            let sub = 0; Object.values(state.cart).forEach(i => sub += (i.price * i.qty));
+            let total = 0; Object.values(state.cart).forEach(i => total += (i.price * i.qty));
             app.innerHTML = `<div class="card">
-                <div style="text-align:left;">
-                    <strong>SUBURBAN BREWING CO.</strong><br>3041 Horseshoe Pike, Honey Brook, PA 19344<br>
-                    <strong>Sales Rep: Remy Davis</strong>
+                <div style="display:flex; justify-content:space-between;">
+                    <div>
+                        <strong>Suburban Brewing Co.</strong><br>3041 Horseshoe Pike<br>Honey Brook, PA 19344<br>
+                        <strong>Sales Rep: Remy Davis</strong>
+                    </div>
+                    <div style="text-align:right;">
+                        <strong>ORDER DATE:</strong><br>${new Date().toLocaleDateString()}
+                    </div>
                 </div>
-                <div style="text-align:right; margin-top:-45px;">
-                    <strong>ORDER DATE:</strong><br>${new Date().toLocaleDateString()}
-                </div>
-                <hr style="margin:25px 0;">
-                <div style="margin-bottom:25px; text-align:left; line-height:1.6;">
-                    <strong style="font-size:1.4rem; color:var(--sbc-blue);">${state.customer.name}</strong><br>
+                <div style="margin-top:30px;">
+                    <strong style="font-size:1.2rem;">${state.customer.name}</strong><br>
                     ${state.customer.address}<br>
                     ${state.customer.city}, ${state.customer.state} ${state.customer.zip}
                 </div>
                 <table class="review-table">
-                    <thead><tr><th>Product</th><th style="text-align:center;">Qty</th><th style="text-align:right;">Subtotal</th></tr></thead>
-                    <tbody>${Object.values(state.cart).map(i=>`<tr><td>${i.beer} (${i.type})</td><td style="text-align:center;">${i.qty}</td><td style="text-align:right;">$${(i.qty*i.price).toFixed(2)}</td></tr>`).join('')}</tbody>
+                    <thead><tr><th>Product</th><th>Qty</th><th>Subtotal</th></tr></thead>
+                    <tbody>${Object.values(state.cart).map(i=>`<tr><td>${i.beer} (${i.type})</td><td>${i.qty}</td><td>$${(i.qty*i.price).toFixed(2)}</td></tr>`).join('')}</tbody>
                 </table>
-                <div style="text-align:right; margin-top:30px; font-size:2rem;"><strong>TOTAL: $${sub.toFixed(2)}</strong></div>
-                <div style="margin-top:40px; display:flex; gap:15px;">
-                    <button class="btn" style="flex:1; border:2px solid #ccc;" onclick="state.step=2;render()">Back to Products</button>
-                    <button class="btn btn-primary" style="flex:2; background:#27ae60;" onclick="submitOrder()">Submit Final Order</button>
+                <h2 style="text-align:right;">TOTAL: $${total.toFixed(2)}</h2>
+                <div style="margin-top:30px; display:flex; gap:10px;">
+                    <button class="btn" style="flex:1; border:1px solid #ccc;" onclick="state.step=2;render()">Edit Order</button>
+                    <button class="btn btn-primary" style="flex:2; background:green;" onclick="submitOrder()">Confirm & Submit</button>
                 </div>
             </div>`;
         }
     }
 
-    function updateCart(beer, selectId, qtyId) {
-        const opt = groupedProducts[beer].options[document.getElementById(selectId).value];
-        const qty = parseInt(document.getElementById(qtyId).value) || 0;
+    function updateCart(beer, sId, qId) {
+        const opt = groupedProducts[beer].options[document.getElementById(sId).value];
+        const qty = parseInt(document.getElementById(qId).value) || 0;
         if (qty > 0) state.cart[`${beer}-${opt.type}`] = { beer, type: opt.type, price: opt.price, qty };
         else delete state.cart[`${beer}-${opt.type}`];
-        let total = 0;
-        Object.values(state.cart).forEach(i => total += (i.price * i.qty));
-        document.getElementById("live-total").innerText = "$" + total.toFixed(2);
+        let t = 0; Object.values(state.cart).forEach(i => t += (i.price * i.qty));
+        document.getElementById("live-total").innerText = "$" + t.toFixed(2);
     }
 
     async function submitOrder() {
-        const btn = event.target; btn.disabled = true; btn.innerText = "PROCESSING...";
         await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(state) });
-        alert("Order Received! Thank you for choosing SBC."); 
-        location.reload();
+        alert("Order Submitted!"); location.reload();
     }
 
     init();
