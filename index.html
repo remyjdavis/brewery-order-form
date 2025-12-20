@@ -152,7 +152,7 @@
     <div class="header-info">
         <h1>Suburban Brewing Co.</h1>
         3041 Horseshoe Pike, Honey Brook, PA 19344<br>
-        Sales Rep: Remy Davis | (908) 642-1019 | remy@suburbanbrewingco.com
+        Sales Rep: Remy Davis | (908) 642-1019 | remyjdavis90@gmail.com
     </div>
 </header>
 
@@ -201,7 +201,6 @@
                         groupedProducts[baseName] = { 
                             name: baseName, 
                             options: [],
-                            // Link Larry.jpg if name contains "Larry"
                             image: baseName.toLowerCase().includes("larry") ? "Larry.jpg" : null
                         };
                     }
@@ -257,8 +256,6 @@
             for (const key in groupedProducts) {
                 const p = groupedProducts[key];
                 const id = p.name.replace(/\s/g, '');
-                
-                // Only show image if Larry.jpg is assigned
                 const imgTag = p.image ? `<img src="${BASE_IMG_URL}${p.image}" class="product-img" onerror="this.style.display='none'">` : '';
 
                 html += `
@@ -300,7 +297,7 @@
                             <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" style="height:55px; margin-bottom:10px;"><br>
                             <strong>Suburban Brewing Co.</strong><br>
                             3041 Horseshoe Pike, Honey Brook, PA 19344<br>
-                            Sales Rep: Remy Davis | (908) 642-1019 | remy@suburbanbrewingco.com
+                            Sales Rep: Remy Davis | (908) 642-1019 | remyjdavis90@gmail.com
                         </div>
                         <div style="text-align:right;"><strong>ORDER DATE:</strong><br>${new Date().toLocaleDateString()}</div>
                     </div>
