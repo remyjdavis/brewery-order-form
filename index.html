@@ -14,7 +14,7 @@
         .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
         .card { background: white; padding: 40px; border-radius: 4px; border: 1px solid #e1e4e8; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         
-        .legal-scroll { height: 400px; overflow-y: scroll; border: 1px solid #ddd; padding: 25px; background: #fafafa; font-size: 0.85em; line-height: 1.6; margin: 20px 0; border-radius: 4px; }
+        .legal-scroll { height: 450px; overflow-y: scroll; border: 1px solid #ddd; padding: 25px; background: #fafafa; font-size: 0.85em; line-height: 1.6; margin: 20px 0; border-radius: 4px; }
         .legal-scroll h4 { margin-top: 20px; border-bottom: 1px solid #eee; text-transform: uppercase; color: var(--sbc-dark); }
 
         .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--sbc-dark); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; z-index: 9999; border-top: 4px solid var(--sbc-blue); }
@@ -120,17 +120,35 @@
         if (state.step === 0) {
             app.innerHTML = `
                 <div class="card">
-                    <h2 style="text-align:center;">Wholesale Agreement</h2>
+                    <h2 style="text-align:center;">Master Wholesale & Distribution Agreement</h2>
                     <div class="legal-scroll">
-                        <h4>1. PRODUCT CARE</h4><p>All products must be kept at 38°F. SBC is not liable for spoilage due to retailer handling.</p>
-                        <h4>2. LICENSURE</h4><p>Purchaser warrants they hold a valid PA Liquor License.</p>
-                        <h4>3. PAYMENT</h4><p>Check Customers: Due at delivery. Fintech: Processed per standard draft terms.</p>
-                        <h4>4. COOPERAGE</h4><p>$30.00 deposit per keg. SBC retains ownership of all shells.</p>
-                        <h4>5. PRICING</h4><p>6% PA Sales Tax applies to restaurant accounts. 10% discount for 10+ units.</p>
-                        <h4>6. DELIVERY</h4><p>Orders must be in by 2 PM for next-day availability.</p>
-                        <h4>7. LEGAL PROTECTIONS</h4><p>Purchaser agrees to indemnify SBC against claims arising from retailer operations. All disputes governed by PA law, venued in Chester County.</p>
+                        <h4>1. PRODUCT QUALITY & STORAGE</h4>
+                        <p>Purchaser acknowledges that all Suburban Brewing Co. ("SBC") products are perishable. All beer must be maintained at a constant temperature of 38°F (3.3°C) or lower. SBC shall not be liable for any product degradation, spoilage, or "off-flavors" resulting from the Purchaser's failure to maintain proper cold-chain storage or draft line hygiene.</p>
+                        
+                        <h4>2. LICENSURE & COMPLIANCE</h4>
+                        <p>Purchaser warrants that they hold all necessary and valid liquor licenses required by the Pennsylvania Liquor Control Board (PLCB) and federal law. Purchaser agrees to notify SBC immediately of any suspension, revocation, or expiration of said licenses. All sales are final upon delivery and acceptance.</p>
+                        
+                        <h4>3. PAYMENT TERMS & DEFAULTS</h4>
+                        <p><strong>Check Customers:</strong> Payment is due in full at the time of delivery. 
+                        <strong>Fintech/Electronic Transfer:</strong> Payments will be initiated according to established draft cycles. 
+                        Any returned checks or failed electronic transfers will incur a $50.00 administrative fee. Delinquent accounts may be subject to a 1.5% monthly late fee and a transition to "Cash on Delivery" (COD) status at SBC's sole discretion.</p>
+                        
+                        <h4>4. COOPERAGE & EQUIPMENT</h4>
+                        <p>All kegs, shells, and pallets remain the sole property of SBC. A $30.00 deposit is required per keg. Purchaser is responsible for the safekeeping of cooperage while in their possession. Lost or damaged kegs will be billed at the full replacement cost of $165.00 per unit, minus the initial deposit.</p>
+                        
+                        <h4>5. INTELLECTUAL PROPERTY</h4>
+                        <p>Purchaser is granted a limited, non-exclusive license to use SBC trademarks, logos, and branding solely for the purpose of menu listing and point-of-sale promotion. Use of SBC branding in a manner that disparages the brewery is strictly prohibited.</p>
+                        
+                        <h4>6. INDEMNIFICATION & LIABILITY</h4>
+                        <p>To the fullest extent permitted by law, Purchaser shall indemnify, defend, and hold harmless SBC, its owners, and employees from any claims, damages, or expenses (including legal fees) arising from the Purchaser's sale or service of SBC products, including but not limited to claims related to over-service or "Dram Shop" liability.</p>
+
+                        <h4>7. FORCE MAJEURE</h4>
+                        <p>SBC shall not be liable for delays in delivery or failure to perform due to causes beyond its reasonable control, including but not limited to acts of God, supply chain disruptions, or government-mandated closures.</p>
+                        
+                        <h4>8. GOVERNING LAW</h4>
+                        <p>This agreement shall be governed by the laws of the Commonwealth of Pennsylvania. Any legal action arising from this agreement must be brought in the courts of Chester County, Pennsylvania.</p>
                     </div>
-                    <label style="display:block; text-align:center; margin-bottom:20px;"><input type="checkbox" id="agree"> I agree to the Wholesale Terms.</label>
+                    <label style="display:block; text-align:center; margin-bottom:20px;"><input type="checkbox" id="agree"> I have read and agree to the Master Wholesale Terms.</label>
                     <button class="btn btn-primary" style="width:100%" onclick="if(document.getElementById('agree').checked){state.step=1;render()}">Accept & Continue</button>
                 </div>`;
         } else if (state.step === 1) {
@@ -186,7 +204,7 @@
 
     function handleEmailRequest() {
         if (!state.customer.email) {
-            const email = prompt("No email on file. Please enter destination email:");
+            const email = prompt("Enter destination email for the invoice:");
             if (email && email.includes("@")) {
                 state.customer.email = email;
             } else if (email !== null) {
