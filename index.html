@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,54 +7,44 @@
     <style>
         :root { --sbc-blue: #007bff; --sbc-dark: #1a1a1a; --bg: #f4f7f9; --red: #d9534f; }
         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: var(--bg); margin: 0; padding-bottom: 120px; color: #333; }
-
-        /* HEADER */
+        
         .site-header { background: #fff; padding: 30px 5%; border-bottom: 5px solid var(--sbc-dark); display: flex; align-items: center; gap: 25px; }
         .site-header img { height: 85px; }
-        .header-text h1 { margin: 0; font-size: 1.8em; text-transform: uppercase; }
-        .header-text p { margin: 5px 0 0 0; line-height: 1.4; color: #333; }
-
+        
         .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
         .card { background: white; padding: 40px; border-radius: 4px; border: 1px solid #e1e4e8; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        
+        .legal-scroll { height: 400px; overflow-y: scroll; border: 1px solid #ddd; padding: 25px; background: #fafafa; font-size: 0.85em; line-height: 1.6; margin: 20px 0; border-radius: 4px; }
+        .legal-scroll h4 { margin-top: 20px; border-bottom: 1px solid #eee; text-transform: uppercase; color: var(--sbc-dark); }
 
-        /* LEGAL AGREEMENT */
-        .legal-scroll { height: 400px; overflow-y: scroll; border: 1px solid #ddd; padding: 25px; background: #fafafa; font-size: 0.85em; line-height: 1.6; margin: 20px 0; border-radius: 4px; text-align: left; }
-        .legal-scroll h4 { margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 5px; text-transform: uppercase; font-size: 0.9em; color: var(--sbc-dark); }
-
-        /* SEARCH & INPUTS */
-        .search-input { width: 100%; padding: 20px; font-size: 1.3em; border: 2px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        #results { background: white; border: 1px solid #ddd; border-top: none; }
-        .result-item { padding: 20px; border-bottom: 1px solid #eee; cursor: pointer; width: 100%; text-align: left; background: white; display: block; font-size: 1.1em; border: none; }
-        .result-item:hover { background: #f0f7ff; color: var(--sbc-blue); }
-
-        /* STOCK INDICATORS */
-        .stock-badge { font-size: 0.75em; font-weight: bold; padding: 4px 8px; border-radius: 3px; display: inline-block; margin-top: 5px; }
-        .low-stock { background: #fff1f0; color: var(--red); border: 1px solid var(--red); }
-        .out-of-stock { background: #eee; color: #777; border: 1px solid #ccc; }
-        .in-stock { color: #28a745; border: 1px solid #28a745; background: #f6ffed; }
-
-        /* LIVE BAR */
         .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--sbc-dark); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; z-index: 9999; border-top: 4px solid var(--sbc-blue); }
-
-        /* BUTTONS */
-        .btn { padding: 12px 25px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        
+        .btn { padding: 12px 25px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
         .btn-primary { background: var(--sbc-blue); color: white; }
         .btn-success { background: #28a745; color: white; width: 100%; margin-top: 20px; font-size: 1.2em; }
         .btn-secondary { background: #6c757d; color: white; }
-        .btn-outline { border: 1px solid #ccc; background: white; color: #555; }
+        .btn-outline { background: transparent; border: 1px solid #ccc; color: #333; }
+        
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-top: 30px; }
+        .product-card { border: 1px solid #eee; padding: 20px; text-align: center; border-radius: 4px; }
+        .qty-input { width: 60px; padding: 8px; text-align: center; font-weight: bold; border: 1px solid #ccc; }
+        .qty-input.error { border: 2px solid var(--red); background: #fff1f0; }
 
-        /* TABLES */
         .review-table { width: 100%; border-collapse: collapse; margin-top: 25px; }
         .review-table th { text-align: left; padding: 12px; border-bottom: 2px solid #333; font-size: 0.85em; }
         .review-table td { padding: 12px; border-bottom: 1px solid #eee; }
 
-        @media print { .site-header, .btn, .live-bar { display: none !important; } .container { margin: 0; width: 100%; } .card { box-shadow: none; border: none; } }
+        @media print {
+            .live-bar, .btn, .action-flex, #admin-link { display: none !important; }
+            body { background: white; padding: 0; }
+            .card { border: none; box-shadow: none; padding: 0; }
+        }
     </style>
 </head>
 <body>
 
-<header class="site-header">
-    <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png">
+<header class="site-header" id="main-header">
+    <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" alt="SBC Logo">
     <div class="header-text">
         <h1>Suburban Brewing Co.</h1>
         <p>3041 Horseshoe Pike, Honey Brook, PA 19344<br>
@@ -66,25 +56,55 @@
 <div class="container" id="app"></div>
 
 <div id="live-bar" class="live-bar" style="display:none;">
-    <div style="font-size: 1.2em;">Total: <span id="live-total" style="color:var(--sbc-blue); font-weight:bold;">$0.00</span></div>
-    <button class="btn btn-primary" onclick="state.step=3;render()">Review Order</button>
+    <div id="stock-error" style="color:var(--red); font-weight:bold; display:none;">⚠️ QUANTITY EXCEEDS STOCK</div>
+    <div class="summary-item">Total: <span id="live-total" style="color:var(--sbc-blue);">$0.00</span></div>
+    <button class="btn btn-primary" id="review-btn" onclick="goToReview()">Review Order</button>
 </div>
 
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec";
-    let products = [
-        { name: "SBC Lager (1/2 Keg)", price: 165.00, stock: 15 },
-        { name: "SBC Lager (1/6 Keg)", price: 75.00, stock: 20 },
-        { name: "50/50 IPA (1/2 Keg)", price: 185.00, stock: 10 },
-        { name: "50/50 IPA (1/6 Keg)", price: 85.00, stock: 12 }
-    ];
+    const PRODUCT_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&output=csv";
 
+    let products = [];
     let state = { step: 0, customer: null, cart: [], overrideActive: false };
+
+    async function init() {
+        const res = await fetch(PRODUCT_CSV);
+        const text = await res.text();
+        const rows = text.split("\n");
+        const headers = rows[0].split(",");
+        const stockIndex = headers.findIndex(h => h.trim() === "Qty In Stock");
+        products = rows.slice(1).map(r => {
+            const c = r.split(",");
+            return { name: c[0]?.trim(), price: parseFloat(c[1]) || 0, stock: stockIndex !== -1 ? (parseInt(c[stockIndex]) || 0) : 0 };
+        }).filter(p => p.name);
+        render();
+    }
+
+    function calculate() {
+        let sub = 0, totalQty = 0, dep = 0, overStock = false;
+        state.cart.forEach(i => {
+            if (i.qty > 0) {
+                sub += (i.price * i.qty);
+                totalQty += i.qty;
+                if (i.name.toLowerCase().includes("keg")) dep += (i.qty * 30);
+                if (!state.overrideActive && i.qty > i.max) overStock = true;
+            }
+        });
+        const disc = (totalQty >= 10) ? (sub * 0.10) : 0;
+        const keywords = ["restaurant", "cafe", "grill", "pub", "bar", "tavern", "kitchen", "eatery", "pizza", "bistro", "deli", "taproom"];
+        const isRestaurant = state.customer && keywords.some(kw => state.customer.name.toLowerCase().includes(kw));
+        const tax = isRestaurant ? ((sub - disc) * 0.06) : 0;
+        return { sub, disc, dep, tax, final: (sub - disc + dep + tax), overStock };
+    }
 
     function render() {
         const app = document.getElementById("app");
-        document.getElementById("live-bar").style.display = (state.step === 2) ? "flex" : "none";
+        const bar = document.getElementById("live-bar");
+        const header = document.getElementById("main-header");
         app.innerHTML = "";
+        bar.style.display = (state.step === 2) ? "flex" : "none";
+        header.style.display = (state.step === 3) ? "none" : "flex";
 
         if (state.step === 0) {
             app.innerHTML = `
@@ -99,28 +119,18 @@
                         <h4>6. DELIVERY</h4><p>Orders must be in by 2 PM for next-day availability.</p>
                         <h4>7. LEGAL PROTECTIONS</h4><p>Purchaser agrees to indemnify SBC against claims arising from retailer operations. All disputes governed by the laws of the Commonwealth of Pennsylvania, venued in Chester County.</p>
                     </div>
-                    <label style="display:block; text-align:center; margin-bottom:20px;">
-                        <input type="checkbox" id="agree"> I agree to the Wholesale Terms.
-                    </label>
+                    <label style="display:block; text-align:center; margin-bottom:20px;"><input type="checkbox" id="agree"> I agree to the Wholesale Terms.</label>
                     <button class="btn btn-primary" style="width:100%" onclick="if(document.getElementById('agree').checked){state.step=1;render()}">Accept & Continue</button>
                 </div>`;
         } else if (state.step === 1) {
-            app.innerHTML = `<div class="card"><h2>Account Search</h2><input type="text" class="search-input" placeholder="Business name..." oninput="doSearch(this.value)"><div id="results"></div></div>`;
+            app.innerHTML = `<div class="card"><h2>Account Search</h2><input type="text" placeholder="Business name..." oninput="doSearch(this.value)"><div id="results"></div></div>`;
         } else if (state.step === 2) {
-            app.innerHTML = `
-                <div class="card">
-                    <h3>Ordering for: ${state.customer.name}</h3>
-                    <div class="product-grid">${products.map(p => `
-                        <div class="product-card">
-                            <strong>${p.name}</strong><br>$${p.price.toFixed(2)}<br>
-                            <span class="stock-badge ${p.stock <= 0 ? 'out-of-stock' : (p.stock <= 5 ? 'low-stock' : 'in-stock')}">
-                                ${p.stock <= 0 ? 'SOLD OUT' : p.stock + ' IN STOCK'}
-                            </span><br><br>
-                            <input type="number" class="qty-input" min="0" value="${getQty(p.name)}" 
-                                   oninput="updateCart('${p.name}', ${p.price}, this.value)">
-                        </div>`).join("")}</div>
-                    <div style="text-align:center; margin-top:40px;"><span style="color:#eee; cursor:pointer;" onclick="adminOverride()">Override</span></div>
-                </div>`;
+            app.innerHTML = `<div class="card"><h3>Ordering for: ${state.customer.name}</h3><div class="product-grid">${products.map(p => `
+                <div class="product-card"><strong>${p.name}</strong><br>$${p.price.toFixed(2)}<br>
+                    <span class="stock-badge ${p.stock <= 0 ? 'out-of-stock' : (p.stock <= 5 ? 'low-stock' : 'in-stock')}">${p.stock <= 0 ? 'SOLD OUT' : p.stock + ' IN STOCK'}</span><br><br>
+                    <input type="number" class="qty-input ${(!state.overrideActive && getQty(p.name) > p.stock) ? 'error' : ''}" min="0" value="${getQty(p.name)}" oninput="updateCart('${p.name}', ${p.price}, this.value, ${p.stock})">
+                </div>`).join("")}</div><div style="text-align:center; margin-top:40px;"><span id="admin-link" style="color:#eee; cursor:pointer;" onclick="adminOverride()">Override</span></div></div>`;
+            updateBar();
         } else if (state.step === 3) {
             const t = calculate();
             const items = state.cart.filter(i => i.qty > 0);
@@ -136,29 +146,18 @@
                         </div>
                     </div>
                     <div style="display:flex; justify-content:space-between;">
-                        <div>
-                            <strong>BILL TO:</strong><br>
-                            ${state.customer.name}<br>
-                            ${state.customer.address}<br>
-                            ${state.customer.city}, ${state.customer.state} ${state.customer.zip}
-                        </div>
-                        <div style="text-align:right;">
-                            <strong>ORDER DATE:</strong><br>${new Date().toLocaleDateString()}
-                        </div>
+                        <div><strong>BILL TO:</strong><br>${state.customer.name}<br>${state.customer.address}<br>${state.customer.city}, ${state.customer.state} ${state.customer.zip}</div>
+                        <div style="text-align:right;"><strong>ORDER DATE:</strong><br>${new Date().toLocaleDateString()}${state.overrideActive ? '<br><b style="color:red">OVERRIDE</b>' : ''}</div>
                     </div>
-                    <table class="review-table">
-                        <thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
-                        <tbody>${items.map(i => `<tr><td>${i.name}</td><td>${i.qty}</td><td>$${i.price.toFixed(2)}</td><td>$${(i.price*i.qty).toFixed(2)}</td></tr>`).join("")}</tbody>
-                    </table>
+                    <table class="review-table"><thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
+                    <tbody>${items.map(i => `<tr><td>${i.name}</td><td>${i.qty}</td><td>$${i.price.toFixed(2)}</td><td>$${(i.price*i.qty).toFixed(2)}</td></tr>`).join("")}</tbody></table>
                     <div style="text-align:right; margin-top:20px; line-height:1.8;">
-                        Subtotal: $${t.sub.toFixed(2)}<br>
-                        ${t.disc > 0 ? `Discount: -$${t.disc.toFixed(2)}<br>` : ''}
-                        Tax: $${t.tax.toFixed(2)}<br>
-                        Keg Deposits: $${t.dep.toFixed(2)}<br>
+                        Subtotal: $${t.sub.toFixed(2)}<br>${t.disc > 0 ? `Discount: -$${t.disc.toFixed(2)}<br>` : ''}
+                        Tax: $${t.tax.toFixed(2)}<br>Keg Deposits: $${t.dep.toFixed(2)}<br>
                         <strong style="font-size:1.6em; color:var(--sbc-blue);">Total: $${t.final.toFixed(2)}</strong>
                     </div>
-                    <div style="display:flex; gap:10px; margin-top:25px;">
-                        <button class="btn btn-secondary" style="flex:1" onclick="state.step=2;render()">← Back</button>
+                    <div class="action-flex" style="display:flex; gap:10px; margin-top:25px;">
+                        <button class="btn btn-secondary" style="flex:1" onclick="state.step=2;render()">← Back to Shop</button>
                         <button class="btn btn-outline" style="flex:1" onclick="window.print()">Print Order</button>
                     </div>
                     <button class="btn btn-success" onclick="submitOrder()">Submit Final Order</button>
@@ -166,52 +165,37 @@
         }
     }
 
+    function adminOverride() { if(prompt("Password:") === "Yankees1") { state.overrideActive = true; alert("Override Active"); render(); } }
+    function updateCart(n, p, q, m) {
+        const idx = state.cart.findIndex(i => i.name === n);
+        const qty = Math.max(0, parseInt(q) || 0);
+        if (idx > -1) state.cart[idx].qty = qty;
+        else state.cart.push({name: n, price: p, qty: qty, max: m});
+        updateBar();
+    }
+    function updateBar() {
+        const t = calculate();
+        document.getElementById("live-total").innerText = "$" + t.final.toFixed(2);
+        const err = document.getElementById("stock-error");
+        const btn = document.getElementById("review-btn");
+        if (t.overStock) { err.style.display = "block"; btn.disabled = true; btn.style.opacity = "0.5"; }
+        else { err.style.display = "none"; btn.disabled = false; btn.style.opacity = "1"; }
+    }
+    function goToReview() { if (!calculate().overStock) { state.step = 3; render(); } }
     async function doSearch(v) {
-        if(v.length < 3) return;
-        const res = await fetch(API_URL + "?q=" + encodeURIComponent(v), { redirect: 'follow' });
+        if (v.length < 2) return;
+        const res = await fetch(`${API_URL}?q=${encodeURIComponent(v)}`);
         const data = await res.json();
-        document.getElementById("results").innerHTML = data.results.map(c => `
-            <button class="result-item" onclick='selectCustomer(${JSON.stringify(c)})'>
-                <strong>${c.name}</strong><br><small>${c.address}, ${c.city}</small>
-            </button>`).join("");
+        document.getElementById("results").innerHTML = data.results.map(c => `<div style="padding:15px; border-bottom:1px solid #eee; cursor:pointer;" onclick='selectCust(${JSON.stringify(c).replace(/'/g, "&apos;")})'><strong>${c.name}</strong></div>`).join("");
     }
-
-    function selectCustomer(cust) { 
-        state.customer = cust; 
-        state.step = 2; 
-        render(); 
-    }
-
-    function updateCart(name, price, qty) {
-        const q = parseInt(qty) || 0;
-        const idx = state.cart.findIndex(i => i.name === name);
-        if (idx > -1) state.cart[idx].qty = q; else state.cart.push({name, price, qty: q});
-        document.getElementById("live-total").innerText = "$" + calculate().final.toFixed(2);
-    }
-
+    window.selectCust = (c) => { state.customer = c; state.step = 2; render(); };
     function getQty(n) { return state.cart.find(c => c.name === n)?.qty || 0; }
-
-    function calculate() {
-        let sub = 0, units = 0;
-        state.cart.forEach(i => { sub += (i.qty * i.price); units += i.qty; });
-        const disc = (units >= 10) ? (sub * 0.10) : 0;
-        const tax = (sub - disc) * 0.06;
-        const dep = units * 30.00;
-        return { sub, disc, tax, dep, final: (sub - disc + tax + dep) };
-    }
-
-    function adminOverride() {
-        const pin = prompt("Enter PIN:");
-        if (pin === "19344") { state.overrideActive = true; render(); }
-    }
-
     async function submitOrder() {
-        await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ ...state, totals: calculate() }) });
-        alert("Order Submitted!");
+        await fetch(API_URL, { method: "POST", body: JSON.stringify({ ...state, totals: calculate() }) });
+        alert("Order Submitted! You will receive an email confirmation.");
         location.reload();
     }
-
-    render();
+    init();
 </script>
 </body>
 </html>
