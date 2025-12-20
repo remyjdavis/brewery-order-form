@@ -13,21 +13,21 @@
             color: #2d3436; 
         }
         
-        /* Compact Header */
+        /* Compact Detailed Header */
         .site-header { 
             background-color: #ffffff; 
             padding: 10px 5%; 
             border-bottom: 2px solid #1a1a1a; 
             display: flex; 
             align-items: center; 
-            gap: 15px; 
+            gap: 20px; 
         }
         .header-info { 
-            font-size: 0.8rem; 
-            line-height: 1.2; 
+            font-size: 0.85rem; 
+            line-height: 1.3; 
         }
         .header-info h1 { 
-            margin: 0; 
+            margin: 0 0 2px 0; 
             font-size: 1.2rem; 
             color: #1a1a1a;
         }
@@ -158,10 +158,11 @@
 <body>
 
 <header class="site-header">
-    <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" alt="SBC Logo" style="height:45px;">
+    <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" alt="SBC Logo" style="height:55px;">
     <div class="header-info">
         <h1>Suburban Brewing Co.</h1>
-        3041 Horseshoe Pike, Honey Brook, PA 19344 | (908) 642-1019
+        3041 Horseshoe Pike, Honey Brook, PA 19344<br>
+        Sales Rep: Remy Davis | (908) 642-1019 | remy@suburbanbrewingco.com
     </div>
 </header>
 
@@ -182,7 +183,6 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec"; 
     const PRODUCT_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&output=csv";
 
-    let rawProducts = [];
     let groupedProducts = {};
     let state = {
         step: 0,
@@ -203,24 +203,17 @@
                     const fullName = columns[0];
                     const price = parseFloat(columns[1]) || 0;
                     const stock = columns[2] || "0";
-                    
-                    // Logic to group products by base name
                     const baseName = fullName.replace(/(Keg|Case|1\/2|1\/6|BBL|Can|12oz|16oz)/gi, '').trim();
                     const type = fullName.replace(baseName, '').trim() || "Unit";
 
                     if (!groupedProducts[baseName]) {
-                        groupedProducts[baseName] = {
-                            name: baseName,
-                            options: []
-                        };
+                        groupedProducts[baseName] = { name: baseName, options: [] };
                     }
                     groupedProducts[baseName].options.push({ type: type, price: price, stock: stock });
                 }
             }
             render();
-        } catch (error) {
-            console.error("Error loading products:", error);
-        }
+        } catch (error) { console.error(error); }
     }
 
     function render() {
@@ -235,19 +228,17 @@
                     <div class="legal-scroll">
                         <p>This agreement is compliant with the laws of the Commonwealth of Pennsylvania and the regulations of the Pennsylvania Liquor Control Board (PLCB).</p>
                         <h3>1. PLCB COMPLIANCE & LICENSURE</h3>
-                        <p>Purchaser warrants that it holds a valid, active retail or wholesale license issued by the PLCB. Purchaser agrees that all malt beverage transactions shall be conducted in accordance with the Pennsylvania Liquor Code (47 P.S. § 1-101 et seq.).</p>
+                        <p>Purchaser warrants that it holds a valid, active retail or wholesale license issued by the PLCB.</p>
                         <h3>2. PRICE POSTING & ACT 39</h3>
-                        <p>In accordance with Act 39 of 2016, SBC maintains a public price list. Purchaser acknowledges that prices are subject to change and that SBC complies with all regulations regarding price consistency within the assigned geographic territory.</p>
+                        <p>In accordance with Act 39 of 2016, SBC maintains a public price list.</p>
                         <h3>3. CASH ON DELIVERY (COD) & SECTION 493</h3>
-                        <p>Per Section 493(2) of the Liquor Code, sales of malt or brewed beverages to retail licensees must be for cash or check paid at or before the time of delivery. SBC drivers are strictly prohibited from extending credit.</p>
+                        <p>Per Section 493(2) of the Liquor Code, sales of malt or brewed beverages to retail licensees must be for cash or check paid at or before the time of delivery.</p>
                         <h3>4. COLD CHAIN STORAGE</h3>
-                        <p>Products are unpasteurized. Purchaser agrees to store all SBC inventory at 34°F-38°F. Failure to maintain these conditions constitutes a health and quality risk.</p>
-                        <h3>5. GEOGRAPHIC TERRITORY</h3>
-                        <p>Purchaser acknowledges they are purchasing product for resale only within their licensed premises and within the specific geographic territory assigned by SBC.</p>
-                        <h3>6. COOPERAGE & EQUIPMENT LIABILITY</h3>
-                        <p>All stainless steel keg shells, couplers, and tapping equipment ("Cooperage") remain the exclusive property of Suburban Brewing Co. A mandatory $30.00 deposit is applied to each keg shell. Purchaser assumes full risk of loss, theft, or damage to Cooperage while in their possession. In the event Cooperage is not returned within 60 days of delivery, or is returned in a damaged/unusable state, Purchaser will be billed for the full replacement value of $145.00 per shell.</p>
-                        <h3>7. RETURNED CHECKS & FINANCIAL DEFAULTS</h3>
-                        <p>In the event a payment check is returned for Non-Sufficient Funds (NSF) or is otherwise dishonored ("Bounced Check"), Purchaser agrees to pay a $50.00 administrative fee per occurrence. Furthermore, any account with a returned payment will be placed on immediate "Cash Only" status.</p>
+                        <p>Products are unpasteurized. Purchaser agrees to store all SBC inventory at 34°F-38°F.</p>
+                        <h3>5. COOPERAGE & EQUIPMENT LIABILITY</h3>
+                        <p>All stainless steel keg shells remain the property of Suburban Brewing Co. A mandatory $30.00 deposit is applied to each keg shell.</p>
+                        <h3>6. RETURNED CHECKS</h3>
+                        <p>Returned checks incur a $50.00 fee.</p>
                     </div>
                     <div class="checkbox-area">
                         <input type="checkbox" id="agreeCheck" onchange="document.getElementById('acceptBtn').disabled = !this.checked">
@@ -267,7 +258,6 @@
         else if (state.step === 2) {
             liveBar.style.display = "flex";
             let html = `<h3>Available Inventory</h3><div class="product-grid">`;
-            
             for (const key in groupedProducts) {
                 const p = groupedProducts[key];
                 const id = p.name.replace(/\s/g, '');
@@ -289,82 +279,51 @@
         } 
         else if (state.step === 3) {
             liveBar.style.display = "none";
-            
-            let subtotal = 0;
-            let kegCount = 0;
-            let caseCount = 0;
-
+            let subtotal = 0, kegCount = 0, caseCount = 0;
             for (const key in state.cart) {
                 const item = state.cart[key];
                 subtotal += (item.price * item.qty);
-                if (item.type.toLowerCase().includes("keg") || item.type.includes("1/")) {
-                    kegCount += item.qty;
-                }
-                if (item.type.toLowerCase().includes("case")) {
-                    caseCount += item.qty;
-                }
+                if (item.type.toLowerCase().includes("keg") || item.type.includes("1/")) kegCount += item.qty;
+                if (item.type.toLowerCase().includes("case")) caseCount += item.qty;
             }
-
             const restKeywords = ["RESTAURANT", "REST", "BAR", "GRILL", "PUB", "TAVERN", "INN", "DINER", "KITCHEN", "HOUSE", "BREWERY", "BISTRO", "CAFE", "CLUB", "PIZZA", "STEAK", "DELI"];
             const isRestaurant = restKeywords.some(keyword => state.customer.name.toUpperCase().includes(keyword));
-            
-            let kegDeposits = kegCount * 30;
             let taxValue = isRestaurant ? (subtotal * 0.06) : 0;
             let discountValue = (caseCount >= 10) ? (subtotal * 0.10) : 0;
-            
-            let finalGrandTotal = state.manualTotal !== null ? state.manualTotal : (subtotal + kegDeposits + taxValue - discountValue);
+            let finalGrandTotal = state.manualTotal !== null ? state.manualTotal : (subtotal + (kegCount * 30) + taxValue - discountValue);
 
             app.innerHTML = `
                 <div class="card">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <div>
-                            <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" style="height:50px; margin-bottom:10px;"><br>
+                            <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" style="height:55px; margin-bottom:10px;"><br>
                             <strong>Suburban Brewing Co.</strong><br>
                             3041 Horseshoe Pike, Honey Brook, PA 19344<br>
-                            Sales Rep: Remy Davis | (908) 642-1019
+                            Sales Rep: Remy Davis | (908) 642-1019 | remy@suburbanbrewingco.com
                         </div>
-                        <div style="text-align:right;">
-                            <strong>ORDER DATE:</strong><br>
-                            ${new Date().toLocaleDateString()}
-                        </div>
+                        <div style="text-align:right;"><strong>ORDER DATE:</strong><br>${new Date().toLocaleDateString()}</div>
                     </div>
-                    
                     <hr style="margin:20px 0;">
-                    
                     <div style="text-align:left; margin-bottom:20px;">
                         <strong style="font-size:1.2rem;">${state.customer.name}</strong><br>
                         ${state.customer.address}<br>
                         ${state.customer.city}, ${state.customer.state} ${state.customer.zip}
                     </div>
-
                     <table class="review-table">
-                        <thead>
-                            <tr><th>Item Description</th><th>Qty</th><th>Total</th></tr>
-                        </thead>
-                        <tbody>
-                            ${Object.values(state.cart).map(i => `
-                                <tr>
-                                    <td>${i.beer} (${i.type})</td>
-                                    <td>${i.qty}</td>
-                                    <td>$${(i.qty * i.price).toFixed(2)}</td>
-                                </tr>`).join('')}
-                        </tbody>
+                        <thead><tr><th>Item Description</th><th>Qty</th><th>Total</th></tr></thead>
+                        <tbody>${Object.values(state.cart).map(i => `<tr><td>${i.beer} (${i.type})</td><td>${i.qty}</td><td>$${(i.qty * i.price).toFixed(2)}</td></tr>`).join('')}</tbody>
                     </table>
-
                     <div style="margin-top:20px; text-align:right; line-height:1.8;">
                         <div>Subtotal: $${subtotal.toFixed(2)}</div>
-                        ${kegDeposits > 0 ? `<div>Keg Deposits ($30.00 ea): $${kegDeposits.toFixed(2)}</div>` : ''}
+                        ${kegCount > 0 ? `<div>Keg Deposits: $${(kegCount * 30).toFixed(2)}</div>` : ''}
                         <div>Tax ${isRestaurant ? '(6%)' : '(Exempt)'}: $${taxValue.toFixed(2)}</div>
-                        <div style="color:red;">Case Discount (10+ Mix): -$${discountValue.toFixed(2)}</div>
-                        <div onclick="adminOverride()" style="cursor:pointer; font-size:1.6rem; font-weight:900; color:#007bff; margin-top:10px;">
-                            GRAND TOTAL: $${finalGrandTotal.toFixed(2)}
-                        </div>
+                        <div style="color:red;">Discount (10+ Cases): -$${discountValue.toFixed(2)}</div>
+                        <div onclick="adminOverride()" style="cursor:pointer; font-size:1.6rem; font-weight:900; color:#007bff; margin-top:10px;">GRAND TOTAL: $${finalGrandTotal.toFixed(2)}</div>
                     </div>
-
                     <div class="btn-area-nav" style="display:flex; gap:10px; margin-top:40px;">
                         <button class="btn btn-outline" onclick="state.step=2;render()">Edit Order</button>
                         <button class="btn btn-outline" onclick="window.print()">Print Order</button>
-                        <button class="btn btn-outline" onclick="alert('Order summary has been prepared for email.')">Email Copy</button>
+                        <button class="btn btn-outline" onclick="alert('Copy sent to representative.')">Email Copy</button>
                         <button class="btn btn-success" style="flex:1;" onclick="submitFinalOrder()">Submit Final Order</button>
                     </div>
                 </div>`;
@@ -373,120 +332,61 @@
 
     async function attemptLogin() {
         const input = document.getElementById("loginInput").value.trim();
-        const btn = document.getElementById("loginBtn");
-        btn.innerText = "VERIFYING...";
-        
         try {
             const response = await fetch(`${API_URL}?key=${encodeURIComponent(input)}`);
             const result = await response.json();
-            if (result.success) {
-                state.customer = result.customer;
-                state.step = 2;
-                render();
-            } else {
-                alert("Invalid Access Key.");
-                btn.innerText = "LOG IN";
-            }
-        } catch (e) {
-            alert("Connection error.");
-            btn.innerText = "LOG IN";
-        }
+            if (result.success) { state.customer = result.customer; state.step = 2; render(); }
+            else { alert("Invalid Access Key."); }
+        } catch (e) { alert("Error."); }
     }
 
     function addToCart(beerName, id) {
-        const selectElement = document.getElementById(`select-${id}`);
-        const qtyElement = document.getElementById(`qty-${id}`);
-        const selectedIndex = selectElement.value;
-        const option = groupedProducts[beerName].options[selectedIndex];
-        const qty = parseInt(qtyElement.value) || 0;
-
-        const cartKey = beerName + "-" + option.type;
-
-        if (qty > 0) {
-            state.cart[cartKey] = {
-                beer: beerName,
-                type: option.type,
-                price: option.price,
-                qty: qty
-            };
-        } else {
-            delete state.cart[cartKey];
-        }
+        const select = document.getElementById(`select-${id}`);
+        const qty = parseInt(document.getElementById(`qty-${id}`).value) || 0;
+        const opt = groupedProducts[beerName].options[select.value];
+        const key = beerName + "-" + opt.type;
+        if (qty > 0) { state.cart[key] = { beer: beerName, type: opt.type, price: opt.price, qty: qty }; }
+        else { delete state.cart[key]; }
         updateLiveTotals();
     }
 
     function updateLiveTotals() {
-        let sub = 0;
-        let cases = 0;
-        let kegs = 0;
-
+        let sub = 0, cases = 0, kegs = 0;
         for (const key in state.cart) {
             const item = state.cart[key];
             sub += (item.price * item.qty);
             if (item.type.toLowerCase().includes("case")) cases += item.qty;
             if (item.type.toLowerCase().includes("keg") || item.type.includes("1/")) kegs += item.qty;
         }
-
         const restKeywords = ["RESTAURANT", "REST", "BAR", "GRILL", "PUB", "TAVERN", "INN", "DINER", "KITCHEN", "HOUSE", "BREWERY", "BISTRO", "CAFE", "CLUB", "PIZZA", "STEAK", "DELI"];
         const isRestaurant = state.customer && restKeywords.some(k => state.customer.name.toUpperCase().includes(k));
-        
         let tax = isRestaurant ? (sub * 0.06) : 0;
         let disc = (cases >= 10) ? (sub * 0.10) : 0;
-        let grand = sub + (kegs * 30) + tax - disc;
-
         document.getElementById("live-sub").innerText = "$" + sub.toFixed(2);
         document.getElementById("live-tax").innerText = "$" + tax.toFixed(2);
         document.getElementById("live-disc").innerText = "-$" + disc.toFixed(2);
-        document.getElementById("live-total").innerText = "$" + grand.toFixed(2);
+        document.getElementById("live-total").innerText = "$" + (sub + (kegs * 30) + tax - disc).toFixed(2);
     }
 
     function updateStockDisplay(id, beerName) {
-        const select = document.getElementById(`select-${id}`);
-        const stockSpan = document.getElementById(`stock-${id}`);
-        const index = select.value;
-        stockSpan.innerText = groupedProducts[beerName].options[index].stock;
+        document.getElementById(`stock-${id}`).innerText = groupedProducts[beerName].options[document.getElementById(`select-${id}`).value].stock;
     }
 
     function adminOverride() {
-        const pass = prompt("Enter Override Password:");
-        if (pass === "Yankees 1") {
-            const newTotal = prompt("Enter New Grand Total:");
-            if (newTotal !== null) {
-                state.manualTotal = parseFloat(newTotal);
-                render();
-            }
-        } else {
-            alert("Unauthorized.");
-        }
+        if (prompt("Enter Override Password:") === "Yankees 1") {
+            const val = prompt("Enter New Grand Total:");
+            if (val !== null) { state.manualTotal = parseFloat(val); render(); }
+        } else { alert("Unauthorized."); }
     }
 
-    function goToReview() {
-        state.step = 3;
-        render();
-    }
+    function goToReview() { state.step = 3; render(); }
 
     async function submitFinalOrder() {
-        const btn = event.target;
-        btn.disabled = true;
-        btn.innerText = "SUBMITTING...";
-        
-        try {
-            await fetch(API_URL, {
-                method: "POST",
-                mode: "no-cors",
-                body: JSON.stringify(state)
-            });
-            alert("Order Submitted Successfully!");
-            location.reload();
-        } catch (e) {
-            alert("Submission failed. Please try again.");
-            btn.disabled = false;
-            btn.innerText = "Submit Final Order";
-        }
+        await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(state) });
+        alert("Order Submitted!");
+        location.reload();
     }
-
     init();
 </script>
-
 </body>
 </html>
