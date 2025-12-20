@@ -5,196 +5,107 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SBC Wholesale Portal</title>
     <style>
-        :root { --sbc-blue: #007bff; --sbc-dark: #1a1a1a; --bg: #f4f7f9; --red: #d9534f; }
-        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: var(--bg); margin: 0; padding-bottom: 120px; color: #333; }
-        
+        :root { --sbc-blue: #007bff; --sbc-dark: #1a1a1a; --bg: #f4f7f9; }
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: var(--bg); margin: 0; padding-bottom: 120px; }
         .site-header { background: #fff; padding: 30px 5%; border-bottom: 5px solid var(--sbc-dark); display: flex; align-items: center; gap: 25px; }
         .site-header img { height: 85px; }
-        
         .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
-        .card { background: white; padding: 40px; border-radius: 4px; border: 1px solid #e1e4e8; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        
-        .legal-scroll { height: 400px; overflow-y: scroll; border: 1px solid #ddd; padding: 25px; background: #fafafa; font-size: 0.85em; line-height: 1.6; margin: 20px 0; border-radius: 4px; }
-        .legal-scroll h4 { margin-top: 20px; border-bottom: 1px solid #eee; text-transform: uppercase; color: var(--sbc-dark); }
-
-        .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--sbc-dark); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; z-index: 9999; border-top: 4px solid var(--sbc-blue); }
-        
+        .card { background: white; padding: 40px; border-radius: 4px; border: 1px solid #e1e4e8; }
+        .legal-scroll { height: 350px; overflow-y: scroll; border: 1px solid #ddd; padding: 20px; font-size: 0.85em; margin: 20px 0; }
+        .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--sbc-dark); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; z-index: 999; }
         .btn { padding: 12px 25px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        .btn-primary { background: var(--sbc-blue); color: white; }
-        .btn-success { background: #28a745; color: white; width: 100%; margin-top: 20px; font-size: 1.2em; }
-        .btn-secondary { background: #6c757d; color: white; }
-        .btn-outline { background: transparent; border: 1px solid #ccc; color: #333; }
-        
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-top: 30px; }
-        .product-card { border: 1px solid #eee; padding: 20px; text-align: center; border-radius: 4px; }
-        .qty-input { width: 60px; padding: 8px; text-align: center; font-weight: bold; border: 1px solid #ccc; }
-        .qty-input.error { border: 2px solid var(--red); background: #fff1f0; }
-
-        .review-table { width: 100%; border-collapse: collapse; margin-top: 25px; }
-        .review-table th { text-align: left; padding: 12px; border-bottom: 2px solid #333; font-size: 0.85em; }
-        .review-table td { padding: 12px; border-bottom: 1px solid #eee; }
-
-        @media print {
-            .live-bar, .btn, .action-flex, #admin-link { display: none !important; }
-            body { background: white; padding: 0; }
-            .card { border: none; box-shadow: none; padding: 0; }
-        }
+        .btn-success { background: #28a745; color: white; width: 100%; font-size: 1.2em; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .product-card { border: 1px solid #eee; padding: 15px; text-align: center; }
+        .review-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .review-table th, .review-table td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
     </style>
 </head>
 <body>
 
 <header class="site-header" id="main-header">
     <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" alt="SBC Logo">
-    <div class="header-text">
-        <h1>Suburban Brewing Co.</h1>
-        <p>3041 Horseshoe Pike, Honey Brook, PA 19344<br>
-        <strong>Sales Rep: Remy Davis</strong> | (908) 642-1019<br>
-        remyjdavis90@gmail.com</p>
-    </div>
+    <div><h1>Suburban Brewing Co.</h1><p>3041 Horseshoe Pike, Honey Brook, PA 19344</p></div>
 </header>
 
 <div class="container" id="app"></div>
 
 <div id="live-bar" class="live-bar" style="display:none;">
-    <div id="stock-error" style="color:var(--red); font-weight:bold; display:none;">⚠️ QUANTITY EXCEEDS STOCK</div>
-    <div class="summary-item">Total: <span id="live-total" style="color:var(--sbc-blue);">$0.00</span></div>
-    <button class="btn btn-primary" id="review-btn" onclick="goToReview()">Review Order</button>
+    <div>Total: <span id="live-total" style="color:var(--sbc-blue);">$0.00</span></div>
+    <button class="btn btn-primary" onclick="state.step=3;render()">Review Order</button>
 </div>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec";
-    const PRODUCT_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&output=csv";
-
+    const API_URL = "YOUR_DEPLOYED_URL_HERE";
+    const PRODUCT_CSV = "YOUR_CSV_URL_HERE";
     let products = [];
     let state = { step: 0, customer: null, cart: [], overrideActive: false };
 
     async function init() {
         const res = await fetch(PRODUCT_CSV);
         const text = await res.text();
-        const rows = text.split("\n");
-        const headers = rows[0].split(",");
-        const stockIndex = headers.findIndex(h => h.trim() === "Qty In Stock");
-        products = rows.slice(1).map(r => {
+        const rows = text.split("\n").slice(1);
+        products = rows.map(r => {
             const c = r.split(",");
-            return { name: c[0]?.trim(), price: parseFloat(c[1]) || 0, stock: stockIndex !== -1 ? (parseInt(c[stockIndex]) || 0) : 0 };
+            return { name: c[0]?.trim(), price: parseFloat(c[1]) || 0, stock: parseInt(c[6]) || 0 };
         }).filter(p => p.name);
         render();
     }
 
     function calculate() {
-        let sub = 0, totalQty = 0, dep = 0, overStock = false;
-        state.cart.forEach(i => {
-            if (i.qty > 0) {
-                sub += (i.price * i.qty);
-                totalQty += i.qty;
-                if (i.name.toLowerCase().includes("keg")) dep += (i.qty * 30);
-                if (!state.overrideActive && i.qty > i.max) overStock = true;
-            }
-        });
+        let sub = 0, totalQty = 0, dep = 0;
+        state.cart.forEach(i => { if (i.qty > 0) { sub += (i.price * i.qty); totalQty += i.qty; if (i.name.toLowerCase().includes("keg")) dep += (i.qty * 30); } });
         const disc = (totalQty >= 10) ? (sub * 0.10) : 0;
-        const keywords = ["restaurant", "cafe", "grill", "pub", "bar", "tavern", "kitchen", "eatery", "pizza", "bistro", "deli", "taproom"];
-        const isRestaurant = state.customer && keywords.some(kw => state.customer.name.toLowerCase().includes(kw));
-        const tax = isRestaurant ? ((sub - disc) * 0.06) : 0;
-        return { sub, disc, dep, tax, final: (sub - disc + dep + tax), overStock };
+        const tax = (state.customer?.name.toLowerCase().includes("restaurant")) ? ((sub - disc) * 0.06) : 0;
+        return { sub, disc, dep, tax, final: (sub - disc + dep + tax) };
     }
 
     function render() {
         const app = document.getElementById("app");
-        const bar = document.getElementById("live-bar");
-        const header = document.getElementById("main-header");
+        document.getElementById("live-bar").style.display = (state.step === 2) ? "flex" : "none";
         app.innerHTML = "";
-        bar.style.display = (state.step === 2) ? "flex" : "none";
-        header.style.display = (state.step === 3) ? "none" : "flex";
 
         if (state.step === 0) {
-            app.innerHTML = `
-                <div class="card">
-                    <h2 style="text-align:center;">Wholesale Agreement</h2>
-                    <div class="legal-scroll">
-                        <h4>1. PRODUCT CARE</h4><p>All products must be kept at 38°F. SBC is not liable for spoilage due to retailer handling.</p>
-                        <h4>2. LICENSURE</h4><p>Purchaser warrants they hold a valid PA Liquor License.</p>
-                        <h4>3. PAYMENT</h4><p>Check Customers: Due at delivery. Fintech: Processed per standard draft terms.</p>
-                        <h4>4. COOPERAGE</h4><p>$30.00 deposit per keg. SBC retains ownership of all shells.</p>
-                        <h4>5. PRICING</h4><p>6% PA Sales Tax applies to restaurant accounts. 10% discount for 10+ units.</p>
-                        <h4>6. DELIVERY</h4><p>Orders must be in by 2 PM for next-day availability.</p>
-                        <h4>7. LEGAL PROTECTIONS</h4><p>Purchaser agrees to indemnify SBC against claims arising from retailer operations. All disputes governed by the laws of the Commonwealth of Pennsylvania, venued in Chester County.</p>
-                    </div>
-                    <label style="display:block; text-align:center; margin-bottom:20px;"><input type="checkbox" id="agree"> I agree to the Wholesale Terms.</label>
-                    <button class="btn btn-primary" style="width:100%" onclick="if(document.getElementById('agree').checked){state.step=1;render()}">Accept & Continue</button>
-                </div>`;
+            app.innerHTML = `<div class="card"><h2>Wholesale Agreement</h2><div class="legal-scroll"><h4>Section 1... (Wording Here)</h4></div><button class="btn btn-success" onclick="state.step=1;render()">Accept & Continue</button></div>`;
         } else if (state.step === 1) {
-            app.innerHTML = `<div class="card"><h2>Account Search</h2><input type="text" placeholder="Business name..." oninput="doSearch(this.value)"><div id="results"></div></div>`;
+            app.innerHTML = `<div class="card"><h2>Account Search</h2><input type="text" placeholder="Search business..." oninput="doSearch(this.value)"><div id="results"></div></div>`;
         } else if (state.step === 2) {
             app.innerHTML = `<div class="card"><h3>Ordering for: ${state.customer.name}</h3><div class="product-grid">${products.map(p => `
-                <div class="product-card"><strong>${p.name}</strong><br>$${p.price.toFixed(2)}<br>
-                    <span class="stock-badge ${p.stock <= 0 ? 'out-of-stock' : (p.stock <= 5 ? 'low-stock' : 'in-stock')}">${p.stock <= 0 ? 'SOLD OUT' : p.stock + ' IN STOCK'}</span><br><br>
-                    <input type="number" class="qty-input ${(!state.overrideActive && getQty(p.name) > p.stock) ? 'error' : ''}" min="0" value="${getQty(p.name)}" oninput="updateCart('${p.name}', ${p.price}, this.value, ${p.stock})">
-                </div>`).join("")}</div><div style="text-align:center; margin-top:40px;"><span id="admin-link" style="color:#eee; cursor:pointer;" onclick="adminOverride()">Override</span></div></div>`;
-            updateBar();
+                <div class="product-card"><strong>${p.name}</strong><br>$${p.price}<br><input type="number" min="0" value="${getQty(p.name)}" oninput="updateCart('${p.name}', ${p.price}, this.value)"></div>`).join("")}</div></div>`;
         } else if (state.step === 3) {
             const t = calculate();
-            const items = state.cart.filter(i => i.qty > 0);
             app.innerHTML = `
                 <div class="card">
-                    <div style="border-bottom:5px solid #1a1a1a; padding-bottom:20px; margin-bottom:30px; display:flex; align-items:center; gap:30px;">
-                        <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" style="height:85px;">
-                        <div style="line-height:1.4;">
-                            <strong style="font-size:1.4em;">Suburban Brewing Co.</strong><br>
-                            3041 Horseshoe Pike, Honey Brook, PA 19344<br>
-                            <strong>Sales: Remy Davis</strong> | (908) 642-1019<br>
-                            remyjdavis90@gmail.com
-                        </div>
+                    <div style="border-bottom:5px solid #111; padding-bottom:15px; margin-bottom:20px; display:flex; align-items:center; gap:20px;">
+                        <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" style="height:70px;">
+                        <div><strong>Suburban Brewing Co.</strong><br>Remy Davis | (908) 642-1019</div>
                     </div>
                     <div style="display:flex; justify-content:space-between;">
                         <div><strong>BILL TO:</strong><br>${state.customer.name}<br>${state.customer.address}<br>${state.customer.city}, ${state.customer.state} ${state.customer.zip}</div>
-                        <div style="text-align:right;"><strong>ORDER DATE:</strong><br>${new Date().toLocaleDateString()}${state.overrideActive ? '<br><b style="color:red">OVERRIDE</b>' : ''}</div>
+                        <div style="text-align:right;"><strong>DATE:</strong><br>${new Date().toLocaleDateString()}</div>
                     </div>
-                    <table class="review-table"><thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
-                    <tbody>${items.map(i => `<tr><td>${i.name}</td><td>${i.qty}</td><td>$${i.price.toFixed(2)}</td><td>$${(i.price*i.qty).toFixed(2)}</td></tr>`).join("")}</tbody></table>
-                    <div style="text-align:right; margin-top:20px; line-height:1.8;">
-                        Subtotal: $${t.sub.toFixed(2)}<br>${t.disc > 0 ? `Discount: -$${t.disc.toFixed(2)}<br>` : ''}
-                        Tax: $${t.tax.toFixed(2)}<br>Keg Deposits: $${t.dep.toFixed(2)}<br>
-                        <strong style="font-size:1.6em; color:var(--sbc-blue);">Total: $${t.final.toFixed(2)}</strong>
+                    <table class="review-table"><thead><tr><th>Item</th><th>Qty</th><th>Total</th></tr></thead>
+                    <tbody>${state.cart.filter(i => i.qty > 0).map(i => `<tr><td>${i.name}</td><td>${i.qty}</td><td>$${(i.qty*i.price).toFixed(2)}</td></tr>`).join("")}</tbody></table>
+                    <div style="text-align:right; margin-top:20px;"><strong>TOTAL: $${t.final.toFixed(2)}</strong></div>
+                    <div style="margin-top:20px; padding:15px; border:1px solid #007bff;">
+                        <label><input type="checkbox" id="want-email" onchange="document.getElementById('email-box').style.display=this.checked?'block':'none'"> Email me a copy of this invoice</label>
+                        <div id="email-box" style="display:none; margin-top:10px;"><input type="email" id="cust-email" style="width:100%; padding:10px;" placeholder="Enter email..."></div>
                     </div>
-                    <div class="action-flex" style="display:flex; gap:10px; margin-top:25px;">
-                        <button class="btn btn-secondary" style="flex:1" onclick="state.step=2;render()">← Back to Shop</button>
-                        <button class="btn btn-outline" style="flex:1" onclick="window.print()">Print Order</button>
-                    </div>
-                    <button class="btn btn-success" onclick="submitOrder()">Submit Final Order</button>
+                    <button class="btn btn-success" style="margin-top:20px;" onclick="submitOrder()">Submit Final Order</button>
                 </div>`;
         }
     }
 
-    function adminOverride() { if(prompt("Password:") === "Yankees1") { state.overrideActive = true; alert("Override Active"); render(); } }
-    function updateCart(n, p, q, m) {
-        const idx = state.cart.findIndex(i => i.name === n);
-        const qty = Math.max(0, parseInt(q) || 0);
-        if (idx > -1) state.cart[idx].qty = qty;
-        else state.cart.push({name: n, price: p, qty: qty, max: m});
-        updateBar();
-    }
-    function updateBar() {
-        const t = calculate();
-        document.getElementById("live-total").innerText = "$" + t.final.toFixed(2);
-        const err = document.getElementById("stock-error");
-        const btn = document.getElementById("review-btn");
-        if (t.overStock) { err.style.display = "block"; btn.disabled = true; btn.style.opacity = "0.5"; }
-        else { err.style.display = "none"; btn.disabled = false; btn.style.opacity = "1"; }
-    }
-    function goToReview() { if (!calculate().overStock) { state.step = 3; render(); } }
-    async function doSearch(v) {
-        if (v.length < 2) return;
-        const res = await fetch(`${API_URL}?q=${encodeURIComponent(v)}`);
-        const data = await res.json();
-        document.getElementById("results").innerHTML = data.results.map(c => `<div style="padding:15px; border-bottom:1px solid #eee; cursor:pointer;" onclick='selectCust(${JSON.stringify(c).replace(/'/g, "&apos;")})'><strong>${c.name}</strong></div>`).join("");
-    }
-    window.selectCust = (c) => { state.customer = c; state.step = 2; render(); };
-    function getQty(n) { return state.cart.find(c => c.name === n)?.qty || 0; }
     async function submitOrder() {
-        await fetch(API_URL, { method: "POST", body: JSON.stringify({ ...state, totals: calculate() }) });
-        alert("Order Submitted! You will receive an email confirmation.");
-        location.reload();
+        const want = document.getElementById("want-email").checked;
+        const email = document.getElementById("cust-email").value;
+        if (want && !email) return alert("Enter email");
+        await fetch(API_URL, { method: "POST", body: JSON.stringify({ ...state, totals: calculate(), recipientEmail: want ? email : null }) });
+        alert("Order Sent!"); location.reload();
     }
+    async function doSearch(v) { if(v.length<3) return; const res = await fetch(API_URL+"?q="+v); const d = await res.json(); document.getElementById("results").innerHTML = d.results.map(c => `<div onclick='state.customer=${JSON.stringify(c)};state.step=2;render()'>${c.name}</div>`).join(""); }
+    function updateCart(n, p, q) { const idx = state.cart.findIndex(i => i.name === n); if (idx > -1) state.cart[idx].qty = parseInt(q); else state.cart.push({name:n, price:p, qty:parseInt(q)}); document.getElementById("live-total").innerText = "$"+calculate().final.toFixed(2); }
+    function getQty(n) { return state.cart.find(i => i.name === n)?.qty || 0; }
     init();
 </script>
 </body>
