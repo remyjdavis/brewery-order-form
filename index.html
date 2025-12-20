@@ -380,9 +380,35 @@
     function goToReview() { state.step = 3; render(); }
 
     async function submitFinalOrder() {
-        await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(state) });
-        alert("Order Submitted!");
-        location.reload();
+        // Logic to ask for email if missing
+        if (!state.customer.email || state.customer.email.trim() === "" || state.customer.email === "undefined") {
+            const userEmail = prompt("Please enter your email address for order confirmation:");
+            if (!userEmail || !userEmail.includes("@")) {
+                alert("A valid email address is required to submit the order.");
+                return;
+            }
+            state.customer.email = userEmail.trim();
+        }
+
+        const btn = document.querySelector('.btn-success');
+        btn.disabled = true;
+        btn.innerText = "SUBMITTING...";
+
+        try {
+            // Note: mode 'no-cors' used because Apps Script doesn't return CORS headers on POST
+            await fetch(API_URL, { 
+                method: "POST", 
+                mode: "no-cors", 
+                body: JSON.stringify(state) 
+            });
+            alert("Order Submitted! Confirmation emails have been triggered.");
+            location.reload();
+        } catch (e) {
+            console.error(e);
+            alert("Submission error. Please check your connection and try again.");
+            btn.disabled = false;
+            btn.innerText = "Submit Final Order";
+        }
     }
     init();
 </script>
