@@ -90,7 +90,7 @@
         const liveBar = document.getElementById("live-bar");
         if (state.step === 0) {
             liveBar.style.display = "none";
-            app.innerHTML = `<div class="card"><h2>PA WHOLESALE DISTRIBUTION AGREEMENT</h2><div class="legal-scroll"><p>Compliance and terms content...</p></div><div class="checkbox-area"><input type="checkbox" id="agreeCheck" onchange="document.getElementById('acceptBtn').disabled = !this.checked"><label for="agreeCheck">I certify that I am a licensed agent and agree to these terms.</label></div><button id="acceptBtn" class="btn btn-primary" style="width:100%;" disabled onclick="state.step=1;render()">I Accept & Agree</button></div>`;
+            app.innerHTML = `<div class="card"><h2>PA WHOLESALE DISTRIBUTION AGREEMENT</h2><div class="legal-scroll"><p>This agreement is compliant with the laws of the Commonwealth of Pennsylvania...</p></div><div class="checkbox-area"><input type="checkbox" id="agreeCheck" onchange="document.getElementById('acceptBtn').disabled = !this.checked"><label for="agreeCheck">I certify that I am a licensed PA retail/wholesale agent and agree to these terms.</label></div><button id="acceptBtn" class="btn btn-primary" style="width:100%;" disabled onclick="state.step=1;render()">I Accept & Agree</button></div>`;
         } else if (state.step === 1) {
             app.innerHTML = `<div class="card" style="max-width:400px; margin:auto; text-align:center;"><h3>Wholesale Login</h3><input type="text" id="loginInput" placeholder="ENTER UNIQUE KEY" style="width:100%; padding:15px; margin-bottom:15px; border:2px solid #1a1a1a; border-radius:8px; text-align:center; font-size:1.2rem;"><button id="loginBtn" class="btn btn-primary" style="width:100%;" onclick="attemptLogin()">Log In</button></div>`;
         } else if (state.step === 2) {
@@ -107,7 +107,41 @@
         } else if (state.step === 3) {
             liveBar.style.display = "none";
             const math = calculateOrderMath();
-            app.innerHTML = `<div class="card"><div style="display:flex; justify-content:space-between; align-items:flex-start;"><div><img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" style="height:55px; margin-bottom:10px;"><br><strong>Suburban Brewing Co.</strong><br>3041 Horseshoe Pike, Honey Brook, PA 19344</div><div style="text-align:right;"><strong>ORDER DATE:</strong><br>${new Date().toLocaleDateString()}</div></div><hr style="margin:20px 0;"><div style="text-align:left; margin-bottom:20px;"><strong style="font-size:1.2rem;">${state.customer.name}</strong><br>${state.customer.address}<br>${state.customer.city}, ${state.customer.state} ${state.customer.zip}</div><table class="review-table"><thead><tr><th>Item</th><th>Qty</th><th>Total</th></tr></thead><tbody>${Object.values(state.cart).map(i => `<tr><td>${i.beer} (${i.type})</td><td>${i.qty}</td><td>$${(i.qty * i.price).toFixed(2)}</td></tr>`).join('')}</tbody></table><div style="margin-top:20px; text-align:right; line-height:1.8;"><div>Subtotal: $${math.subtotal}</div>${parseFloat(math.deposits) > 0 ? `<div>Keg Deposits: $${math.deposits}</div>` : ''}<div>Tax: $${math.tax}</div><div style="color:red;">Discount: -$${math.discount}</div><div onclick="adminOverride()" style="cursor:pointer; font-size:1.6rem; font-weight:900; color:#007bff; margin-top:10px;">GRAND TOTAL: $${math.grandTotal}</div></div><div class="btn-area-nav" style="display:flex; gap:10px; margin-top:40px;"><button class="btn btn-outline" onclick="state.step=2;render()">Edit</button><button class="btn btn-outline" onclick="window.print()">Print</button><button class="btn btn-outline" onclick="sendEmailCopy()">Email Copy</button><button class="btn btn-success" style="flex:1;" onclick="submitFinalOrder()">Submit Order</button></div></div>`;
+            app.innerHTML = `
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div>
+                            <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" style="height:55px; margin-bottom:10px;"><br>
+                            <strong>Suburban Brewing Co.</strong><br>
+                            3041 Horseshoe Pike, Honey Brook, PA 19344<br>
+                            Sales Rep: Remy Davis | (908) 642-1019
+                        </div>
+                        <div style="text-align:right;"><strong>ORDER DATE:</strong><br>${new Date().toLocaleDateString()}</div>
+                    </div>
+                    <hr style="margin:20px 0;">
+                    <div style="text-align:left; margin-bottom:20px;">
+                        <strong style="font-size:1.2rem;">${state.customer.name}</strong><br>
+                        ${state.customer.address}<br>
+                        ${state.customer.city}, ${state.customer.state} ${state.customer.zip}
+                    </div>
+                    <table class="review-table">
+                        <thead><tr><th>Item Description</th><th>Qty</th><th>Total</th></tr></thead>
+                        <tbody>${Object.values(state.cart).map(i => `<tr><td>${i.beer} (${i.type})</td><td>${i.qty}</td><td>$${(i.qty * i.price).toFixed(2)}</td></tr>`).join('')}</tbody>
+                    </table>
+                    <div style="margin-top:20px; text-align:right; line-height:1.8;">
+                        <div>Subtotal: $${math.subtotal}</div>
+                        ${parseFloat(math.deposits) > 0 ? `<div>Keg Deposits: $${math.deposits}</div>` : ''}
+                        <div>Tax: $${math.tax}</div>
+                        <div style="color:red;">Discount: -$${math.discount}</div>
+                        <div onclick="adminOverride()" style="cursor:pointer; font-size:1.6rem; font-weight:900; color:#007bff; margin-top:10px;">GRAND TOTAL: $${math.grandTotal}</div>
+                    </div>
+                    <div class="btn-area-nav" style="display:flex; gap:10px; margin-top:40px;">
+                        <button class="btn btn-outline" onclick="state.step=2;render()">Edit Order</button>
+                        <button class="btn btn-outline" onclick="window.print()">Print Order</button>
+                        <button class="btn btn-outline" onclick="sendEmailCopy()">Email Copy</button>
+                        <button class="btn btn-success" style="flex:1;" onclick="submitFinalOrder()">Submit Final Order</button>
+                    </div>
+                </div>`;
         }
     }
 
@@ -130,14 +164,13 @@
 
     async function attemptLogin() {
         const rawInput = document.getElementById("loginInput").value.trim();
-        // SANITIZE INPUT: remove special characters before sending
         const cleanKey = rawInput.replace(/[^a-z0-9]/gi, '').toLowerCase();
         try {
             const response = await fetch(`${API_URL}?key=${encodeURIComponent(cleanKey)}`);
             const result = await response.json();
             if (result.success) { state.customer = result.customer; state.step = 2; render(); }
             else { alert("Invalid Access Key."); }
-        } catch (e) { alert("Connection error."); }
+        } catch (e) { alert("Error connecting."); }
     }
 
     function addToCart(beerName, id) {
@@ -163,8 +196,8 @@
     }
 
     function adminOverride() {
-        if (prompt("Password:") === "Yankees 1") {
-            const val = prompt("New Total:");
+        if (prompt("Enter Override Password:") === "Yankees 1") {
+            const val = prompt("Enter New Grand Total:");
             if (val !== null) { state.manualTotal = parseFloat(val); render(); }
         }
     }
@@ -175,11 +208,12 @@
 
     async function submitFinalOrder(isCopyOnly = false) {
         if (!state.customer.email || state.customer.email.trim() === "" || state.customer.email === "undefined") {
-            const userEmail = prompt("Enter email for PDF:");
-            if (!userEmail || !userEmail.includes("@")) return;
+            const userEmail = prompt("Please enter the email address for the PDF invoice:");
+            if (!userEmail || !userEmail.includes("@")) { alert("Valid email required."); return; }
             state.customer.email = userEmail.trim();
         }
         const btn = document.querySelector(isCopyOnly ? '.btn-outline:nth-child(3)' : '.btn-success');
+        const originalText = btn.innerText;
         btn.disabled = true; btn.innerText = "GENERATING PDF...";
         const payload = { ...state, summary: calculateOrderMath() };
         payload.summary.orderDate = new Date().toLocaleDateString();
@@ -187,8 +221,8 @@
             await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
             alert("PDF Invoice Sent!");
             if (!isCopyOnly) location.reload();
-            else { btn.disabled = false; btn.innerText = "Email Copy"; }
-        } catch (e) { alert("Error."); btn.disabled = false; }
+            else { btn.disabled = false; btn.innerText = originalText; }
+        } catch (e) { alert("Error."); btn.disabled = false; btn.innerText = originalText; }
     }
     init();
 </script>
