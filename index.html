@@ -11,7 +11,7 @@
         .header-info h1 { margin: 0 0 2px 0; font-size: 1.2rem; color: #1a1a1a; }
         .container { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
         .card { background: white; padding: 2rem; border-radius: 12px; border: 1px solid #dee2e6; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
-        .legal-scroll { height: 400px; overflow-y: auto; border: 2px solid #1a1a1a; padding: 1.5rem; margin: 1rem 0; font-size: 0.85rem; line-height: 1.7; background: #fff; }
+        .legal-scroll { height: 450px; overflow-y: auto; border: 2px solid #1a1a1a; padding: 1.5rem; margin: 1rem 0; font-size: 0.85rem; line-height: 1.7; background: #fff; text-align: left; }
         .checkbox-area { background: #f1f2f6; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px; border: 1px solid #dfe6e9; }
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.2rem; }
         .product-card { background: #fff; border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; text-align: center; padding-bottom: 15px; }
@@ -90,7 +90,39 @@
         const liveBar = document.getElementById("live-bar");
         if (state.step === 0) {
             liveBar.style.display = "none";
-            app.innerHTML = `<div class="card"><h2>PA WHOLESALE DISTRIBUTION AGREEMENT</h2><div class="legal-scroll"><p>This agreement is compliant with the laws of the Commonwealth of Pennsylvania...</p></div><div class="checkbox-area"><input type="checkbox" id="agreeCheck" onchange="document.getElementById('acceptBtn').disabled = !this.checked"><label for="agreeCheck">I certify that I am a licensed PA retail/wholesale agent and agree to these terms.</label></div><button id="acceptBtn" class="btn btn-primary" style="width:100%;" disabled onclick="state.step=1;render()">I Accept & Agree</button></div>`;
+            app.innerHTML = `
+                <div class="card">
+                    <h2 style="text-align:center;">PA WHOLESALE DISTRIBUTION AGREEMENT</h2>
+                    <div class="legal-scroll">
+                        <p>This agreement is compliant with the laws of the Commonwealth of Pennsylvania and the regulations of the Pennsylvania Liquor Control Board (PLCB). By proceeding, the Purchaser agrees to the following terms and conditions:</p>
+                        
+                        <h3>1. PLCB COMPLIANCE & LICENSURE</h3>
+                        <p>Purchaser warrants that it holds a valid, active retail or wholesale license issued by the PLCB. Purchaser agrees to notify Suburban Brewing Co. (SBC) immediately if said license is suspended, revoked, or expired. All sales are contingent upon the verification of a valid license.</p>
+                        
+                        <h3>2. PRICE POSTING & ACT 39</h3>
+                        <p>In accordance with Act 39 of 2016, SBC maintains a public price list. All products are sold at the posted wholesale price at the time of delivery. SBC reserves the right to adjust pricing in accordance with PLCB regulations regarding price change intervals.</p>
+                        
+                        <h3>3. CASH ON DELIVERY (COD) & SECTION 493</h3>
+                        <p>Per Section 493(2) of the Liquor Code, sales of malt or brewed beverages to retail licensees must be for cash or check paid at or before the time of delivery. Failure to provide payment at the time of delivery will result in the refusal of the shipment.</p>
+                        
+                        <h3>4. COLD CHAIN STORAGE & QUALITY CONTROL</h3>
+                        <p>Products produced by SBC are unpasteurized "live" beverages. Purchaser agrees to maintain strict cold chain storage (34°F-38°F) from the moment of delivery. SBC is not liable for product degradation, "skunking," or off-flavors resulting from improper storage, warm handling, or dirty draught lines at the Purchaser's establishment.</p>
+                        
+                        <h3>5. COOPERAGE & EQUIPMENT LIABILITY</h3>
+                        <p>All stainless steel keg shells remain the property of Suburban Brewing Co. A mandatory $30.00 deposit is applied to each keg shell. This deposit is refundable only upon the return of the specific SBC-branded shell in good condition. Purchaser is liable for the full replacement cost (approx. $115.00) of any lost, stolen, or damaged cooperage.</p>
+                        
+                        <h3>6. RETURNED CHECKS & LATE FEES</h3>
+                        <p>Any check returned for non-sufficient funds (NSF) will incur a $50.00 administrative fee. In the event of a returned check, the Purchaser must immediately provide a certified bank check or cash for the balance plus fees. SBC reserves the right to move any repeat offender to a "Cash Only" basis.</p>
+                        
+                        <h3>7. RESALE LIMITATIONS</h3>
+                        <p>Purchaser agrees that all products are for retail sale at the licensed premises only and may not be resold to other retailers or distributors without express written consent and proper PLCB secondary-distribution permits.</p>
+                    </div>
+                    <div class="checkbox-area">
+                        <input type="checkbox" id="agreeCheck" onchange="document.getElementById('acceptBtn').disabled = !this.checked">
+                        <label for="agreeCheck">I certify that I am a licensed PA retail/wholesale agent and agree to all terms above.</label>
+                    </div>
+                    <button id="acceptBtn" class="btn btn-primary" style="width:100%;" disabled onclick="state.step=1;render()">I Accept & Agree</button>
+                </div>`;
         } else if (state.step === 1) {
             app.innerHTML = `<div class="card" style="max-width:400px; margin:auto; text-align:center;"><h3>Wholesale Login</h3><input type="text" id="loginInput" placeholder="ENTER UNIQUE KEY" style="width:100%; padding:15px; margin-bottom:15px; border:2px solid #1a1a1a; border-radius:8px; text-align:center; font-size:1.2rem;"><button id="loginBtn" class="btn btn-primary" style="width:100%;" onclick="attemptLogin()">Log In</button></div>`;
         } else if (state.step === 2) {
