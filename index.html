@@ -11,11 +11,22 @@
         .site-header { background: #fff; padding: 30px 5%; border-bottom: 5px solid var(--sbc-dark); display: flex; align-items: center; gap: 25px; }
         .site-header img { height: 85px; }
         
-        .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
         .card { background: white; padding: 40px; border-radius: 4px; border: 1px solid #e1e4e8; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         
-        .legal-scroll { height: 450px; overflow-y: scroll; border: 1px solid #ddd; padding: 25px; background: #fafafa; font-size: 0.85em; line-height: 1.6; margin: 20px 0; border-radius: 4px; }
+        /* Legal Section */
+        .legal-scroll { height: 400px; overflow-y: scroll; border: 1px solid #ddd; padding: 25px; background: #fafafa; font-size: 0.85em; line-height: 1.6; margin: 20px 0; border-radius: 4px; }
         .legal-scroll h4 { margin-top: 20px; border-bottom: 1px solid #eee; text-transform: uppercase; color: var(--sbc-dark); }
+
+        /* Product Grid & Cards */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; margin-top: 30px; }
+        .product-card { border: 1px solid #eee; padding: 0; text-align: center; border-radius: 8px; background: #fff; overflow: hidden; display: flex; flex-direction: column; }
+        .product-img { width: 100%; height: 180px; object-fit: cover; background: #eee; border-bottom: 1px solid #eee; }
+        .product-info { padding: 20px; flex-grow: 1; }
+        
+        .type-select { width: 100%; padding: 10px; margin: 10px 0; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; }
+        .qty-input { width: 80px; padding: 10px; text-align: center; font-weight: bold; border: 1px solid #ccc; border-radius: 4px; font-size: 1.1em; }
+        .qty-input.error { border: 2px solid var(--red); background: #fff1f0; }
 
         .live-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--sbc-dark); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; z-index: 9999; border-top: 4px solid var(--sbc-blue); }
         
@@ -24,19 +35,13 @@
         .btn-success { background: #28a745; color: white; width: 100%; margin-top: 20px; font-size: 1.2em; }
         .btn-secondary { background: #6c757d; color: white; }
         .btn-outline { background: transparent; border: 1px solid #ccc; color: #333; }
-        
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-top: 30px; }
-        .product-card { border: 1px solid #eee; padding: 20px; text-align: center; border-radius: 4px; background: #fff; }
-        .qty-input { width: 60px; padding: 8px; text-align: center; font-weight: bold; border: 1px solid #ccc; }
-        .qty-input.error { border: 2px solid var(--red); background: #fff1f0; }
 
-        .stock-badge { font-size: 0.75em; font-weight: bold; padding: 2px 6px; border-radius: 3px; display: inline-block; margin-bottom: 5px; }
-        .in-stock { background: #d4edda; color: #155724; }
-        .low-stock { background: #fff3cd; color: #856404; }
-        .out-of-stock { background: #f8d7da; color: #721c24; }
+        .stock-badge { font-size: 0.7em; font-weight: bold; padding: 3px 8px; border-radius: 12px; display: inline-block; margin-top: 5px; }
+        .in-stock { background: #e6ffed; color: #22863a; }
+        .out-of-stock { background: #ffeef0; color: #d73a49; }
 
         .review-table { width: 100%; border-collapse: collapse; margin-top: 25px; }
-        .review-table th { text-align: left; padding: 12px; border-bottom: 2px solid #333; font-size: 0.85em; }
+        .review-table th { text-align: left; padding: 12px; border-bottom: 2px solid #333; }
         .review-table td { padding: 12px; border-bottom: 1px solid #eee; }
 
         @media print {
@@ -62,7 +67,7 @@
 
 <div id="live-bar" class="live-bar" style="display:none;">
     <div id="stock-error" style="color:var(--red); font-weight:bold; display:none;">⚠️ QUANTITY EXCEEDS STOCK</div>
-    <div class="summary-item">Total: <span id="live-total" style="color:var(--sbc-blue);">$0.00</span></div>
+    <div class="summary-item">Total: <span id="live-total" style="color:var(--sbc-blue); font-size: 1.4em;">$0.00</span></div>
     <button class="btn btn-primary" id="review-btn" onclick="goToReview()">Review Order</button>
 </div>
 
@@ -70,205 +75,141 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbyT1PzljxVZ9NKBbgmAJ7kgPul228vnwrdjf_YRbzhIMR_rXhG2tx36-yzBHfFNH5DX/exec";
     const PRODUCT_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTOYHzF6u43ORNewiUMe-i-FtSGPB4mHw-BN9xlqY-UzHvRWUVr-Cgro_kqiGm4G-fKAA6w3ErQwp3O/pub?gid=1782602603&output=csv";
 
-    let products = [];
-    let state = { step: 0, customer: null, cart: [], overrideActive: false, emailRequested: false };
+    let groupedProducts = {};
+    let state = { step: 0, customer: null, cart: {}, overrideActive: false, emailRequested: false };
 
     async function init() {
         try {
             const res = await fetch(PRODUCT_CSV);
             const text = await res.text();
-            const rows = text.split("\n");
-            const headers = rows[0].split(",");
-            const stockIndex = headers.findIndex(h => h.trim() === "Qty In Stock");
-            products = rows.slice(1).map(r => {
+            const rows = text.split("\n").slice(1);
+            
+            // Assume CSV Structure: Beer Name, Price, Qty In Stock, Image URL, Format Type
+            rows.forEach(r => {
                 const c = r.split(",");
-                return { 
-                    name: c[0]?.trim(), 
-                    price: parseFloat(c[1]) || 0, 
-                    stock: stockIndex !== -1 ? (parseInt(c[stockIndex]) || 0) : 0 
-                };
-            }).filter(p => p.name);
+                const name = c[0]?.trim();
+                if (!name) return;
+                
+                if (!groupedProducts[name]) groupedProducts[name] = { name, img: c[3]?.trim() || '', options: [] };
+                groupedProducts[name].options.push({
+                    type: c[4]?.trim() || 'Unit',
+                    price: parseFloat(c[1]) || 0,
+                    stock: parseInt(c[2]) || 0
+                });
+            });
             render();
-        } catch (e) { console.error("Stock fetch error:", e); }
+        } catch (e) { console.error("Data error", e); }
     }
 
     function calculate() {
         let sub = 0, totalQty = 0, dep = 0, overStock = false;
-        state.cart.forEach(i => {
-            if (i.qty > 0) {
-                sub += (i.price * i.qty);
-                totalQty += i.qty;
-                if (i.name.toLowerCase().includes("keg")) dep += (i.qty * 30);
-                if (!state.overrideActive && i.qty > i.max) overStock = true;
+        Object.keys(state.cart).forEach(key => {
+            const item = state.cart[key];
+            if (item.qty > 0) {
+                sub += (item.price * item.qty);
+                totalQty += item.qty;
+                if (item.type.toLowerCase().includes("bbl")) dep += (item.qty * 30);
+                if (!state.overrideActive && item.qty > item.max) overStock = true;
             }
         });
         const disc = (totalQty >= 10) ? (sub * 0.10) : 0;
-        const keywords = ["restaurant", "cafe", "grill", "pub", "bar", "tavern", "kitchen", "eatery", "pizza", "bistro", "deli", "taproom"];
-        const isRestaurant = state.customer && keywords.some(kw => state.customer.name.toLowerCase().includes(kw));
-        const tax = isRestaurant ? ((sub - disc) * 0.06) : 0;
+        const tax = (state.customer && /restaurant|bar|pub|grill|cafe/i.test(state.customer.name)) ? ((sub - disc) * 0.06) : 0;
         return { sub, disc, dep, tax, final: (sub - disc + dep + tax), overStock };
+    }
+
+    function updateCart(beerName, selectElement, qtyValue) {
+        const typeIndex = selectElement.value;
+        const option = groupedProducts[beerName].options[typeIndex];
+        const key = `${beerName}-${option.type}`;
+        const qty = Math.max(0, parseInt(qtyValue) || 0);
+
+        if (qty > 0) {
+            state.cart[key] = { beer: beerName, type: option.type, price: option.price, qty: qty, max: option.stock };
+        } else {
+            delete state.cart[key];
+        }
+        updateBar();
     }
 
     function render() {
         const app = document.getElementById("app");
         const bar = document.getElementById("live-bar");
-        const header = document.getElementById("main-header");
         app.innerHTML = "";
         bar.style.display = (state.step === 2) ? "flex" : "none";
-        header.style.display = (state.step === 3) ? "none" : "flex";
 
         if (state.step === 0) {
-            app.innerHTML = `
-                <div class="card">
-                    <h2 style="text-align:center;">Master Wholesale & Distribution Agreement</h2>
-                    <div class="legal-scroll">
-                        <h4>1. PRODUCT QUALITY & STORAGE</h4>
-                        <p>Purchaser acknowledges that all Suburban Brewing Co. ("SBC") products are perishable. All beer must be maintained at a constant temperature of 38°F (3.3°C) or lower. SBC shall not be liable for any product degradation, spoilage, or "off-flavors" resulting from the Purchaser's failure to maintain proper cold-chain storage or draft line hygiene.</p>
-                        
-                        <h4>2. LICENSURE & COMPLIANCE</h4>
-                        <p>Purchaser warrants that they hold all necessary and valid liquor licenses required by the Pennsylvania Liquor Control Board (PLCB) and federal law. Purchaser agrees to notify SBC immediately of any suspension, revocation, or expiration of said licenses. All sales are final upon delivery and acceptance.</p>
-                        
-                        <h4>3. PAYMENT TERMS & DEFAULTS</h4>
-                        <p><strong>Check Customers:</strong> Payment is due in full at the time of delivery. 
-                        <strong>Fintech/Electronic Transfer:</strong> Payments will be initiated according to established draft cycles. 
-                        Any returned checks or failed electronic transfers will incur a $50.00 administrative fee. Delinquent accounts may be subject to a 1.5% monthly late fee and a transition to "Cash on Delivery" (COD) status at SBC's sole discretion.</p>
-                        
-                        <h4>4. COOPERAGE & EQUIPMENT</h4>
-                        <p>All kegs, shells, and pallets remain the sole property of SBC. A $30.00 deposit is required per keg. Purchaser is responsible for the safekeeping of cooperage while in their possession. Lost or damaged kegs will be billed at the full replacement cost of $165.00 per unit, minus the initial deposit.</p>
-                        
-                        <h4>5. INTELLECTUAL PROPERTY</h4>
-                        <p>Purchaser is granted a limited, non-exclusive license to use SBC trademarks, logos, and branding solely for the purpose of menu listing and point-of-sale promotion. Use of SBC branding in a manner that disparages the brewery is strictly prohibited.</p>
-                        
-                        <h4>6. INDEMNIFICATION & LIABILITY</h4>
-                        <p>To the fullest extent permitted by law, Purchaser shall indemnify, defend, and hold harmless SBC, its owners, and employees from any claims, damages, or expenses (including legal fees) arising from the Purchaser's sale or service of SBC products, including but not limited to claims related to over-service or "Dram Shop" liability.</p>
-
-                        <h4>7. FORCE MAJEURE</h4>
-                        <p>SBC shall not be liable for delays in delivery or failure to perform due to causes beyond its reasonable control, including but not limited to acts of God, supply chain disruptions, or government-mandated closures.</p>
-                        
-                        <h4>8. GOVERNING LAW</h4>
-                        <p>This agreement shall be governed by the laws of the Commonwealth of Pennsylvania. Any legal action arising from this agreement must be brought in the courts of Chester County, Pennsylvania.</p>
-                    </div>
-                    <label style="display:block; text-align:center; margin-bottom:20px;"><input type="checkbox" id="agree"> I have read and agree to the Master Wholesale Terms.</label>
-                    <button class="btn btn-primary" style="width:100%" onclick="if(document.getElementById('agree').checked){state.step=1;render()}">Accept & Continue</button>
-                </div>`;
+            app.innerHTML = `<div class="card"><h2 style="text-align:center;">Wholesale Agreement</h2><div class="legal-scroll"><h4>1. STORAGE</h4><p>Must keep at 38°F.</p><h4>2. PAYMENT</h4><p>Due at delivery or via Fintech.</p><h4>3. COOPERAGE</h4><p>$30 deposit per keg.</p><h4>4. LIABILITY</h4><p>Purchaser assumes all responsibility for service.</p></div><label style="display:block; text-align:center; margin-bottom:20px;"><input type="checkbox" id="agree"> I Agree</label><button class="btn btn-primary" style="width:100%" onclick="if(document.getElementById('agree').checked){state.step=1;render()}">Continue</button></div>`;
         } else if (state.step === 1) {
-            app.innerHTML = `<div class="card"><h2>Account Search</h2><input type="text" placeholder="Search business name..." oninput="doSearch(this.value)" style="width:100%; padding:12px; border:1px solid #ccc; border-radius:4px;"><div id="results"></div></div>`;
+            app.innerHTML = `<div class="card"><h2>Account Search</h2><input type="text" placeholder="Search..." oninput="doSearch(this.value)" style="width:100%; padding:12px; border:1px solid #ccc; border-radius:4px;"><div id="results"></div></div>`;
         } else if (state.step === 2) {
-            app.innerHTML = `<div class="card"><h3>Ordering for: ${state.customer.name}</h3><div class="product-grid">${products.map(p => `
-                <div class="product-card"><strong>${p.name}</strong><br>$${p.price.toFixed(2)}<br>
-                    <span class="stock-badge ${p.stock <= 0 ? 'out-of-stock' : (p.stock <= 5 ? 'low-stock' : 'in-stock')}">${p.stock <= 0 ? 'SOLD OUT' : p.stock + ' IN STOCK'}</span><br><br>
-                    <input type="number" class="qty-input ${(!state.overrideActive && getQty(p.name) > p.stock) ? 'error' : ''}" min="0" value="${getQty(p.name)}" oninput="updateCart('${p.name}', ${p.price}, this.value, ${p.stock})">
-                </div>`).join("")}</div><div style="text-align:center; margin-top:40px;"><span id="admin-link" style="color:#eee; cursor:pointer;" onclick="adminOverride()">Override</span></div></div>`;
-            updateBar();
+            app.innerHTML = `<div class="card"><h3>Ordering for: ${state.customer.name}</h3><div class="product-grid">${Object.values(groupedProducts).map(p => `
+                <div class="product-card">
+                    <img src="${p.img || 'https://via.placeholder.com/300x180?text=No+Image'}" class="product-img">
+                    <div class="product-info">
+                        <strong>${p.name}</strong><br>
+                        <select class="type-select" id="select-${p.name}" onchange="updateCart('${p.name}', this, document.getElementById('qty-${p.name}').value)">
+                            ${p.options.map((opt, idx) => `<option value="${idx}">${opt.type} - $${opt.price.toFixed(2)} (${opt.stock} in stock)</option>`).join("")}
+                        </select>
+                        <input type="number" id="qty-${p.name}" class="qty-input" placeholder="0" min="0" oninput="updateCart('${p.name}', document.getElementById('select-${p.name}'), this.value)">
+                    </div>
+                </div>`).join("")}</div></div>`;
         } else if (state.step === 3) {
             const t = calculate();
-            const items = state.cart.filter(i => i.qty > 0);
             app.innerHTML = `
                 <div class="card">
-                    <div style="border-bottom:5px solid #1a1a1a; padding-bottom:20px; margin-bottom:30px; display:flex; align-items:center; gap:30px;">
-                        <img src="https://raw.githubusercontent.com/remyjdavis/brewery-order-form/main/logo.png" style="height:85px;">
-                        <div style="line-height:1.4;">
-                            <strong style="font-size:1.4em;">Suburban Brewing Co.</strong><br>
-                            3041 Horseshoe Pike, Honey Brook, PA 19344<br>
-                            <strong>Sales: Remy Davis</strong> | (908) 642-1019<br>
-                            remyjdavis90@gmail.com
-                        </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:30px;">
+                        <div><strong>BILL TO:</strong><br>${state.customer.name}<br>${state.customer.address}<br>${state.customer.city}, ${state.customer.state} ${state.customer.zip}</div>
+                        <div style="text-align:right;"><strong>DATE:</strong><br>${new Date().toLocaleDateString()}</div>
                     </div>
-                    <div style="display:flex; justify-content:space-between;">
-                        <div>
-                            <strong>BILL TO:</strong><br>
-                            ${state.customer.name}<br>
-                            ${state.customer.address}<br>
-                            ${state.customer.city}, ${state.customer.state} ${state.customer.zip}
-                        </div>
-                        <div style="text-align:right;"><strong>ORDER DATE:</strong><br>${new Date().toLocaleDateString()}${state.overrideActive ? '<br><b style="color:red">OVERRIDE</b>' : ''}</div>
+                    <table class="review-table">
+                        <thead><tr><th>Beer</th><th>Type</th><th>Qty</th><th>Total</th></tr></thead>
+                        <tbody>${Object.values(state.cart).map(i => `<tr><td>${i.beer}</td><td>${i.type}</td><td>${i.qty}</td><td>$${(i.price*i.qty).toFixed(2)}</td></tr>`).join("")}</tbody>
+                    </table>
+                    <div style="text-align:right; margin-top:20px;">
+                        Subtotal: $${t.sub.toFixed(2)}<br>
+                        Tax: $${t.tax.toFixed(2)}<br>
+                        Keg Deposits: $${t.dep.toFixed(2)}<br>
+                        <strong>Total: $${t.final.toFixed(2)}</strong>
                     </div>
-                    <table class="review-table"><thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
-                    <tbody>${items.map(i => `<tr><td>${i.name}</td><td>${i.qty}</td><td>$${i.price.toFixed(2)}</td><td>$${(i.price*i.qty).toFixed(2)}</td></tr>`).join("")}</tbody></table>
-                    <div style="text-align:right; margin-top:20px; line-height:1.8;">
-                        Subtotal: $${t.sub.toFixed(2)}<br>${t.disc > 0 ? `Discount: -$${t.disc.toFixed(2)}<br>` : ''}
-                        Tax: $${t.tax.toFixed(2)}<br>Keg Deposits: $${t.dep.toFixed(2)}<br>
-                        <strong style="font-size:1.6em; color:var(--sbc-blue);">Total: $${t.final.toFixed(2)}</strong>
+                    <div style="display:flex; gap:10px; margin-top:20px;">
+                        <button class="btn btn-secondary" onclick="state.step=2;render()">Back</button>
+                        <button class="btn btn-outline" onclick="handleEmailRequest()">${state.emailRequested ? 'Email Queued ✓' : 'Email Invoice'}</button>
                     </div>
-                    <div class="action-flex" style="display:flex; gap:10px; margin-top:25px;">
-                        <button class="btn btn-secondary" style="flex:1" onclick="state.step=2;render()">← Back</button>
-                        <button class="btn btn-outline" style="flex:1" onclick="window.print()">Print PDF</button>
-                        <button class="btn btn-outline" id="email-btn" style="flex:1; ${state.emailRequested ? 'background:#d4edda;' : ''}" onclick="handleEmailRequest()">
-                            ${state.emailRequested ? 'Email Queued ✓' : 'Email Invoice'}
-                        </button>
-                    </div>
-                    <button class="btn btn-success" id="final-submit" onclick="submitOrder()">Submit Final Order</button>
+                    <button class="btn btn-success" onclick="submitOrder()">Submit Final Order</button>
                 </div>`;
         }
     }
 
-    function handleEmailRequest() {
-        if (!state.customer.email) {
-            const email = prompt("Enter destination email for the invoice:");
-            if (email && email.includes("@")) {
-                state.customer.email = email;
-            } else if (email !== null) {
-                alert("Invalid email.");
-                return;
-            } else { return; }
-        }
-        state.emailRequested = true;
-        render();
-    }
-
-    function adminOverride() { if(prompt("Password:") === "Yankees1") { state.overrideActive = true; alert("Override Active"); render(); } }
-    
-    function updateCart(n, p, q, m) {
-        const idx = state.cart.findIndex(i => i.name === n);
-        const qty = Math.max(0, parseInt(q) || 0);
-        if (idx > -1) state.cart[idx].qty = qty;
-        else state.cart.push({name: n, price: p, qty: qty, max: m});
-        updateBar();
-    }
-    
     function updateBar() {
         const t = calculate();
         document.getElementById("live-total").innerText = "$" + t.final.toFixed(2);
-        const err = document.getElementById("stock-error");
-        const btn = document.getElementById("review-btn");
-        if (t.overStock) { err.style.display = "block"; btn.disabled = true; btn.style.opacity = "0.5"; }
-        else { err.style.display = "none"; btn.disabled = false; btn.style.opacity = "1"; }
+        document.getElementById("stock-error").style.display = t.overStock ? "block" : "none";
+        document.getElementById("review-btn").disabled = t.overStock;
     }
-    
-    function goToReview() { if (!calculate().overStock) { state.step = 3; render(); } }
-    
+
     async function doSearch(v) {
         if (v.length < 2) return;
         const res = await fetch(`${API_URL}?q=${encodeURIComponent(v)}`);
         const data = await res.json();
         document.getElementById("results").innerHTML = data.results.map(c => `<div style="padding:15px; border-bottom:1px solid #eee; cursor:pointer;" onclick='selectCust(${JSON.stringify(c).replace(/'/g, "&apos;")})'><strong>${c.name}</strong></div>`).join("");
     }
-    
-    window.selectCust = (c) => { state.customer = c; state.step = 2; render(); };
-    function getQty(n) { return state.cart.find(c => c.name === n)?.qty || 0; }
-    
-    async function submitOrder() {
-        const btn = document.getElementById("final-submit");
-        btn.disabled = true;
-        btn.innerText = "Processing...";
-        
-        const payload = {
-            ...state,
-            totals: calculate(),
-            subject: `Suburban Brewing Company Order - ${state.customer.name}`,
-            emailRequested: state.emailRequested
-        };
 
-        try {
-            await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
-            alert("Order Submitted! Invoice is in the body and attached as a PDF.");
-            location.reload();
-        } catch (e) {
-            alert("Submission error. Check connection.");
-            btn.disabled = false;
-            btn.innerText = "Submit Final Order";
-        }
+    function handleEmailRequest() {
+        if (!state.customer.email) state.customer.email = prompt("Enter Client Email:");
+        state.emailRequested = true;
+        render();
     }
+
+    window.selectCust = (c) => { state.customer = c; state.step = 2; render(); };
+    function goToReview() { state.step = 3; render(); }
+
+    async function submitOrder() {
+        const payload = { ...state, subject: `Suburban Brewing Company Order - ${state.customer.name}` };
+        await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+        alert("Order Received!");
+        location.reload();
+    }
+
     init();
 </script>
 </body>
